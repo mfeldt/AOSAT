@@ -1,8 +1,7 @@
-.. image:: ./img/aosat_logo.png
-   :width: 100px
 <p align="center">
   <img src="./img/aosat_logo.png" width="350" title="AOSAT">
 </p>
+
 Adaptive Optics Simulation Analysis Tool
 
 
