@@ -1,6 +1,6 @@
 <img src="/img/aosat_logo.png" />
 
-<img src="/docs/logo.png" alt="Koa middleware framework for nodejs"/>
+<img src="/img/aosat_logo.png" alt="Koa middleware framework for nodejs"/>
 
 Adaptive Optics Simulation Analysis Tool
 
