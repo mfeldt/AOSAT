@@ -1,6 +1,4 @@
-=====
-AOSAT
-=====
+.. image:: ./img/aosat_logo.png
 
 
 Adaptive Optics Simulation Analysis Tool
