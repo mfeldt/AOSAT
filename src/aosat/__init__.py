@@ -9,3 +9,24 @@ except DistributionNotFound:
     __version__ = 'unknown'
 finally:
     del get_distribution, DistributionNotFound
+
+__all__ = ["aosat_cfg","fftx","frameserver","analyze"]
+
+#import aosat_cfg
+
+import logging, logging.config
+
+
+
+
+from . import aosat_cfg
+
+repdict = aosat_cfg.configure(None)
+aosat_cfg.configureLogging(repdict)
+logging.config.dictConfig(aosat_cfg.LOG_SETTINGS)
+logger = logging.getLogger(__name__)
+logger.debug('Completed configuring logger()!')
+
+from . import fftx
+from . import frameserver
+from . import analyze

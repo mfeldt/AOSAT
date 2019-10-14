@@ -1,16 +1,15 @@
 =====
-aosat
+AOSAT
 =====
 
 
-Add a short description here!
+Adaptive Optics Simulation Analysis Tool
 
 
 Description
 ===========
 
-A longer description of your project goes here...
-
+Extensive analysis of sets of residual wavefront phasescreens as output by many adaptive optics simulation tools
 
 Note
 ====
