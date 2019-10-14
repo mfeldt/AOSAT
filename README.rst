@@ -1,5 +1,5 @@
 .. image:: ./img/aosat_logo.png
-
+   :width: 100px
 
 Adaptive Optics Simulation Analysis Tool
 
