@@ -12,11 +12,12 @@ fpars = collections.OrderedDict([('an_lambda',     3e-6),  # analysis wavelength
                                  ('pup_diam',      37.0),  # pupil diameter in metres
                                  ('L0',            25.0),  # outer scale in metres
                                  ('crad',          700.0),  # AO control radius [mas]
-                                 ('zterms',        200),    # number of Zernike terms for decomposition
+                                 ('zterms',        20),    # number of Zernike terms for decomposition
                                  ('aosat_logfile',   'aosat.log'),  # log file
                                  ('aosat_loglevel',  'DEBUG'),      # log level
                                  ('aosat_fft_forcenumpy',  True),   # force usage of numpy FFTs
                                  ('setup_path','.'),                # path to setup file
+                                 ('pupilmask','examples/ExampleAnalyze/yao_pupil.fits'),
         ])
 
 

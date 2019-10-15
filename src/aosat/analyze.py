@@ -20,6 +20,179 @@ import matplotlib.image as mpimg
 import logging
 logger = logging.getLogger(__name__)
 
+class dmy_analyzer():
+    """Dummy analyzer.
+
+    Analyzers do the actual analysis of residual wavefronts. The concept of AOSAT is
+    to have one analyzer for each analysis task.  Analyzers are generally constructed,
+    then they are fed frames one by one, followed by a 'finalize' stage.  After the
+    analysis is completed, the 'make_report' and 'make_plot' methods supply the relevant
+    information.
+
+    This is a dummy class with no actually functionality for ocumentation purposes.
+    It might be used to derive subclasses, but these can also be written independently.
+
+    All analyzers should provide the methods of this one, and all methods
+    should accept the aparemters of the ones implemented here,  Accepting
+    additional optional parameters is fine, but not supplying those should not imply
+    fatal behaviour.
+
+
+
+    Parameters
+    ----------
+    sd : setup dictionary
+        created by setup()
+
+    Attributes
+    ----------
+
+    sd
+      the setup dictionary used for construction
+
+    Additional attributes may be available depending on the actual analysis performed.
+
+    """
+
+    def __init__(self,sd):
+        """Construct the analyzer
+
+        Parameters
+        ----------
+        sd : setup dictionary
+            created by setup()
+
+        Returns
+        -------
+        nothing
+
+        Examples
+        -------
+
+        >>> sd = setup()
+        >>> dan = dmy_analyzer(sd)
+
+
+        """
+        self.sd = sd
+
+    def feed_frame(self,frame):
+        """Accept a single frame for analysis
+
+
+
+        Parameters
+        ----------
+        frame : 2D residual wavefront
+            residual wavefront of a single timestep of the AO simulation.
+            These residual WF frames are fed one by one, calculations should
+            take into account this circumstance.
+
+
+        Returns
+        -------
+        nothing
+
+        Examples
+        -------
+
+        >>> sd = setup()
+        >>> dan = dmy_analyzer(sd)
+        >>> rf  = np.zeros((1024,1024))
+        >>> dan.feed_frame(rf)
+
+
+        """
+        pass
+
+
+    def finalize(self):
+        """Finish the analysis
+
+        To be called after the last frame has been fed to execute
+        final calculations
+
+        Parameters
+        ----------
+        none
+
+        Returns
+        -------
+        nothing
+
+        Examples
+        -------
+
+        >>> sd=setup()
+        >>> dan = dmy_analyzer(sd)
+        >>> rf = np.zeros((1024,1024))
+        >>> dan.feed_frame(rf)
+        >>> dan.finalize()
+        """
+        pass
+
+    def make_report(self):
+        """Generate a report about the result.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        report
+            String containing the report
+
+        Examples
+        -------
+
+        >>> sd=setup()
+        >>> dan = dmy_analyzer(sd)
+        >>> rf = np.zeros((1024,1024))
+        >>> dan.feed_frame(rf)
+        >>> dan.finalize()
+        >>> dan.make_report()
+        'This is a dummy with no actuctual functionality'
+        """
+        report = "This is a dummy with no actuctual functionality"
+        return(report)
+
+    def make_plot(self,fig=None,index='111',plotkwargs={},subplotkwargs={}):
+        """Generate a plot about the result.
+
+        Parameters
+        ----------
+        fig : matplolib figure
+            If a figure pre-exists to which the plot should be attached,
+            this should be provided.
+        index : matplotlib subplot index code.
+            If a pre-existing figure is supplied, this must be the index of the subplots
+            to be attached to the figure. (the default is '111').
+        plotkwargs : dictionary
+            Keyword arguments supplied to the actual plot command (the default is {}).
+        subplotkwargs : type
+            Keyword arguments supplied to the add_subplot command (the default is {}).
+
+        Returns
+        -------
+        matplotlib figure instance
+            Either the pre-existing one with an attached subplot, or newly created
+
+        Examples
+        -------
+
+        >>> sd=setup()
+        >>> dan = dmy_analyzer(sd)
+        >>> rf = np.zeros((1024,1024))
+        >>> dan.feed_frame(rf)
+        >>> dan.finalize()
+        >>> rplot = dan.make_plot()
+
+
+        """
+        fig=plt.figure()
+        return(fig)
+
 
 class tvc_analyzer():
     """Short summary.
@@ -43,6 +216,8 @@ class tvc_analyzer():
 
     Attributes
     ----------
+    available after 'finalize'
+
     variance : 2D array
         variance of the PSF
     contrast : 2D array
@@ -153,6 +328,18 @@ class tvc_analyzer():
 
 
 def getFontProperties():
+    """Helper function.
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    -------
+    font
+        fonr for matplotlib
+
+    """
     font0 = FontProperties()
     font = font0.copy()
     font.set_family('monospace')
@@ -160,88 +347,43 @@ def getFontProperties():
     return(font)
 
 
-def assignMaskFromStringOrValue(sd,keyword,defval=0.0):
-    """Assigns a setup dictionary keyword with a vale
-    (if defval is a number) or a mask read from a FITS file
-    (if defval is a string)
+
+
+def setup():
+    """Set up an analysis run
 
     Parameters
     ----------
-    sd : setup dictionary
+    none.
 
-    keyword : the keyword in the dictionary to define/overwrite
-        Description of parameter `keyword`.
-    defval : string or number
-        If it is a string will be interpreted as the name of FITS file
-        that contains the mask that will be assigned as value to the key.
-        If it is an umber, it will be assigned directly (the default is 0.0).
+    Relevant settings are taken from the config settings.
+    In particular the following parameters are sued:
 
-    Returns
-    -------
-    type
-        swetup dictionary with key/value-pair set.
-    Examples
-    -------
 
-    >>> sd={}
-    >>> sd = assignMaskFromStringOrValue(sd,'Pupil')
-    >>> sd['Pupil']
-    0.0
+    CFG_SETTINGS['pupilmask']
+        Path to FITS file containing the telescope aperture,
+        relative to the path to the config file itself
 
-    """
-    if keyword in aosat_cfg.CFG_SETTINGS:
-        if type(keyword) == str:
-            logger.info("Reading mask %s from %s!" % (keyword,os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS[keyword])))
-            sd[keyword] = pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS[keyword]))
-        else:
-            sd[keyword] = aosaot_cfg.CFG_SETTINGS[keyword]*1.0
-    else:
-        sd[keyword] = sd['tel_mirror']*0.0+defval
-    return(sd)
+    CFG_SETTINGS['ppm']
+        float giving th epixels per metre in the aperture plane
 
-def setupC2(sd):
-    """Generate a Lyot coronagraph with 2l/D
+    CFG_SETTINGS['an_lambda']
+        analysis wavelength in metres
 
-    Parameters
-    ----------
-    sd : setup dictionary
+    CFG_SETTINGS['zterms']
+        int giving the number of zernike terms to analyze
 
 
     Returns
     -------
     setup dictionary
-
-
+        Dictionary describing the analysis to be performed
     Examples
     -------
-    Examples should be written in doctest format, and
-    should illustrate how to use the function/class.
-    >>> sd = {'tel_mirror':1.0}
-    >>> sd = setupC2(sd)
-    >>> sd['c2_pp1_phase']
-    0.0
 
+    >>> sd=setup()
 
     """
-
-    sd = assignMaskFromStringOrValue(sd,"c2_pp1_ampl",defval=1.0)
-    sd = assignMaskFromStringOrValue(sd,"c2_pp1_phase",defval=0.0)
-    sd = assignMaskFromStringOrValue(sd,"c2_fs_ampl",defval=0.0)
-    if sd['c2_fs_ampl'].sum()==0:
-        # make a 2l/D field stop
-        x, y     = np.mgrid[-sd['sdim']/2:sd['sdim']/2,-sd['sdim']/2:sd['sdim']/2]
-        r        = np.sqrt(x**2+y**2)
-        sd['c2_fs_ampl'] = 1- (r*sd['aspp'] < 2*sd['dl'])*1.0 # coronagraph mask
-    sd = assignMaskFromStringOrValue(sd,"c2_fs_phase",defval=0.0)
-    sd = assignMaskFromStringOrValue(sd,"c2_ls_ampl",defval=0.0)
-    if sd['c2_ls_ampl'].sum()==0:
-        sd['c2_ls_ampl'] = sd['tel_mirror'] * 1.0 # Lyot stop equal to aperture
-    sd = assignMaskFromStringOrValue(sd,"c2_ls_phase",defval=0.0)
-
-    return(sd)
-
-
-def setup():
     logger.info("Setting up analysis...")
     setup_dict = {}
 
@@ -265,9 +407,8 @@ def setup():
     setup_dict['cfg']           = aosat_cfg.CFG_SETTINGS
     setup_dict['ppm']           = aosat_cfg.CFG_SETTINGS['ppm'] # pix per metre
     setup_dict['aspp']          = aosat_cfg.CFG_SETTINGS['ppm']*3600/(np.pi/180.0)/setup_dict['sdim'] *aosat_cfg.CFG_SETTINGS['an_lambda'] # arc sec per pix
-    setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/setup_dict['pupildiam']*3600*180/np.pi # diffraction limit
+    setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/(setup_dict['pupildiam']/setup_dict['ppm'])*3600*180/np.pi # diffraction limit
 
-    setup_dict = setupC2(setup_dict)
 
     x, y     = np.mgrid[-setup_dict['sdim']/2:setup_dict['sdim']/2,-setup_dict['sdim']/2:setup_dict['sdim']/2]/setup_dict['ppm']
     setup_dict['wtrk']          = np.where((setup_dict['tel_mirror'] != 0 ) * ((x-x.astype(int)) ==0) * ((y-y.astype(int))==0))
@@ -279,23 +420,22 @@ def setup():
 
     return(setup_dict)
 
-def initResult(sd,n):
-    result_dict = {}
-    result_dict['psf_avg'] = sd['tel_mirror']*0.0
-    result_dict['psf_var'] = sd['tel_mirror']*0.0
-    result_dict['psf_corop_avg'] = sd['tel_mirror']*0.0
-    result_dict['psf_corop_var'] = sd['tel_mirror']*0.0
-    result_dict['psf_coro2_avg'] = sd['tel_mirror']*0.0
-    result_dict['psf_coro2_var'] = sd['tel_mirror']*0.0
-    result_dict['ampl_track']    = np.zeros((len(sd['wtrk'][0]),n,3),dtype=np.complex128)
-    result_dict['tt_track']      = np.zeros((n,2))
-    result_dict['zernike_track']  = np.zeros((n,sd['zernike_basis'].shape[0]))
-    result_dict['piston_track']   = np.zeros((n,np.max(sd['fragmask'])))
-    result_dict['power_spectrum'] = np.zeros(int(sd['sdim']/2),dtype=np.float64)
-
-    return(result_dict)
 
 def makeTearsheetFigure(analyzers):
+    """Helper function generating the tearsheet figure
+
+    Parameters
+    ----------
+    analyzers : type
+        A list of analyzers to be executed and then
+        called one by one to produce a plot on a "tearsheet".
+
+
+    Returns
+    -------
+    none
+
+    """
     num_plots  = len(analyzers)
     num_pages  = int(num_plots/6)+1
     logger.debug("Preparing %s plots on %s pages!" % (num_plots,num_pages))
@@ -311,7 +451,7 @@ def makeTearsheetFigure(analyzers):
             ax.yaxis.label.set_size(8)
             ax.xaxis.label.set_size(8)
         font = getFontProperties()
-        logo = mpimg.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)),'aosat_logo.png'))
+        logo = mpimg.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)),'img','aosat_logo.png'))
 
         alignment = {'horizontalalignment': 'left', 'verticalalignment': 'center'}
         f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6))
@@ -354,6 +494,25 @@ def makeTearsheetFigure(analyzers):
         ##
 
 def makeTearsheetReport(analyzers):
+    """Helper function to generate a textual report
+    of the tearsheet
+
+
+    Parameters
+    ----------
+    analyzers : list of analyzers
+        Executed and then called one by one to produce the
+        report.
+
+
+    Returns
+    -------
+    nothing
+
+
+
+    """
+
     filename = aosat_cfg.CFG_SETTINGS["ts_basefilename"]+".txt"
 
     report = ""
@@ -372,6 +531,28 @@ def makeTearsheetReport(analyzers):
 
 
 def run(analyzers):
+    """Run the analysis using a set of Analyzers.
+
+    All frames of residual wavefronts are served to each
+    analyzer one by one. When finished, the 'finalize()'
+    method of each analyzer is calledself.
+
+    Thus, all analyzers should contain the relvant informative
+    attributes upon completion, and be ready to have the
+    'make_report()' and 'make_plot()' methods called.
+
+
+    Parameters
+    ----------
+    analyzers : list of analyzers
+
+
+    Returns
+    -------
+    nothing
+
+
+    """
 
 
     fs = frameserver.frameServer()
@@ -390,12 +571,42 @@ def run(analyzers):
     for analyzer in analyzers:
         analyzer.finalize()
 
-def tearsheet(setup_file):
+def tearsheet(config_file):
+    """Generate a 'tearsheet', i.e. a collection
+    of informative plots for a simulation
+
+    Parameters
+    ----------
+    config_file : string
+        (Full path to) configuration file for the analysisself.
+        In addition to the standard descriptive parameters, tearsheet
+        evaluates the following:
+
+        ts_basefilename  - base filename for the plot and report file.
+                           If it contains path information, it's relative
+                           to the config file!
+
+        ts_title         - title of the tearsheet written on topself.
+
+        A copy of the config file's content is printed in the first
+        plot space on the tearsheet. So in pronciple you can add more
+        parameters than are being evaluated!
+
+    Returns
+    -------
+    nothing.
+
+    Examples
+    -------
+
+    >>> tearsheet('examples/example_analyze.setup')
+
+    """
 
     ##
     ## prepare config
     ##
-    aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(setup_file)
+    aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
     reload(fftx)
 
     ##
@@ -414,3 +625,9 @@ def tearsheet(setup_file):
     ##
     makeTearsheetFigure(analyzers)
     makeTearsheetReport(analyzers)
+
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(verbose=True, optionflags=doctest.ELLIPSIS)
