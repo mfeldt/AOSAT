@@ -10,22 +10,36 @@ Description
 Extensive analysis of sets of residual wavefront phasescreens as output by many adaptive optics simulation tools
 
 
-Anleitung für Horst:
+Installing while still in development:
 ====================
 
-* erstelle eine brandneue virtuelle Umgebung für Python >=3.6
-* Klone das Repository
-* Versuche python setup.py install
-* versuche "import aosat"
+1. Make a new empty directory, e.g. like this:
+```
+mkdir AOSAT
+cd AOSAT
+```
 
-Fortgeschrittener Versuch:
---------------------------
+2. Clone the repository
+```
+git clone https://github.com/mfeldt/AOSAT.git
+```
 
-* installiere reikna und pyopencl auf einem geeigneten Rechner
-* Editiere aosat_cfg.py, Zeile 18 auf "False"
-* Neuer Versuch mit "import aosat"
+3. Create and activate a virtual environment
+```
+virtualenv -p python3.6 venv
+source venv/bin/activate
+```
+(This assumes using bash, theres also venv/bin/activate.csh and a few others)
 
-Neuer Tearsheet
+4. Change to the reporsitory and install:
+```
+cd AOSAT
+python setup.py install
+```
+
+That's it, python should install th epackage and all required dependencies!
+
+New Tearsheet
 ---------------
 * mehr Doku folgt ab morgen
 
