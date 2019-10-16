@@ -24,14 +24,14 @@ cd AOSAT
 git clone https://github.com/mfeldt/AOSAT.git
 ```
 
-3. Create and activate a virtual environment
+3. Create and activate a virtual environment (if you don't know/have virtualenv, use pip to install it)
 ```
 virtualenv -p python3.6 venv
 source venv/bin/activate
 ```
 (This assumes using bash, theres also venv/bin/activate.csh and a few others)
 
-4. Change to the reporsitory and install:
+4. Change to the repository and install:
 ```
 cd AOSAT
 python setup.py install
