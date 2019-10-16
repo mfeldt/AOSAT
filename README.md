@@ -1,4 +1,4 @@
-<img src="/img/aosat_logo.png" width="350px"/>
+<img src="/src/aosat/img/aosat_logo.png" width="350px"/>
 
 
 Adaptive Optics Simulation Analysis Tool
