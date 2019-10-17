@@ -37,12 +37,12 @@ cd AOSAT
 python setup.py install
 ```
 
-That's it, python should install th epackage and all required dependencies!
+That's it, python should install the package and all required dependencies!
 
 Verifying the installation:
 ===========================
 
-While still verifying that th einstallation is fine, you can do the following:
+While still verifying that the installation is fine, you can do the following:
 
 1. run the test suite
 ```
@@ -57,7 +57,7 @@ python aosat_cfg.py
 python util.py
 python analyze.py
 ```
-Ideally everything should terminate without failures. Beware it may take awhile.
+Ideally everything should terminate without failures. Beware it may take a while.
 
 
 New Tearsheet:
@@ -82,15 +82,16 @@ ts_basefilename = 'ts_test'              # if path contained, it's relative to *
 ts_title        = 'Example TS'
 ```
 
-This is essentially modeled after the olf "report" files from simmetis_tearsheet.
+This is essentially modeled after the old "report" files from simmetis_tearsheet.
 The primary information to make a tearsheet should be clear from this example.
 The screen_fpattern should allow to find all phasesecreen files, each must carry a unique number
 in the filename, they will be sorted numerically whatever the number format.
 Files can contain multiple screens along NAXIS3.
 
-Everything lese in the setup file should of course fit the format of these files!
+Everything else in the setup file should of course fit the format of these files!
 
-To run a tearsheet of you rown, prepare a file with the above content, and run in a python shell:
+To run a tearsheet of your own, prepare a file with content similar to the above (but matching
+your circumstances), and run in a python shell:
 ```
 import aosat
 aosat.analyze.tearsheet('path/to/mysetupfile')
