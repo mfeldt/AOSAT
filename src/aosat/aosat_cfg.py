@@ -169,10 +169,13 @@ def repString(repdict,prefix = ''):
     rep_string=''
     maxklen    = max(map(len, repdict.keys()))
     for key,val in repdict.items():
+        try:
             newline = prefix + '{:>{width}}'.format(key,width=maxklen)+' : '+ ("%s" % val)+"\n"
-            if len(newline)>50:
-                newline = newline[:50]+"...\n"
-            rep_string += newline
+        except:
+            newline = prefix + '{:>{width}}'.format(key,width=maxklen)+' : '+ ("type %s" % str(type(val)))+"\n"
+        if len(newline)>70:
+            newline = newline[:70]+"...\n"
+        rep_string += newline
     return(rep_string)
 
 

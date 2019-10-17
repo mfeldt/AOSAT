@@ -249,7 +249,8 @@ class tvc_analyzer():
     def feed_frame(self,frame):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
         this_strehl   = np.exp(-1*np.std(frame[self.sd['wnz']])**2) ## remember: Frames are in radians!
-        frame_dev = fftx.FFTprepare(in_field- (this_strehl**0.5)*self.sd['tel_mirror']*(self.ctype=='icor'))
+        logger.debug("Found Strehl ratio: %s" % this_strehl)
+        frame_dev = fftx.FFTprepare(in_field- (this_strehl**0.5)*self.sd['tel_mirror']*int(self.ctype=='icor'))
         fftframe  = fftx.FFTshift(fftx.FFTforward(self.sd['fft_plan'],self.sd['fft_out'],frame_dev))
         psf       = np.abs(fftframe)**2
         if self.ctype =='icor':
@@ -284,11 +285,16 @@ class tvc_analyzer():
         if 'yscale' not in subplotkwargs:
             subplotkwargs['yscale'] = 'log'
 
-        ax = fig.add_subplot(index,**subplotkwargs)
+        ##
+        ##  create (only) subplot
+        ##
+        logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
+        ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
         ax.fill_between(self.rvec,self.cvecmin,self.cvecmax,alpha=0.15,**plotkwargs)
         ax.plot(self.rvec,self.cvecmean,**plotkwargs)
         ax.text(0.5,0.95,'No photon noise,',transform=ax.transAxes,size=6,ha='left')
         ax.text(0.5,0.9,'due to PSF variation only!',transform=ax.transAxes,size=6,ha='left')
+        return(fig)
 
     def make_report(self):
 
@@ -309,9 +315,11 @@ class tvc_analyzer():
         return(report)
 
     def finalize(self):
+
         variance      = self.variance[2]/self.variance[0]
         sigma         = variance**0.5
-        self.contrast = 5*sigma/np.max(self.variance[1]*int(self.ctype=='raw')+self.variance2[1]*int(self.ctype=='icor'))
+
+        self.contrast = 5*sigma/np.max(self.variance[1]*int(self.ctype == 'raw') + self.variance2[1]*int(self.ctype=='icor'))
 
         r,pixels,rord = util.rad_order(self.contrast)
 
@@ -321,8 +329,6 @@ class tvc_analyzer():
         self.cvecmin  = c.rolling(window=50).min()
         self.cvecmax  = c.rolling(window=50).max()
 
-        self.make_report()
-        self.make_plot()
 
 
 
@@ -420,6 +426,12 @@ def setup():
 
     return(setup_dict)
 
+def sizeTearsheetLabels(f):
+    ca = f.gca()
+    ca.tick_params(axis='both', which='major', labelsize=6)
+    ca.tick_params(axis='both', which='minor', labelsize=5)
+    ca.yaxis.label.set_size(8)
+    ca.xaxis.label.set_size(8)
 
 def makeTearsheetFigure(analyzers):
     """Helper function generating the tearsheet figure
@@ -444,23 +456,20 @@ def makeTearsheetFigure(analyzers):
     filename = aosat_cfg.CFG_SETTINGS["ts_basefilename"]+".pdf"
     with PdfPages(filename) as pdf:
 
-        f, axarr = plt.subplots(3,2, figsize=(8.27,11.69))
-        for ax in axarr.flatten():
-            ax.tick_params(axis='both', which='major', labelsize=6)
-            ax.tick_params(axis='both', which='minor', labelsize=5)
-            ax.yaxis.label.set_size(8)
-            ax.xaxis.label.set_size(8)
+        f =plt.figure(figsize=(8.27,11.69))
+
         font = getFontProperties()
         logo = mpimg.imread(os.path.join(os.path.dirname(os.path.abspath(__file__)),'img','aosat_logo.png'))
 
         alignment = {'horizontalalignment': 'left', 'verticalalignment': 'center'}
-        f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6))
+
         ##
         ## fundamental data
         ##
-        c_axarr = axarr[0,0]
+        c_axarr = f.add_subplot('321')#axarr[0,0]
+        sizeTearsheetLabels(f)
         c_axarr.axis('off')
-        c_axarr.text(0,0.7,"CONFIG DATA:\n"+aosat_cfg.CFG_SETTINGS['ts_title']+"\n\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS),fontproperties=font,transform=axarr[0,0].transAxes,**alignment)
+        c_axarr.text(0,0.7,"CONFIG DATA:\n"+aosat_cfg.CFG_SETTINGS['ts_title']+"\n\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS),fontproperties=font,transform=c_axarr.transAxes,**alignment)
         c_axarr.imshow(logo,alpha=0.2,zorder=1)
         ##
         ## plot result of all analyzers
@@ -470,25 +479,24 @@ def makeTearsheetFigure(analyzers):
                 ##
                 ## new page
                 ##
+                f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6))
                 plt.tight_layout()
                 pdf.savefig(f)
                 plt.close()
                 plt.clf()
-                f, axarr = plt.subplots(3,2, figsize=(8.27,11.69))
-                for ax in axarr.flatten():
-                    ax.tick_params(axis='both', which='major', labelsize=6)
-                    ax.tick_params(axis='both', which='minor', labelsize=5)
-                    ax.yaxis.label.set_size(8)
-                    ax.xaxis.label.set_size(8)
+                f = plt.figure(figsize=(8.27,11.69))
 
             ppage = plots_done % 6
-            index = '32'+str(int(ppage)+1)
+            index = int('32'+str(int(ppage)+1))
             logger.debug("Plots on page:     %s"% ppage)
             logger.debug("Plots done so far: %s"% plots_done)
             logger.debug("Current index:     %s" % index)
-
-            dummy = analyzers[plots_done-1].make_plot(fig=f,index=index)
+            skwa={}
+            f = analyzers[plots_done-1].make_plot(fig=f,index=index,subplotkwargs=skwa)
+            sizeTearsheetLabels(f)
             plots_done +=1
+        f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6),y=1.0)
+        plt.tight_layout()
         pdf.savefig(f)
         plt.close()
         ##
@@ -607,17 +615,19 @@ def tearsheet(config_file):
     ## prepare config
     ##
     aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
+    logger.debug("\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS))
     reload(fftx)
 
     ##
     ## set up analysis
     ##
     sd=setup()
+    logger.debug("\n"+aosat_cfg.repString(sd))
 
     ##
     ## add all available analyzers, tzhen run
     ##
-    analyzers=[tvc_analyzer(sd), tvc_analyzer(sd,ctype='icor')]
+    analyzers=[tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
     run(analyzers)
 
     ##

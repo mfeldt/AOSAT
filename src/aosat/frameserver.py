@@ -186,7 +186,7 @@ def frameServer():
     for i in range(len(file_list)):
         perc_done = frames_served / totalnumber
         if perc_done >= next_step:
-            logger.info("Serving from file %s, %s%% done! %s" % (os.path.basename(file_list[i]),perc_done*100,   '#'*int(30*perc_done)))
+            logger.debug("Serving from file %s, %s%% done! %s" % (os.path.basename(file_list[i]),perc_done*100,   '#'*int(30*perc_done)))
             next_step += 0.0333
         if this_frame_num >= start_frame_index[i] and this_frame_num < (start_frame_index[i] + num_frames_in_file[i]) and frames_served < totalnumber:
             logger.debug("Reading file %s, start index is %s, number of frames in file is %s!" % (file_list[i],start_frame_index[i],num_frames_in_file[i]))

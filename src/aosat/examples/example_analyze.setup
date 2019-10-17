@@ -5,7 +5,7 @@ screen_dir      = "ExampleAnalyze"       # directory for phasescreens, realtive 
 phaseunit       = "micron"               # unit of phase screens
 skipstep        = 1                      # step between consecutive frames, 1=use all
 startskip       = 0                      # frames to skip before evaluation starts, 0= start from beginning
-an_lambda       = 1.0                    # analysis wavelength in micrometres
+an_lambda       = 1.0e-6                 # analysis wavelength in metres
 pupilmask       = 'ExampleAnalyze/yao_pupil.fits' # relative to this file!
 aosat_fft_forcenumpy = True
 ts_basefilename = 'ts_test'
