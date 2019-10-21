@@ -136,7 +136,7 @@ def frameServer():
     ## phase conversion factor
     ##
     logger.info("Phase screen unit is %s." % aosat_cfg.CFG_SETTINGS['phaseunit'])
-    pcf = getUnitCnv(units.Unit(aosat_cfg.CFG_SETTINGS['phaseunit']),an_lambda)
+    pcf = getUnitCnv(units.Unit(aosat_cfg.CFG_SETTINGS['phaseunit']),an_lambda*1e6)
 
     ##
     ## file list
