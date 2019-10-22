@@ -102,11 +102,11 @@ For the adventurous:
 ====================
 
 You can try to install a working openCL or CUDA environment on your machine, accompanied
-by either pyopencl or pycude, plus reikna.
+by either pyopencl (with pybin11) or pycuda, plus reikna.
 
-Then you can make config file with the content
+Then you can create a configuration file with the following contents
 ```
-aosat_fft_forcenumy = False
+aosat_fft_forcenumpy = False
 ```
 and read it with 
 ```
