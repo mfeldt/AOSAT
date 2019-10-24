@@ -575,8 +575,8 @@ def setup():
     setup_dict = {}
 
     setup_dict['tel_mirror'] = pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))
-    ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0)) + 1
-    ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0)) + 1
+    ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))
+    ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))
     setup_dict['pupildiam']  = max([ext_x,ext_y])
 
     logger.debug("Found pupil diameter of %s pixels" % setup_dict['pupildiam'])
@@ -604,8 +604,8 @@ def setup():
 
     logger.info("Making Zernike basis with %s terms ..." % aosat_cfg.CFG_SETTINGS['zterms'])
     setup_dict['zernike_basis'] = zernike.zernike_basis(nterms=aosat_cfg.CFG_SETTINGS['zterms'],npix=int(setup_dict['pupildiam']))
-    Zbase = setup_dict['zernike_basis']
-    logger.info("Zernike basis shape: %s" % (Zbase.shape,  ))
+
+
 
     return(setup_dict)
 
