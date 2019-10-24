@@ -13,9 +13,13 @@ from scipy import ndimage
 from poppy import zernike
 from importlib import reload
 
+import pdb
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
+from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 import matplotlib.image as mpimg
 
 from astropy.modeling import models, fitting
@@ -242,6 +246,7 @@ class psf_analyzer():
             self.sr_wf     = np.zeros(nframes)
             self.ttx       = np.zeros(nframes)
             self.tty       = np.zeros(nframes)
+            self.ttilt     = np.zeros(nframes)
             self.ttjit     = 0.0
             self.ttq90     = 0.0
             self.ttjit_psf = 0.0
@@ -257,13 +262,14 @@ class psf_analyzer():
         logger.debug("Found SR: %s"%self.sr_wf[self.ffed])
 
         ## mean PSF (and variance)
-        self.psf += psf
+        self.psf += psf/nframes
 
         logger.debug("Solving tilt...")
         ## tilt from WF
         C,_,_,_ = scipy.linalg.lstsq(self.A, frame[self.sd['wnz']])#/2/np.pi*self.sd['cfg']['an_lambda']) # frame in m
+        logger.debug("Constructing fitted WF")
         tphase = C[0]*self.x + C[1]*self.y + C[2]
-        self.ttilt[ffed] = np.max(tphase[self.sd['wnz']]) - np.min(tphase[self.sd['wnz']])
+        self.ttilt[self.ffed] = np.max(tphase[self.sd['wnz']]) - np.min(tphase[self.sd['wnz']])
 
         logger.debug("Fitting position...")
         ## tip and tilt from PSF fitted position
@@ -291,7 +297,7 @@ class psf_analyzer():
         report += "ttjit_psf = %s\n##\n" % self.ttq90_psf
         report += "## TT Q90 excursion from wavefront tilts:\n"
         report += "ttjit_wf = %s\n##\n" % self.ttq90
-
+        return(report)
 
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
 
@@ -302,21 +308,22 @@ class psf_analyzer():
         ## default appearance
         ##
         if 'xlabel' not in subplotkwargs:
-            subplotkwargs['xlabel'] = '$\delta$RA[mas]'
+            subplotkwargs['xlabel'] = r'$\delta$RA[mas]'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = '$\delta$DEC[mas]'
+            subplotkwargs['ylabel'] = r'$\delta$DEC[mas]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = 'PSF'
 
         # size of extraction area
-        plts = int(min([np.round(sd['crad']/1000.0*1.2/sd['aspp']/2.0)*2,self.sdim/2]))
+        plts = int(min([np.round(self.sd['crad']*1.2/self.sd['aspp']/2.0)*2,self.sdim/2]))
+        sd2 = int(self.sdim/2)
 
-        if 'map' not in plotkwargs:
-            plotkwargs['map'] = 'nipy_spectral'
+        if 'cmap' not in plotkwargs:
+            plotkwargs['cmap'] = 'nipy_spectral'
         if 'norm' not in plotkwargs:
             plotkwargs['norm'] = LogNorm(vmin=1e-7,vmax=0.5)
         if 'extent' not in plotkwargs:
-            plotkwargs['extent'] = [plts*sd['aspp']*1000,-plts*['aspp']*1000,-plts*sd['aspp']*1000,plts*sd['aspp']*1000]
+            plotkwargs['extent'] = [plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,plts*self.sd['aspp']*1000]
         if 'origin' not in plotkwargs:
             plotkwargs['origin'] = 'lower'
         ##
@@ -326,16 +333,16 @@ class psf_analyzer():
         logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
 
-        im = ax.imshow(psf[self.sdim/2-plts:self.sdim/2+plts,self.sdim/2-plts:self.sdim/2+plts]/np.max(psf),
-                           **plotkwargs)
+        #   pdb.set_trace()
+        im = ax.imshow(self.psf[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.psf), **plotkwargs)
 
         ## useful info
-        ax.text(0.7,0.9,'SR (PSF) = %.3f' % self.strehl,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.7,0.85,'SR (WF) = %.3f' % self.sr_wf,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.7,0.8,r'$\sigma_{tt}$(PSF) = %.3f mas' % self.ttjit_psf,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.7,0.75,r'$\sigma_{tt}$(WF) = %.3f mas' % self.ttjit,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.7,0.8,r'$\Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.7,0.75,r'$\Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.7,0.95,'SR (PSF) = %.3f' % self.strehl,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.7,0.9,'SR (WF) = %.3f' % self.sr_wf.mean(),transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.05,0.1,r'$\sigma_{tt}$(PSF) = %.3f mas' % self.ttjit_psf,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.05,0.05,r'$\sigma_{tt}$(WF) = %.3f mas' % self.ttjit,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.7,0.1,r'$Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.7,0.05,r'$Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
 
         ## color bar
         divider = make_axes_locatable(ax)
@@ -345,17 +352,16 @@ class psf_analyzer():
         t = [1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]
         cbar = plt.colorbar(im, cax=cax, ticks=t,label='Intensity')
 
-
+        return(fig)
 
 
     def finalize(self):
         frame_dev = fftx.FFTprepare(self.sd['tel_mirror']*np.exp(1j*0.0))
         fftframe  = fftx.FFTshift(fftx.FFTforward(self.sd['fft_plan'],self.sd['fft_out'],frame_dev))
-        psf_ref   = np.abs(tfftframe)**2
+        psf_ref   = np.abs(fftframe)**2
         logger.debug("Max of reference PSF: %s" % np.max(psf_ref))
-        logger.debug("Max of measured PSF:  %s" % np.max(self.variance[1]))
-        self.psf_mean = self.psf/self.ffed
-        self.strehl   = np.max(self.psf_mean)/np.max(psf_ref)
+        logger.debug("Max of measured PSF:  %s" % np.max(self.psf))
+        self.strehl   = np.max(self.psf)/np.max(psf_ref)
 
         ttmas = self.ttilt/(37.0)/np.pi*180.0*3600.0*1000.0
 
@@ -578,7 +584,7 @@ def setup():
     setup_dict['sdim']          = setup_dict['tel_mirror'].shape[0] # always needs to be squared...
     setup_dict['divpm']         = setup_dict['tel_mirror'] * 1.0
     setup_dict['divpm'][np.where(setup_dict['tel_mirror'] == 0.0)] = 1.0 # pupil mask for division if necessary
-    setup_dict['wnz']           = np.where(setup_dict['tel_mirror'] != 0.0)[0]
+    setup_dict['wnz']           = np.where(setup_dict['tel_mirror'] != 0.0)
     setup_dict['fragmask']      = ndimage.label(setup_dict['tel_mirror']>1e-6)[0]
 
     logger.debug("Found %s independent pupil fragments." % np.max(setup_dict['fragmask']))
@@ -588,6 +594,8 @@ def setup():
     setup_dict['cfg']           = aosat_cfg.CFG_SETTINGS
     setup_dict['ppm']           = aosat_cfg.CFG_SETTINGS['ppm'] # pix per metre
     setup_dict['aspp']          = aosat_cfg.CFG_SETTINGS['ppm']*3600/(np.pi/180.0)/setup_dict['sdim'] *aosat_cfg.CFG_SETTINGS['an_lambda'] # arc sec per pix
+    setup_dict['crad']          = aosat_cfg.CFG_SETTINGS['an_lambda']/(5.0/setup_dict['ppm'])/np.pi*180*3600 # estimate of control radius assuming
+                                                                                                             # a sampling of 5 pixels per actuator, in arc sec
     setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/(setup_dict['pupildiam']/setup_dict['ppm'])*3600*180/np.pi # diffraction limit
 
 
