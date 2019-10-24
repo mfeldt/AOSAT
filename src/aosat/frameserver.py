@@ -46,7 +46,7 @@ def sortFiles(file_list):
 def getUnitCnv(sunit,an_lambda):
     """Helper function for unit conversion
     """
-    angle_length = [(units.micron, units.rad, lambda x: x/(an_lambda*units.micron)*2*np.pi , lambda x: x / 2/np.pi*units.micron)]
+    angle_length = [(units.micron, units.rad, lambda x: x/(an_lambda/1.E-6)*2*np.pi , lambda x: x / 2/np.pi*units.micron)]
     pcf = (1.0*sunit).to(units.rad,equivalencies = angle_length)
     logger.debug("Phase conversion factor to radians is %s." % pcf)
     return(pcf.value)
@@ -77,7 +77,7 @@ def frameServer():
     CFG_SETTINGS['phaseunit']
         Unit of the residual phases stored in the fits files.
         Must be an astropy.units.Unit() readable string for an angle
-        or a length unit. Phase screens are always converted to radius
+        or a length unit. Phase screens are always converted to radians
         vi an_lambda!
     CFG_SETTINGS['setup_path']
         Path to the setup file used last for configuration. Defaults
@@ -175,7 +175,7 @@ def frameServer():
             totalnumber=total_num
     else:
         totalnumber = total_num
-    logger.info("Found %s residual phase creens, serving screen %s to %s in steps of %s!" % (total_num, startskip+1, startskip+totalnumber*skipstep,skipstep ))
+    logger.info("Found %s residual phase screens, serving screen %s to %s in steps of %s!" % (total_num, startskip+1, startskip+totalnumber*skipstep,skipstep ))
 
     ##
     ## read and serve the frames
@@ -203,6 +203,7 @@ def frameServer():
                 this_index = this_frame_num - start_frame_index[i]
                 frames_served += 1
                 yield(frame,frames_served,totalnumber)
+
     return
 
 

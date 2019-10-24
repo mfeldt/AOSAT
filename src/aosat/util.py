@@ -17,7 +17,12 @@ def printProgressBar (logger,iteration, total, prefix = '', suffix = '', decimal
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
     """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+
+    xxxdot = 3
+    if decimals >= 1:
+      xxxdot = 4 + decimals
+
+    percent = ("{0:" + str(xxxdot) +"." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
     logger.info("\r%s |%s| %s%% %s" % (prefix, bar, percent, suffix))
@@ -107,14 +112,14 @@ def rolling_variance(old,newValue):
     return (count, mean, M2)
 
 def zernike_basis(nterms,npix,tel_mirror):
-    """Generate a Zernike bais
+    """Generate a Zernike basis
 
     Parameters
     ----------
     nterms : int
         Number of basis functions to generate
     npix : int
-        Number of pixels in each screen (will be npix x xnpix)
+        Number of pixels in each screen (will be npix x npix)
     tel_mirror : 2D array
         Aperure mask representing the telescope mirror.
         If larger than npix x npix the central area will be used.
