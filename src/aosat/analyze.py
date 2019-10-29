@@ -790,7 +790,7 @@ def tearsheet(config_file):
     Examples
     -------
 
-    >>> tearsheet('examples/example_analyze.setup')
+    >>> tearsheet('examples/example_analyze_closed_loop.setup')
 
     """
 
