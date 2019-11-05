@@ -7,7 +7,7 @@ import collections
 import os
 
 
-fpars = collections.OrderedDict([('an_lambda',     3e-6),  # analysis wavelength in metres
+fpars = collections.OrderedDict([('an_lambda',     1e-6),  # analysis wavelength in metres
                                  ('ppm',           10.0),  # pixel per metre in pupil plane
                                  ('pup_diam',      37.0),  # pupil diameter in metres
                                  ('L0',            25.0),  # outer scale in metres
@@ -17,7 +17,7 @@ fpars = collections.OrderedDict([('an_lambda',     3e-6),  # analysis wavelength
                                  ('aosat_loglevel',  'DEBUG'),      # log level
                                  ('aosat_fft_forcenumpy',  True),   # force usage of numpy FFTs
                                  ('setup_path','.'),                # path to setup file
-                                 ('pupilmask','examples/ExampleAnalyze/yao_pupil.fits'),
+                                 ('pupilmask',os.path.join(os.path.dirname(__file__),'examples/ExampleAnalyze/yao_pupil.fits')),
         ])
 
 

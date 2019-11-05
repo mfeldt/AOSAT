@@ -41,12 +41,12 @@ def test_fs2():
 
 def test_uc():
     tunit     = units.Unit('m')
-    an_lambda = 3.0 # always in micron!
+    an_lambda = 3.0e-6 # always in metres!
     pcf = frameserver.getUnitCnv(tunit,an_lambda)
     assert pcf == 2094395.1023931953
 
 def test_uc2():
     tunit     = units.Unit('deg')
-    an_lambda = 3.0 # always in micron!
+    an_lambda = 3.0e-6 # always in metres!
     pcf = frameserver.getUnitCnv(tunit,an_lambda)
     assert pcf == 0.017453292519943295

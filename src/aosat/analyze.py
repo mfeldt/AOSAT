@@ -266,18 +266,17 @@ class psf_analyzer():
 
         logger.debug("Solving tilt...")
         ## tilt from WF
-        C,_,_,_ = scipy.linalg.lstsq(self.A, frame[self.sd['wnz']])#/2/np.pi*self.sd['cfg']['an_lambda']) # frame in m
+        C,_,_,_ = scipy.linalg.lstsq(self.A, frame[self.sd['wnz']])
         logger.debug("Constructing fitted WF")
-        tphase = C[0]*self.x + C[1]*self.y + C[2]
-        self.ttilt[self.ffed] = np.max(tphase[self.sd['wnz']]) - np.min(tphase[self.sd['wnz']])
-
+        tphase = (C[0]*self.x + C[1]*self.y + C[2])/2/np.pi*self.sd['cfg']['an_lambda'] # frame in m
+        self.ttilt[self.ffed] = (np.max(tphase[self.sd['wnz']]) - np.min(tphase[self.sd['wnz']]))/(self.sd['pupildiam']/self.sd['ppm'])/np.pi*180.0*3600.0 # arc sec
+        logger.debug("Found tilt of %s arc sec", self.ttilt[self.ffed])
         logger.debug("Fitting position...")
         ## tip and tilt from PSF fitted position
         result_lmf = self.lmf(self.M, self.xx, self.yy, psf[int(self.sdim/2-16):int(self.sdim/2+16),int(self.sdim/2-16):int(self.sdim/2+16)])
         self.ttx[self.ffed] = (result_lmf.x_mean - 16.0)*self.sd['aspp']
         self.tty[self.ffed] = (result_lmf.y_mean - 16.0)*self.sd['aspp']
-        logger.debug("Found tt excursion of %.3f, %.3f from PSF!"%(self.ttx[self.ffed],self.tty[self.ffed]))
-
+        logger.debug("Found tt excursion of %.3f, %.3f mas from PSF!"%(self.ttx[self.ffed]*1000,self.tty[self.ffed]*1000))
         self.ffed += 1
 
 
@@ -363,7 +362,7 @@ class psf_analyzer():
         logger.debug("Max of measured PSF:  %s" % np.max(self.psf))
         self.strehl   = np.max(self.psf)/np.max(psf_ref)
 
-        ttmas = self.ttilt/(37.0)/np.pi*180.0*3600.0*1000.0
+        ttmas = self.ttilt*1000.0
 
         self.ttjit = ((ttmas**2).sum()/len(ttmas))**0.5 # tip-tilt jitter in mas
         self.ttq90 = np.sort(ttmas)[int(len(ttmas)*0.9)]
