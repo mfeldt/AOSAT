@@ -97,6 +97,19 @@ import aosat
 aosat.analyze.tearsheet('path/to/mysetupfile')
 ```
 
+Editing / Changing Code:
+========================
+There is a unit test suite that can be run from the setup.py file:
+
+```
+python setup.py test
+```
+In addition to the tests already provided by running the individual modules like in no. 2 under installation,
+this performs a number of tests ensuring that the functionality, logic, and unit conversions of the code work correctly.
+
+So whenever you change something, make sure you don't break the tests! If you have to, because something was seriously wrong,
+think thrice and talk to someone about it!
+
 
 For the adventurous:
 ====================
