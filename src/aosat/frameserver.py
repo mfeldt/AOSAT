@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 def sortFiles(file_list):
     """Sort filenames accoring to inter numnber in every name
 
-    All filenames should contain one and only one integer,
-    a unique one for each file.
+    If filenames contain more than one integer, the last one
+    will be used for sorting!
     The list will be sorted according to these numbers in
     ascending order
 
@@ -37,7 +37,7 @@ def sortFiles(file_list):
     ...
 
     """
-    numlist = [int(re.search(r'\d+', fname).group()) for fname in file_list]
+    numlist = [int(re.findall(r'\d+', fname)[-1]) for fname in file_list]
     order = np.argsort(numlist)
     fnames = np.array(file_list)
     return(fnames[order])
@@ -46,7 +46,7 @@ def sortFiles(file_list):
 def getUnitCnv(sunit,an_lambda):
     """Helper function for unit conversion
     """
-    angle_length = [(units.micron, units.rad, lambda x: x/(an_lambda/1.E-6)*2*np.pi , lambda x: x / 2/np.pi*units.micron)]
+    angle_length = [(units.meter, units.rad, lambda x: x/(an_lambda)*2*np.pi , lambda x: x / 2/np.pi*units.micron)]
     pcf = (1.0*sunit).to(units.rad,equivalencies = angle_length)
     logger.debug("Phase conversion factor to radians is %s." % pcf)
     return(pcf.value)
@@ -136,7 +136,7 @@ def frameServer():
     ## phase conversion factor
     ##
     logger.info("Phase screen unit is %s." % aosat_cfg.CFG_SETTINGS['phaseunit'])
-    pcf = getUnitCnv(units.Unit(aosat_cfg.CFG_SETTINGS['phaseunit']),an_lambda*1e6)
+    pcf = getUnitCnv(units.Unit(aosat_cfg.CFG_SETTINGS['phaseunit']),an_lambda)
 
     ##
     ## file list
