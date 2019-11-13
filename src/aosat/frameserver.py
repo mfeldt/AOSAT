@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def sortFiles(file_list):
-    """Sort filenames accoring to inter numnber in every name
+    """Sort filenames according to inter number in every name
 
     If filenames contain more than one integer, the last one
     will be used for sorting!
@@ -62,13 +62,13 @@ def frameServer():
         Number of screens to skip before commencing analysis. good
         for avoiding loop closure troubles
     CFG_SETTINGS['skipstep']
-        Number of frames to skip over between analyszed frames.
+        Number of frames to skip over between analyzed frames.
         Can speed up execution during trial runs, or avoid
         high-correlation frames when the simulation frequency is much
         higher than the AO loop frequency
     CFG_SETTINGS['totalnumber']
         Total number of frames to be analyzed, should be equal
-        or lowar to the number of available frames. If the key
+        or lower to the number of available frames. If the key
         does not exist, will be all frames available
     CFG_SETTINGS['an_lambda']
         The wavelength at which the analysis will be carried out.
@@ -83,7 +83,7 @@ def frameServer():
         Path to the setup file used last for configuration. Defaults
         to current working directory if never invoked.
     CFG_SETTINGS['screen_dir']
-        Path to the dierotory where the screens are in,
+        Path to the directory where the screens are in,
         RELATIVE to the above!
     CFG_SETTINGS['screen_fpattern']
         Wildcard pattern that matches all files where phase screens are

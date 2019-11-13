@@ -72,7 +72,7 @@ if (FORCE_NUMPY or (version.parse(opcl_vrs) < version.parse("2018.2.4") and vers
         Returns
         -------
         plan
-            FFT plan to be exectued upon calls.
+            FFT plan to be executed upon calls.
             In the current case where numpy FFTs
             are used, plan is None!
 
@@ -94,7 +94,7 @@ if (FORCE_NUMPY or (version.parse(opcl_vrs) < version.parse("2018.2.4") and vers
         Parameters
         ----------
         inarr : numpy array
-            The array to be transforemed
+            The array to be transformed
 
         Returns
         -------
@@ -222,7 +222,7 @@ else:
         Returns
         -------
         plan
-            FFT plan to be exectued upon calls.
+            FFT plan to be executed upon calls.
 
         Examples
         -------
@@ -240,7 +240,7 @@ else:
 
         Parameters
         ----------
-        inarr : numpy array, preferrably np.complex64
+        inarr : numpy array, preferably np.complex64
             Sample of input array, same size and type which you
             are going to transform a lot later on.
 
@@ -248,7 +248,7 @@ else:
         -------
         FFTout object
             The output object which must be passed to FFTplan
-            later on. Will not be used explicitely
+            later on. Will not be used explicitly
 
         Examples
         -------
@@ -298,7 +298,7 @@ else:
         Returns
         -------
         numpy array
-            FFT transfor of input array
+            FFT transform of input array
 
         Examples
         -------
@@ -398,7 +398,7 @@ else:
 def fftSpeedTest(max_res=13):
     """Test of speed of currently selected FFT vs. numpy.
 
-    This is intended to verify that the selectd OpenCL / CUDA
+    This is intended to verify that the selected OpenCL / CUDA
     FFTs are indeed faster than numpy.  For older GPUs, that
     may not always be the case.
 

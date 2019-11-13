@@ -37,11 +37,11 @@ class dmy_analyzer():
     analysis is completed, the 'make_report' and 'make_plot' methods supply the relevant
     information.
 
-    This is a dummy class with no actually functionality for ocumentation purposes.
+    This is a dummy class with no actually functionality for documentation purposes.
     It might be used to derive subclasses, but these can also be written independently.
 
     All analyzers should provide the methods of this one, and all methods
-    should accept the aparemters of the ones implemented here,  Accepting
+    should accept the parameters of the ones implemented here.  Accepting
     additional optional parameters is fine, but not supplying those should not imply
     fatal behaviour.
 
@@ -96,7 +96,7 @@ class dmy_analyzer():
             These residual WF frames are fed one by one, calculations should
             take into account this circumstance.
         nframes: int
-            total number of rames to be fed
+            total number of frames to be fed
 
 
         Returns
@@ -162,9 +162,9 @@ class dmy_analyzer():
         >>> dan.feed_frame(rf,1)
         >>> dan.finalize()
         >>> dan.make_report()
-        'This is a dummy with no actuctual functionality'
+        'This is a dummy with no actual functionality'
         """
-        report = "This is a dummy with no actuctual functionality"
+        report = "This is a dummy with no actual functionality"
         return(report)
 
     def make_plot(self,fig=None,index='111',plotkwargs={},subplotkwargs={}):
@@ -551,7 +551,7 @@ def getFontProperties():
     Returns
     -------
     font
-        fonr for matplotlib
+        font for matplotlib
 
     """
     font0 = FontProperties()
@@ -579,7 +579,7 @@ def setup():
         relative to the path to the config file itself
 
     CFG_SETTINGS['ppm']
-        float giving th epixels per metre in the aperture plane
+        float giving the pixels per metre in the aperture plane
 
     CFG_SETTINGS['an_lambda']
         analysis wavelength in metres
@@ -753,9 +753,9 @@ def run(analyzers):
 
     All frames of residual wavefronts are served to each
     analyzer one by one. When finished, the 'finalize()'
-    method of each analyzer is calledself.
+    method of each analyzer is called.
 
-    Thus, all analyzers should contain the relvant informative
+    Thus, all analyzers should contain the relevant informative
     attributes upon completion, and be ready to have the
     'make_report()' and 'make_plot()' methods called.
 
@@ -796,7 +796,7 @@ def tearsheet(config_file):
     Parameters
     ----------
     config_file : string
-        (Full path to) configuration file for the analysisself.
+        (Full path to) configuration file for the analysis.
         In addition to the standard descriptive parameters, tearsheet
         evaluates the following:
 
@@ -804,10 +804,10 @@ def tearsheet(config_file):
                            If it contains path information, it's relative
                            to the config file!
 
-        ts_title         - title of the tearsheet written on topself.
+        ts_title         - title of the tearsheet written on top.
 
         A copy of the config file's content is printed in the first
-        plot space on the tearsheet. So in pronciple you can add more
+        plot space on the tearsheet. So in principle you can add more
         parameters than are being evaluated!
 
     Returns

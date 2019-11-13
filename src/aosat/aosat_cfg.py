@@ -57,7 +57,7 @@ LOG_SETTINGS = {
 
 
 def configure(setupfile):
-    """Set up a configuration 'repdict' from default or coniguration file.
+    """Set up a configuration 'repdict' from default or configuration file.
 
     The general format of configuration files is
 
@@ -89,7 +89,7 @@ def configure(setupfile):
     Parameters
     ----------
     setupfile : <class 'str'> or <class 'NoneType'>
-        Name of coniguration file to parse. If None,
+        Name of configuration file to parse. If None,
         the default configuration repdict is returned
     Returns
     -------
@@ -118,7 +118,7 @@ def configure(setupfile):
     aosat_logfile            = None
     aosat_loglevel           = 'INFO'
 
-    When reading this file from the examples diretory, the resulting repdict will change
+    When reading this file from the examples directory, the resulting repdict will change
     to contain the new loglevel 'INFO':
 
     >>> import os
