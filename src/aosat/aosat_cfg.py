@@ -162,7 +162,7 @@ def repString(repdict,prefix = ''):
     >>> import os
     >>> repdict = configure(os.path.join(os.path.dirname(os.path.abspath(__file__)),'examples','example_report.py'))
     >>> print(repString(repdict))
-               an_lambda : 3e-06...
+               an_lambda : 1e-06...
 
 
     """
