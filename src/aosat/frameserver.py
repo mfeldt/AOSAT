@@ -171,7 +171,7 @@ def frameServer():
     if 'totalnumber' in aosat_cfg.CFG_SETTINGS:
         totalnumber = aosat_cfg.CFG_SETTINGS['totalnumber']
         if totalnumber > total_num:
-            logger.warning("Desired total number of %s is larger than avilable number of frames %s, adjusting!" % (totalnumber,total_num))
+            logger.warning("Desired total number of %s is larger than available number of frames %s, adjusting!" % (totalnumber,total_num))
             totalnumber=total_num
     else:
         totalnumber = total_num

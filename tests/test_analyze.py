@@ -6,6 +6,8 @@ from aosat import aosat_cfg
 import os
 import numpy as np
 from astropy import units
+from scipy import ndimage
+
 from astropy.io import fits as pyfits
 import numpy.polynomial.polynomial as poly
 
@@ -145,3 +147,89 @@ def test_tvc():
     s5c  = s5 / np.max((0.5*(psf+psf2))) # contrast to peak
 
     assert np.abs(s5c - an.contrast).sum() < 1e-12
+
+
+def test_analyze_npupils():
+    bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
+    aosat.aosat_cfg.CFG_SETTINGS['setup_path'] = bdir
+    aosat.aosat_cfg.CFG_SETTINGS['pupilmask'] = 'frag_pupil.fits'
+    sd = analyze.setup()
+    assert np.max(sd['fragmask']) == 6
+
+
+
+def test_frg_worst():
+    bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
+
+    tm = pyfits.getdata(os.path.join(bdir,'frag_pupil.fits'))
+    fr = ndimage.label(tm>1e-6)[0]
+
+    p1 = tm *0.0
+    p2 = tm*0.0
+    p2[np.where(fr == 2)]=1.0
+
+    ##
+    ## make analyzer
+    ##
+    aosat.aosat_cfg.CFG_SETTINGS['setup_path'] = bdir
+    aosat.aosat_cfg.CFG_SETTINGS['pupilmask'] = 'frag_pupil.fits'
+    sd = analyze.setup()
+    an = analyze.frg_analyzer(sd)
+
+    ## feed frames
+    for i in range(45):
+        an.feed_frame(p1,100)
+        an.feed_frame(p2*(1+(np.random.randn()*0.001)),100)
+    an.feed_frame(p2*2,100) # highest frame index is 90
+    for i in range(9):
+        an.feed_frame(p1,100)
+
+    ev = 2/2/np.pi*1e-6*1e9 # piston of 2 rad at 1mum in nm
+    ##
+    ## finalize and check
+    ##
+    an.finalize()
+    assert np.abs(np.max(an.pistframe) - ev) < 1e-4
+
+def test_frg_tilt():
+    bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
+
+    tm = pyfits.getdata(os.path.join(bdir,'frag_pupil.fits'))
+    fr = ndimage.label(tm>1e-6)[0]
+
+
+    ##
+    ## make analyzer
+    ##
+    aosat.aosat_cfg.CFG_SETTINGS['setup_path'] = bdir
+    aosat.aosat_cfg.CFG_SETTINGS['pupilmask'] = 'frag_pupil.fits'
+    sd = analyze.setup()
+    an = analyze.frg_analyzer(sd)
+
+
+    ##
+    ## make frames
+    ##
+    sdim=tm.shape[0]
+    x,y = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]/sd['ppm']
+
+    p1 = x/3600.0/180.0*np.pi/1000.0 # tilted by 1mas in x
+    p1 *= 1e6*2*np.pi         # to micron to rad
+
+
+    p2 = p1*1.0
+    p2[np.where(fr == 2)]+=1.0
+
+    ## feed frames
+    for i in range(5):
+        an.feed_frame(p1,100)
+        an.feed_frame(p2*(1+(np.random.randn()*0.001)),100)
+
+
+    ##
+    ## finalize and check
+    ## tolerance 5 micro arc sec
+    ##
+    an.finalize()
+    assert np.abs(an.ttx - np.repeat(1.0,6)).sum() < 5e-3
+    assert np.abs(an.tty - np.repeat(0.0,6)).sum() < 5e-3
