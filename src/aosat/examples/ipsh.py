@@ -15,7 +15,7 @@ prompt_config.out_template = 'N.Out<\\#>: '
 banner_msg = ("\n**Nested Interpreter:\n"
 "Hit Ctrl-D to exit interpreter and continue program.\n"
 "Note that if you use %kill_embedded, you can fully deactivate\n"
-"This embedded instance so it will never turn on again")   
+"this embedded instance so it will never turn on again.")
 exit_msg = '**Leaving Nested interpreter'
 
 # Wrap it in a function that gives me more context:

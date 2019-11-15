@@ -36,7 +36,7 @@ def rad_order(frame,outer_radius=np.inf):
     Parameters
     ----------
     frame : 2D array, square(!)
-        Input frame of the shape for which the 2D order should be calulated
+        Input frame of the shape for which the 2D order should be calculated
     outer_radius : float
         Radius (in pixels) out to which the order should be calculated.
         Default is to calculate fora all pixels
@@ -45,7 +45,7 @@ def rad_order(frame,outer_radius=np.inf):
     -------
     tuple (r,pixels,rord)
         r - array pof the same shape as frame where each pixel contains
-            the radial ditsance to the centre
+            the radial distance to the centre
 
         pixels - indices of the pixels closer to the centre than
                  outer_radius.
@@ -72,7 +72,7 @@ def rad_order(frame,outer_radius=np.inf):
     return((r,pixels,rord))
 
 def rolling_variance(old,newValue):
-    """Rolling varince computation according to  Welford's algorithm.
+    """Rolling variance computation according to  Welford's algorithm.
     https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_Online_algorithm
 
     Parameters
@@ -121,7 +121,7 @@ def zernike_basis(nterms,npix,tel_mirror):
     npix : int
         Number of pixels in each screen (will be npix x npix)
     tel_mirror : 2D array
-        Aperure mask representing the telescope mirror.
+        Aperture mask representing the telescope mirror.
         If larger than npix x npix the central area will be used.
         Can be None
 

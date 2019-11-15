@@ -1,7 +1,7 @@
 loopfreq        = 1000.0
 ppm             = 10.0
 screen_fpattern = "*rwf*.fits"        # filename pattern
-screen_dir      = "ExampleClosedLoop"       # directory for phasescreens, realtive to *this* file!
+screen_dir      = "ExampleClosedLoop"       # directory for phasescreens, relative to *this* file!
 phaseunit       = "micron"               # unit of phase screens
 skipstep        = 1                      # step between consecutive frames, 1=use all
 startskip       = 0                      # frames to skip before evaluation starts, 0= start from beginning

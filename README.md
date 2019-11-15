@@ -29,7 +29,7 @@ git clone https://github.com/mfeldt/AOSAT.git
 virtualenv -p python3.6 venv
 source venv/bin/activate
 ```
-(This assumes using bash, theres also venv/bin/activate.csh and a few others)
+(This assumes using bash, there's also venv/bin/activate.csh and a few others)
 
 4. Change to the repository and install:
 ```
@@ -62,7 +62,7 @@ Ideally everything should terminate without failures. Beware it may take a while
 
 New Tearsheet:
 ==============
-The last of the above tests already produces a tearsheet from the examples (there's 
+The last of the above tests already produces a tearsheet from the examples (there are
 only 2 analyzers as of yet).
 
 This is made from the examples provided using a config/setup file that looks as follows:
