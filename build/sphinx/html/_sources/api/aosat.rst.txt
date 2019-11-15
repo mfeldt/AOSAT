@@ -1,0 +1,62 @@
+aosat package
+=============
+
+Submodules
+----------
+
+aosat.analyze module
+--------------------
+
+.. automodule:: aosat.analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+aosat.aosat\_cfg module
+-----------------------
+
+.. automodule:: aosat.aosat_cfg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+aosat.fftx module
+-----------------
+
+.. automodule:: aosat.fftx
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+aosat.frameserver module
+------------------------
+
+.. automodule:: aosat.frameserver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+aosat.skeleton module
+---------------------
+
+.. automodule:: aosat.skeleton
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+aosat.util module
+-----------------
+
+.. automodule:: aosat.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: aosat
+   :members:
+   :undoc-members:
+   :show-inheritance:

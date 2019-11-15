@@ -1,0 +1,7 @@
+aosat
+=====
+
+.. toctree::
+   :maxdepth: 4
+
+   aosat

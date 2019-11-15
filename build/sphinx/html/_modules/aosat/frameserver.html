@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>aosat.frameserver &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aosat.frameserver</h1><div class="highlight"><pre>
+<span></span>
+
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span><span class="nn">os</span><span class="o">,</span><span class="nn">glob</span><span class="o">,</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span> <span class="k">as</span> <span class="n">pyfits</span>
+<span class="kn">from</span> <span class="nn">aosat</span> <span class="k">import</span> <span class="n">aosat_cfg</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="sortFiles"><a class="viewcode-back" href="../../api/aosat.html#aosat.frameserver.sortFiles">[docs]</a><span class="k">def</span> <span class="nf">sortFiles</span><span class="p">(</span><span class="n">file_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sort filenames accoring to inter numnber in every name</span>
+
+<span class="sd">    If filenames contain more than one integer, the last one</span>
+<span class="sd">    will be used for sorting!</span>
+<span class="sd">    The list will be sorted according to these numbers in</span>
+<span class="sd">    ascending order</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_list : list of strings (filenames)</span>
+<span class="sd">        A list with all the filenames to read residual</span>
+<span class="sd">        phase screens from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type</span>
+<span class="sd">        Sorted list.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &gt;&gt;&gt; list = [&#39;res_phase0125.fits&#39;,&#39;res_phase1835.fits&#39;,&#39;res_phase12.fits&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; sortFiles(list)</span>
+<span class="sd">    array([&#39;res_phase12.fits&#39;, &#39;res_phase0125.fits&#39;, &#39;res_phase1835.fits&#39;],</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numlist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">]</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">numlist</span><span class="p">)</span>
+    <span class="n">fnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">fnames</span><span class="p">[</span><span class="n">order</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="getUnitCnv"><a class="viewcode-back" href="../../api/aosat.html#aosat.frameserver.getUnitCnv">[docs]</a><span class="k">def</span> <span class="nf">getUnitCnv</span><span class="p">(</span><span class="n">sunit</span><span class="p">,</span><span class="n">an_lambda</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function for unit conversion</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">angle_length</span> <span class="o">=</span> <span class="p">[(</span><span class="n">units</span><span class="o">.</span><span class="n">meter</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">/</span><span class="p">(</span><span class="n">an_lambda</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">units</span><span class="o">.</span><span class="n">micron</span><span class="p">)]</span>
+    <span class="n">pcf</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">sunit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span><span class="n">equivalencies</span> <span class="o">=</span> <span class="n">angle_length</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Phase conversion factor to radians is </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">pcf</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">pcf</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="frameServer"><a class="viewcode-back" href="../../api/aosat.html#aosat.frameserver.frameServer">[docs]</a><span class="k">def</span> <span class="nf">frameServer</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Serve phase screens, one after the other</span>
+
+<span class="sd">    The frame server is configured by the configuration stored in</span>
+<span class="sd">    aosat_cfg.CFG_SETTINGS.</span>
+<span class="sd">    In particular by the keywords</span>
+
+<span class="sd">    CFG_SETTINGS[&#39;startskip&#39;]</span>
+<span class="sd">        Number of screens to skip before commencing analysis. good</span>
+<span class="sd">        for avoiding loop closure troubles</span>
+<span class="sd">    CFG_SETTINGS[&#39;skipstep&#39;]</span>
+<span class="sd">        Number of frames to skip over between analyszed frames.</span>
+<span class="sd">        Can speed up execution during trial runs, or avoid</span>
+<span class="sd">        high-correlation frames when the simulation frequency is much</span>
+<span class="sd">        higher than the AO loop frequency</span>
+<span class="sd">    CFG_SETTINGS[&#39;totalnumber&#39;]</span>
+<span class="sd">        Total number of frames to be analyzed, should be equal</span>
+<span class="sd">        or lowar to the number of available frames. If the key</span>
+<span class="sd">        does not exist, will be all frames available</span>
+<span class="sd">    CFG_SETTINGS[&#39;an_lambda&#39;]</span>
+<span class="sd">        The wavelength at which the analysis will be carried out.</span>
+<span class="sd">        Used to convert frames to unit rad before serving them.</span>
+<span class="sd">        I repeat: ALL FRAMES SERVED WILL BE IN UNITS OF RADIANS!</span>
+<span class="sd">    CFG_SETTINGS[&#39;phaseunit&#39;]</span>
+<span class="sd">        Unit of the residual phases stored in the fits files.</span>
+<span class="sd">        Must be an astropy.units.Unit() readable string for an angle</span>
+<span class="sd">        or a length unit. Phase screens are always converted to radians</span>
+<span class="sd">        vi an_lambda!</span>
+<span class="sd">    CFG_SETTINGS[&#39;setup_path&#39;]</span>
+<span class="sd">        Path to the setup file used last for configuration. Defaults</span>
+<span class="sd">        to current working directory if never invoked.</span>
+<span class="sd">    CFG_SETTINGS[&#39;screen_dir&#39;]</span>
+<span class="sd">        Path to the dierotory where the screens are in,</span>
+<span class="sd">        RELATIVE to the above!</span>
+<span class="sd">    CFG_SETTINGS[&#39;screen_fpattern&#39;]</span>
+<span class="sd">        Wildcard pattern that matches all files where phase screens are</span>
+<span class="sd">        in, but nothing else. Must not contain (parts of) paths!</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type</span>
+<span class="sd">        (numpy array, int, int)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">    A simple usage on a provided example which contains ten</span>
+<span class="sd">    phase screens, each one an array consisting of 1024x1024</span>
+<span class="sd">    pixels filled with it&#39;s own sequential number would be:</span>
+
+<span class="sd">    &gt;&gt;&gt; import os</span>
+<span class="sd">    &gt;&gt;&gt; from aosat import aosat_cfg</span>
+<span class="sd">    &gt;&gt;&gt; cfg_file = os.path.join(os.path.dirname(</span>
+<span class="sd">    ... os.path.realpath(__file__)),&#39;examples&#39;,&#39;example_frameserver.setup&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(cfg_file)</span>
+<span class="sd">    &gt;&gt;&gt; fs = frameServer()</span>
+<span class="sd">    &gt;&gt;&gt; [f[0].mean() for f in fs]</span>
+<span class="sd">    [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]</span>
+
+
+<span class="sd">    A slightly more complex example involving skipping</span>
+<span class="sd">    the first two frames and serving only every second would</span>
+<span class="sd">    be</span>
+
+<span class="sd">    &gt;&gt;&gt; import os</span>
+<span class="sd">    &gt;&gt;&gt; from aosat import aosat_cfg</span>
+<span class="sd">    &gt;&gt;&gt; cfg_file = os.path.join(os.path.dirname(</span>
+<span class="sd">    ... os.path.realpath(__file__)),&#39;examples&#39;,&#39;example_frameserver.setup&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(cfg_file)</span>
+<span class="sd">    &gt;&gt;&gt; aosat_cfg.CFG_SETTINGS[&#39;startskip&#39;] = 2</span>
+<span class="sd">    &gt;&gt;&gt; aosat_cfg.CFG_SETTINGS[&#39;skipstep&#39;] = 2</span>
+<span class="sd">    &gt;&gt;&gt; fs = frameServer()</span>
+<span class="sd">    &gt;&gt;&gt; [f[0].mean() for f in fs]</span>
+<span class="sd">    [3.0, 5.0, 7.0, 9.0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">skipstep</span>    <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;skipstep&#39;</span><span class="p">]</span>
+    <span class="n">startskip</span>   <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;startskip&#39;</span><span class="p">]</span>
+    <span class="n">an_lambda</span>   <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;an_lambda&#39;</span><span class="p">]</span>
+    <span class="n">setup_path</span>  <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;setup_path&#39;</span><span class="p">]</span>
+    <span class="c1">##</span>
+    <span class="c1">## phase conversion factor</span>
+    <span class="c1">##</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Phase screen unit is </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;phaseunit&#39;</span><span class="p">])</span>
+    <span class="n">pcf</span> <span class="o">=</span> <span class="n">getUnitCnv</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;phaseunit&#39;</span><span class="p">]),</span><span class="n">an_lambda</span><span class="p">)</span>
+
+    <span class="c1">##</span>
+    <span class="c1">## file list</span>
+    <span class="c1">##</span>
+    <span class="n">file_list</span> <span class="o">=</span> <span class="n">sortFiles</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;setup_path&#39;</span><span class="p">],</span>
+                                                  <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;screen_dir&#39;</span><span class="p">],</span>
+                                                  <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;screen_fpattern&#39;</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;setup_path&#39;</span><span class="p">],</span>
+                                                          <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;screen_dir&#39;</span><span class="p">],</span>
+                                                          <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;screen_fpattern&#39;</span><span class="p">]))</span>
+    <span class="n">frame_num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">start_frame_index</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">num_frames_in_file</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scanning file headers...&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)):</span>
+        <span class="n">hdr</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">getheader</span><span class="p">(</span><span class="n">file_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_num</span>
+        <span class="k">if</span> <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">total_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">total_num</span> <span class="o">+=</span> <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span>
+                <span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdr</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong format of FITS file, should have 2 or 3 axes, with 3rd axis storing multiple phase screens if exists!&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;totalnumber&#39;</span> <span class="ow">in</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">:</span>
+        <span class="n">totalnumber</span> <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;totalnumber&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">totalnumber</span> <span class="o">&gt;</span> <span class="n">total_num</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Desired total number of </span><span class="si">%s</span><span class="s2"> is larger than available number of frames </span><span class="si">%s</span><span class="s2">, adjusting!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">totalnumber</span><span class="p">,</span><span class="n">total_num</span><span class="p">))</span>
+            <span class="n">totalnumber</span><span class="o">=</span><span class="n">total_num</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">totalnumber</span> <span class="o">=</span> <span class="n">total_num</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found </span><span class="si">%s</span><span class="s2"> residual phase screens, serving screen </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> in steps of </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">total_num</span><span class="p">,</span> <span class="n">startskip</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">startskip</span><span class="o">+</span><span class="n">totalnumber</span><span class="o">*</span><span class="n">skipstep</span><span class="p">,</span><span class="n">skipstep</span> <span class="p">))</span>
+
+    <span class="c1">##</span>
+    <span class="c1">## read and serve the frames</span>
+    <span class="c1">##</span>
+    <span class="n">this_frame_num</span> <span class="o">=</span> <span class="n">startskip</span>
+    <span class="n">next_step</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">frames_served</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)):</span>
+        <span class="n">perc_done</span> <span class="o">=</span> <span class="n">frames_served</span> <span class="o">/</span> <span class="n">totalnumber</span>
+        <span class="k">if</span> <span class="n">perc_done</span> <span class="o">&gt;=</span> <span class="n">next_step</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Serving from file </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s%%</span><span class="s2"> done! </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_list</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="n">perc_done</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>   <span class="s1">&#39;#&#39;</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="mi">30</span><span class="o">*</span><span class="n">perc_done</span><span class="p">)))</span>
+            <span class="n">next_step</span> <span class="o">+=</span> <span class="mf">0.0333</span>
+        <span class="k">if</span> <span class="n">this_frame_num</span> <span class="o">&gt;=</span> <span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">this_frame_num</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">and</span> <span class="n">frames_served</span> <span class="o">&lt;</span> <span class="n">totalnumber</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reading file </span><span class="si">%s</span><span class="s2">, start index is </span><span class="si">%s</span><span class="s2">, number of frames in file is </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">file_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">getdata</span><span class="p">(</span><span class="n">file_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">this_index</span> <span class="o">=</span> <span class="n">this_frame_num</span> <span class="o">-</span> <span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Overall frame </span><span class="si">%s</span><span class="s2"> has index </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">this_frame_num</span><span class="p">,</span><span class="n">this_index</span><span class="p">))</span>
+            <span class="k">while</span> <span class="n">this_index</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">and</span> <span class="n">frames_served</span> <span class="o">&lt;</span> <span class="n">totalnumber</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Serving frame </span><span class="si">%s</span><span class="s2"> as </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">this_index</span><span class="p">,</span><span class="n">frames_served</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">num_frames_in_file</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">frame</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">this_index</span><span class="p">]</span> <span class="o">*</span> <span class="n">pcf</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">frame</span> <span class="o">=</span> <span class="n">data</span><span class="o">*</span><span class="n">pcf</span>
+                <span class="n">this_frame_num</span> <span class="o">+=</span> <span class="n">skipstep</span>
+                <span class="n">this_index</span> <span class="o">=</span> <span class="n">this_frame_num</span> <span class="o">-</span> <span class="n">start_frame_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">frames_served</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">yield</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frames_served</span><span class="p">,</span><span class="n">totalnumber</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">aosat</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Module Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Markus Feldt.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>aosat.util &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aosat.util</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">poppy</span> <span class="k">import</span> <span class="n">zernike</span>
+
+
+
+
+<div class="viewcode-block" id="printProgressBar"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.printProgressBar">[docs]</a><span class="k">def</span> <span class="nf">printProgressBar</span> <span class="p">(</span><span class="n">logger</span><span class="p">,</span><span class="n">iteration</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">decimals</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s1">&#39;#&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call in a loop to create terminal progress bar</span>
+<span class="sd">    @params:</span>
+<span class="sd">        logger      - Required  : logger instance to send output to</span>
+<span class="sd">        iteration   - Required  : current iteration (Int)</span>
+<span class="sd">        total       - Required  : total iterations (Int)</span>
+<span class="sd">        prefix      - Optional  : prefix string (Str)</span>
+<span class="sd">        suffix      - Optional  : suffix string (Str)</span>
+<span class="sd">        decimals    - Optional  : positive number of decimals in percent complete (Int)</span>
+<span class="sd">        length      - Optional  : character length of bar (Int)</span>
+<span class="sd">        fill        - Optional  : bar fill character (Str)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">xxxdot</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">if</span> <span class="n">decimals</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">xxxdot</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">decimals</span>
+
+    <span class="n">percent</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;{0:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">xxxdot</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">decimals</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">iteration</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">total</span><span class="p">)))</span>
+    <span class="n">filledLength</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span> <span class="o">*</span> <span class="n">iteration</span> <span class="o">//</span> <span class="n">total</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">fill</span> <span class="o">*</span> <span class="n">filledLength</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">filledLength</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%s</span><span class="s2"> |</span><span class="si">%s</span><span class="s2">| </span><span class="si">%s%%</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">bar</span><span class="p">,</span> <span class="n">percent</span><span class="p">,</span> <span class="n">suffix</span><span class="p">))</span>
+    <span class="c1"># Print New Line on Complete</span>
+    <span class="k">if</span> <span class="n">iteration</span> <span class="o">==</span> <span class="n">total</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Done!&quot;</span> <span class="o">%</span> <span class="n">prefix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="rad_order"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.rad_order">[docs]</a><span class="k">def</span> <span class="nf">rad_order</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">outer_radius</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the radial order of pixels from the centre.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frame : 2D array, square(!)</span>
+<span class="sd">        Input frame of the shape for which the 2D order should be calulated</span>
+<span class="sd">    outer_radius : float</span>
+<span class="sd">        Radius (in pixels) out to which the order should be calculated.</span>
+<span class="sd">        Default is to calculate fora all pixels</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple (r,pixels,rord)</span>
+<span class="sd">        r - array pof the same shape as frame where each pixel contains</span>
+<span class="sd">            the radial ditsance to the centre</span>
+
+<span class="sd">        pixels - indices of the pixels closer to the centre than</span>
+<span class="sd">                 outer_radius.</span>
+
+<span class="sd">        rord - Containing radial order of the pixels. Can be used</span>
+<span class="sd">               to index e.g. the original array as follows:</span>
+<span class="sd">               frame[pixels][rord]</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &gt;&gt;&gt; a = np.zeros((512,512))</span>
+<span class="sd">    &gt;&gt;&gt; o = rad_order(a)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sdim</span><span class="o">=</span><span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">##</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="o">-</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">r</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">r</span><span class="o">&lt;</span><span class="n">outer_radius</span><span class="p">)</span>
+    <span class="n">rord</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">pixels</span><span class="p">])</span>
+    <span class="k">return</span><span class="p">((</span><span class="n">r</span><span class="p">,</span><span class="n">pixels</span><span class="p">,</span><span class="n">rord</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="rolling_variance"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.rolling_variance">[docs]</a><span class="k">def</span> <span class="nf">rolling_variance</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">newValue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rolling varince computation according to  Welford&#39;s algorithm.</span>
+<span class="sd">    https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford&#39;s_Online_algorithm</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    old : tuple containing the triplet</span>
+<span class="sd">        count, mean, M2. Initialize with (0,0,0)</span>
+<span class="sd">        on the first call</span>
+<span class="sd">    newValue : new element to be added to the sample</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type</span>
+<span class="sd">        tuple containing the triplet</span>
+<span class="sd">        count, mean, M2. To retrieve variance and</span>
+<span class="sd">        sample variance compute M2/count and M2/(count-1),</span>
+<span class="sd">        respectively</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &gt;&gt;&gt; a=np.arange(10)</span>
+<span class="sd">    &gt;&gt;&gt; b=(0.,0.,0.)</span>
+<span class="sd">    &gt;&gt;&gt; for i in range(10):</span>
+<span class="sd">    ...     b=rolling_variance(b,a[i])</span>
+<span class="sd">    &gt;&gt;&gt; b</span>
+<span class="sd">    (10.0, 4.5, 82.5)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">M2</span><span class="p">)</span> <span class="o">=</span> <span class="n">old</span>
+    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">newValue</span> <span class="o">-</span> <span class="n">mean</span>
+    <span class="n">mean</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">count</span>
+    <span class="n">delta2</span> <span class="o">=</span> <span class="n">newValue</span> <span class="o">-</span> <span class="n">mean</span>
+    <span class="n">M2</span> <span class="o">+=</span> <span class="n">delta</span> <span class="o">*</span> <span class="n">delta2</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">M2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="zernike_basis"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.zernike_basis">[docs]</a><span class="k">def</span> <span class="nf">zernike_basis</span><span class="p">(</span><span class="n">nterms</span><span class="p">,</span><span class="n">npix</span><span class="p">,</span><span class="n">tel_mirror</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a Zernike basis</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nterms : int</span>
+<span class="sd">        Number of basis functions to generate</span>
+<span class="sd">    npix : int</span>
+<span class="sd">        Number of pixels in each screen (will be npix x npix)</span>
+<span class="sd">    tel_mirror : 2D array</span>
+<span class="sd">        Aperure mask representing the telescope mirror.</span>
+<span class="sd">        If larger than npix x npix the central area will be used.</span>
+<span class="sd">        Can be None</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    3D array of shape (nterms,npix,npix)</span>
+<span class="sd">        Containing the Zernike basis screens</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">    Examples should be written in doctest format, and</span>
+<span class="sd">    should illustrate how to use the function/class.</span>
+<span class="sd">    &gt;&gt;&gt; zb = zernike_basis(10,512,None)</span>
+<span class="sd">    &gt;&gt;&gt; zb.shape</span>
+<span class="sd">    (10, 512, 512)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tel_mirror</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tms</span> <span class="o">=</span> <span class="n">tel_mirror</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">tel_mirror</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">tms</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">tms</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">tms</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">tms</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">npix</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">zbase</span> <span class="o">=</span> <span class="n">zernike</span><span class="o">.</span><span class="n">zernike_basis</span><span class="p">(</span><span class="n">nterms</span><span class="o">=</span><span class="n">nterms</span><span class="p">,</span><span class="n">npix</span><span class="o">=</span><span class="n">npix</span><span class="p">,</span><span class="n">aperture</span><span class="o">=</span><span class="n">tm</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">zbase</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="basis_expand"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.basis_expand">[docs]</a><span class="k">def</span> <span class="nf">basis_expand</span><span class="p">(</span><span class="n">wf</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">tel_mirror</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Axpand a wavefront into a basis set, operating</span>
+<span class="sd">    on an aperture</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wf : ndarray, 2D</span>
+<span class="sd">        input wavefront</span>
+<span class="sd">    basis : ndarray, 3D</span>
+<span class="sd">        stack of basis functions to expand the wavefront in.</span>
+<span class="sd">        Must be of dimension (m,n,n), when wf</span>
+<span class="sd">        contains m elements. If n is smaller than the</span>
+<span class="sd">        dimension of wf, wf will be cropped. In such a case,</span>
+<span class="sd">        make sure that the outer regions of wf contain zero</span>
+<span class="sd">        padding only!</span>
+<span class="sd">    tel_mirror : ndarray, 2D</span>
+<span class="sd">        Mask for region where fit is performed.</span>
+<span class="sd">        Regions where mask == 0 will be ignored,</span>
+<span class="sd">        values should be 1 or 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type</span>
+<span class="sd">        Coefficients of the basis expansion</span>
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">    Examples should be written in doctest format, and</span>
+<span class="sd">    should illustrate how to use the function/class.</span>
+<span class="sd">    &gt;&gt;&gt; zb = zernike_basis(10,512,None)</span>
+<span class="sd">    &gt;&gt;&gt; s = np.array([zb[i]*i/10.0 for i in range(10)]).sum(axis=0)</span>
+<span class="sd">    &gt;&gt;&gt; tm = np.isfinite(s)*1.0</span>
+<span class="sd">    &gt;&gt;&gt; basis_expand(s,zb,tm)</span>
+<span class="sd">    array([...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wsize</span>    <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">bsize</span>    <span class="o">=</span> <span class="n">basis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">opd</span>      <span class="o">=</span> <span class="n">wf</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">bsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">bsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="n">aperture</span> <span class="o">=</span> <span class="n">tel_mirror</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">wsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">bsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="n">wgood</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">aperture</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">basis</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">ngood</span>    <span class="o">=</span> <span class="p">(</span><span class="n">wgood</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">opd</span> <span class="o">*</span> <span class="n">b</span><span class="p">)[</span><span class="n">wgood</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">ngood</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">basis</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">aosat</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Module Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Markus Feldt.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

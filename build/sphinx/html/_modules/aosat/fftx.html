@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>aosat.fftx &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aosat.fftx</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This selects the best (i.e. fastest) FFT routine to be used in AOSAT.</span>
+
+<span class="sd">The module will look first for CUDA, then for OpenCL, and fall back</span>
+<span class="sd">to numpy FFTs if neither is available.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+<span class="c1">##</span>
+<span class="c1">##</span>
+<span class="c1">## Check for GPU support and select FFT function</span>
+<span class="c1">##</span>
+<span class="c1">##</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pip._internal.utils.misc</span> <span class="k">import</span> <span class="n">get_installed_distributions</span>
+<span class="kn">from</span> <span class="nn">packaging</span> <span class="k">import</span> <span class="n">version</span>
+
+<span class="kn">from</span> <span class="nn">aosat</span> <span class="k">import</span> <span class="n">aosat_cfg</span>
+
+<span class="n">avl_pkgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">project_name</span> <span class="k">for</span> <span class="n">f</span>  <span class="ow">in</span> <span class="n">get_installed_distributions</span><span class="p">()]</span>
+<span class="n">avl_vrss</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">version</span> <span class="k">for</span> <span class="n">f</span>  <span class="ow">in</span> <span class="n">get_installed_distributions</span><span class="p">()]</span>
+
+<span class="n">cuda_vrs</span> <span class="o">=</span> <span class="n">avl_vrss</span><span class="p">[</span><span class="n">avl_pkgs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;pycuda&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="s1">&#39;pycuda&#39;</span> <span class="ow">in</span> <span class="n">avl_pkgs</span> <span class="k">else</span> <span class="s2">&quot;0.0&quot;</span>
+<span class="n">opcl_vrs</span> <span class="o">=</span> <span class="n">avl_vrss</span><span class="p">[</span><span class="n">avl_pkgs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;pyopencl&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="s1">&#39;pyopencl&#39;</span> <span class="ow">in</span> <span class="n">avl_pkgs</span> <span class="k">else</span> <span class="s2">&quot;0.0&quot;</span>
+<span class="n">FORCE_NUMPY</span> <span class="o">=</span> <span class="n">aosat_cfg</span><span class="o">.</span><span class="n">CFG_SETTINGS</span><span class="p">[</span><span class="s1">&#39;aosat_fft_forcenumpy&#39;</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">FORCE_NUMPY</span> <span class="ow">or</span> <span class="p">(</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">opcl_vrs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;2018.2.4&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">cuda_vrs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;0.94&quot;</span><span class="p">))):</span>
+    <span class="c1">##</span>
+    <span class="c1">## use numpy fftx</span>
+    <span class="c1">##</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Neither CUDA nor OpenCL found or not desired!&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using numpy FFTs!&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">FFTmakeplan</span><span class="p">(</span><span class="n">samplearr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a plan for FFTs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        arrshape : numpy array</span>
+<span class="sd">            the shape of the arrays to be transformed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plan</span>
+<span class="sd">            FFT plan to be executed upon calls.</span>
+<span class="sd">            In the current case where numpy FFTs</span>
+<span class="sd">            are used, plan is None!</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; plan = FFTmakeplan(np.zeros((1024,1024)).shape)</span>
+<span class="sd">        &gt;&gt;&gt; plan == None</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">FFTmakeout</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make an output for FFTs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            Then input array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plan</span>
+<span class="sd">            FFT plan to be exectued upon calls.</span>
+<span class="sd">            In the current case where numpy FFTs</span>
+<span class="sd">            are used, plan is None!</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; out = FFTmakeout(np.zeros((1024,1024)))</span>
+<span class="sd">        &gt;&gt;&gt; out == None</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">FFTprepare</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare an array for input int FFTforward or</span>
+<span class="sd">        FFTinverse</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            The array to be transforemed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            In the current case of numpy FFTs, the array itself</span>
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; arr  = np.zeros((1024,1024))</span>
+<span class="sd">        &gt;&gt;&gt; iarr = FFTprepare(arr)</span>
+<span class="sd">        &gt;&gt;&gt; np.array_equal(arr,iarr)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">inarr</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">FFTforward</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">outarr</span><span class="p">,</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform forward FFT.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plan : fft plan</span>
+<span class="sd">            In this case of numpy FFTs, plan should be None.</span>
+<span class="sd">        outarr : device-suitable output array</span>
+<span class="sd">            The device-suitable output. Should be None.</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            The array to be transformed. Should be square.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            The transformed array</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; arr = np.zeros((1024,1024))</span>
+<span class="sd">        &gt;&gt;&gt; oarr = FFTforward(None,None,arr)</span>
+<span class="sd">        &gt;&gt;&gt; oarr.dtype</span>
+<span class="sd">        dtype(&#39;complex128&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; oarr.shape</span>
+<span class="sd">        (1024, 1024)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">inarr</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">FFTinverse</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">outarr</span><span class="p">,</span> <span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform inverse FFT.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plan : fft plan</span>
+<span class="sd">            In this case of numpy FFTs, plan should be None.</span>
+<span class="sd">        outarr : device-suitable output array</span>
+<span class="sd">            The device-suitable output. Should be None.</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            The array to be transformed. Should be square.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            The transformed array</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; farr = FFTforward(None,None,arr)</span>
+<span class="sd">        &gt;&gt;&gt; oarr = FFTinverse(None,None,farr)</span>
+<span class="sd">        &gt;&gt;&gt; np.abs((np.real(oarr)-arr)).sum() &lt; 2e-10</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; oarr.dtype</span>
+<span class="sd">        dtype(&#39;complex128&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; oarr.shape</span>
+<span class="sd">        (1024, 1024)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">inarr</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">FFTshift</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shift array transformed by FFT such that</span>
+<span class="sd">        the zero component is centered</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            Output of an FFT transform</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            Centered array.</span>
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; farr = np.abs(FFTshift(FFTforward(None,None,arr)))</span>
+<span class="sd">        &gt;&gt;&gt; np.unravel_index(np.argmax(farr, axis=None), farr.shape)</span>
+<span class="sd">        (512, 512)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">inarr</span><span class="p">))</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1">##</span>
+    <span class="c1">## use one of the CLUDA FFTs</span>
+    <span class="c1">##</span>
+    <span class="k">if</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">cuda_vrs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;0.94&quot;</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;CUDA version </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">cuda_vrs</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using CUDA FFTs!&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">reikna.cluda</span> <span class="k">import</span> <span class="n">dtypes</span><span class="p">,</span> <span class="n">cuda_api</span>
+        <span class="n">FFTapi</span> <span class="o">=</span> <span class="n">cuda_api</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;OpenCL version </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">opcl_vrs</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using OpenCL FFTs!&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">reikna.cluda</span> <span class="k">import</span> <span class="n">dtypes</span><span class="p">,</span> <span class="n">ocl_api</span>
+        <span class="n">FFTapi</span> <span class="o">=</span> <span class="n">ocl_api</span><span class="p">()</span>
+
+
+    <span class="kn">import</span> <span class="nn">reikna.fft</span> <span class="k">as</span> <span class="nn">cludaFFT</span>
+
+    <span class="n">FFTthr</span> <span class="o">=</span> <span class="n">FFTapi</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FFTmakeplan"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTmakeplan">[docs]</a>    <span class="k">def</span> <span class="nf">FFTmakeplan</span><span class="p">(</span><span class="n">samplearr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a plan for FFTs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        samplearr : numpy array</span>
+<span class="sd">            an array of the same type and size as the ones</span>
+<span class="sd">            you&#39;re going to transform a lot later on</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plan</span>
+<span class="sd">            FFT plan to be exectued upon calls.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &gt;&gt;&gt; plan = FFTmakeplan(np.zeros((1024,1024),dtype=np.float64))</span>
+<span class="sd">        &gt;&gt;&gt; plan</span>
+<span class="sd">        &lt;reikna.core.computation.ComputationCallable object at ...</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fft</span> <span class="o">=</span> <span class="n">cludaFFT</span><span class="o">.</span><span class="n">FFT</span><span class="p">(</span><span class="n">samplearr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">FFTthr</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FFTmakeout"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTmakeout">[docs]</a>    <span class="k">def</span> <span class="nf">FFTmakeout</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a suitable output object for FFTs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array, preferrably np.complex64</span>
+<span class="sd">            Sample of input array, same size and type which you</span>
+<span class="sd">            are going to transform a lot later on.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        FFTout object</span>
+<span class="sd">            The output object which must be passed to FFTplan</span>
+<span class="sd">            later on. Will not be used explicitely</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; inarr = np.zeros((1024,1024))</span>
+<span class="sd">        &gt;&gt;&gt; outobj = FFTmakeout(inarr)</span>
+<span class="sd">        &gt;&gt;&gt; type(outobj)</span>
+<span class="sd">        &lt;class &#39;reikna.cluda.ocl.Array&#39;&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">FFTthr</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inarr</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FFTprepare"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTprepare">[docs]</a>    <span class="k">def</span> <span class="nf">FFTprepare</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare an input array to suit machine/GPU architecture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            The input array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        inarr_dev</span>
+<span class="sd">                device dependent input array representation</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; arr_dev = FFTprepare(arr)</span>
+<span class="sd">        &gt;&gt;&gt; type(arr_dev)</span>
+<span class="sd">        &lt;class &#39;reikna.cluda.ocl.Array&#39;&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">FFTthr</span><span class="o">.</span><span class="n">to_device</span><span class="p">(</span><span class="n">inarr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)))</span></div>
+<div class="viewcode-block" id="FFTforward"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTforward">[docs]</a>    <span class="k">def</span> <span class="nf">FFTforward</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">outarr</span><span class="p">,</span><span class="n">inarr_dev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform forward FFT</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plan : fft plan</span>
+<span class="sd">            The plan produced by FFTmakeplan.</span>
+<span class="sd">        outarr : reikna.cluda.ocl.Array</span>
+<span class="sd">            Output array, produced by FFTmakeout</span>
+<span class="sd">        inarr_dev : reikna.cluda.ocl.Array</span>
+<span class="sd">            Device-suitable input array representation,</span>
+<span class="sd">            produced by FFTprepare</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            FFT transfor of input array</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; plan = FFTmakeplan(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_dev = FFTprepare(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_out = FFTmakeout(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_fft = FFTforward(plan,arr_out,arr_dev)</span>
+<span class="sd">        &gt;&gt;&gt; ref_fft = np.fft.fft2(arr)</span>
+<span class="sd">        &gt;&gt;&gt; print(np.testing.assert_almost_equal(arr_fft,ref_fft))</span>
+<span class="sd">        None</span>
+
+<span class="sd">        You can also time the execution to see if it&#39;s really faster than the standard numpy FFT:</span>
+
+<span class="sd">        &gt;&gt;&gt; import time</span>
+<span class="sd">        &gt;&gt;&gt; start=time.time()</span>
+<span class="sd">        &gt;&gt;&gt; for i in range(100):</span>
+<span class="sd">        ...    arr_fft = FFTforward(plan,arr_out,arr_dev)</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; end=time.time()</span>
+<span class="sd">        &gt;&gt;&gt; print(&quot;100 CLUDA FFTs: &quot;,end-start)</span>
+<span class="sd">        100 CLUDA FFTs: ...</span>
+
+<span class="sd">        &gt;&gt;&gt; start=time.time()</span>
+<span class="sd">        &gt;&gt;&gt; for i in range(100):</span>
+<span class="sd">        ...   ref_fft = np.fft.fft2(arr)</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; end=time.time()</span>
+<span class="sd">        &gt;&gt;&gt; print(&quot;100 numpy FFTs: &quot;,end-start)</span>
+<span class="sd">        100 numpy FFTs: ...</span>
+
+<span class="sd">        If that&#39;s not the case, you can force the use of numpy&#39;s FFTs by putting the line</span>
+<span class="sd">        force_np_fft = True</span>
+<span class="sd">        in any configuration or report file!</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plan</span><span class="p">(</span><span class="n">outarr</span><span class="p">,</span> <span class="n">inarr_dev</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">outarr</span><span class="o">.</span><span class="n">get</span><span class="p">())</span></div>
+<div class="viewcode-block" id="FFTinverse"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTinverse">[docs]</a>    <span class="k">def</span> <span class="nf">FFTinverse</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">outarr</span><span class="p">,</span><span class="n">inarr_dev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform inverse FFT</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plan : fft plan</span>
+<span class="sd">            The plan produced by FFTmakeplan.</span>
+<span class="sd">        outarr : reikna.cluda.ocl.Array</span>
+<span class="sd">            Output array, produced by FFTmakeout</span>
+<span class="sd">        inarr_dev : reikna.cluda.ocl.Array</span>
+<span class="sd">            Device-suitable input array representation,</span>
+<span class="sd">            produced by FFTprepare</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            FFT inverse transform of input array</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; plan = FFTmakeplan(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_dev = FFTprepare(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_out = FFTmakeout(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_fft = FFTinverse(plan,arr_out,arr_dev)</span>
+<span class="sd">        &gt;&gt;&gt; ref_fft = np.fft.ifft2(arr)</span>
+<span class="sd">        &gt;&gt;&gt; print(np.testing.assert_almost_equal(arr_fft,ref_fft))</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plan</span><span class="p">(</span><span class="n">outarr</span><span class="p">,</span> <span class="n">inarr_dev</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">outarr</span><span class="o">.</span><span class="n">get</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FFTshift"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.FFTshift">[docs]</a>    <span class="k">def</span> <span class="nf">FFTshift</span><span class="p">(</span><span class="n">inarr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shift array transformed by FFT such that</span>
+<span class="sd">        the zero component is centered</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inarr : numpy array</span>
+<span class="sd">            Output of an FFT transform</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            Centered array.</span>
+<span class="sd">        Examples</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; arr = np.random.rand(1024,1024)</span>
+<span class="sd">        &gt;&gt;&gt; plan = FFTmakeplan(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_dev = FFTprepare(arr)</span>
+<span class="sd">        &gt;&gt;&gt; arr_out = FFTmakeout(arr)</span>
+<span class="sd">        &gt;&gt;&gt; farr    = FFTshift(FFTforward(plan,arr_out,arr_dev))</span>
+<span class="sd">        &gt;&gt;&gt; np.unravel_index(np.argmax(farr, axis=None), farr.shape)</span>
+<span class="sd">        (512, 512)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">inarr</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="fftSpeedTest"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.fftSpeedTest">[docs]</a><span class="k">def</span> <span class="nf">fftSpeedTest</span><span class="p">(</span><span class="n">max_res</span><span class="o">=</span><span class="mi">13</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test of speed of currently selected FFT vs. numpy.</span>
+
+<span class="sd">    This is intended to verify that the selectd OpenCL / CUDA</span>
+<span class="sd">    FFTs are indeed faster than numpy.  For older GPUs, that</span>
+<span class="sd">    may not always be the case.</span>
+
+<span class="sd">    When called, fftSpeedtest will test a series of array sizes</span>
+<span class="sd">    and print the ratio of execution times against standardnumpy</span>
+<span class="sd">    implementations. If you see a lot of number smaller than one,</span>
+<span class="sd">    in particular in the line for the array size of interest,</span>
+<span class="sd">    make sure that the golbal aosat_cfg.CFG_SETTINGS contains the</span>
+<span class="sd">    entry CFG_SETTINGS[&#39;aosat_fft_forcenumpy&#39;] = True .</span>
+<span class="sd">    In aosat, this can be achieved by calling</span>
+
+<span class="sd">    aosat.aosat_cfg.configure(setupfile)</span>
+
+<span class="sd">    where the setupfile contains the line</span>
+
+<span class="sd">    aosat_fft_forcenumpy = True</span>
+
+<span class="sd">    The setup (or &quot;report&quot;) fiel is also an argument of many</span>
+<span class="sd">    helper and convenience functions.</span>
+
+<span class="sd">    After an execution of configure, issue a</span>
+
+<span class="sd">    reload(aosat.fftx)</span>
+
+<span class="sd">    This will redefine the fftx.FFT* functions!</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; fftSpeedTest(max_res=4)</span>
+<span class="sd">    array size =     4 x     4 : gpu speedup = ...</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+
+    <span class="n">dtype</span>       <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span>
+    <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">max_res</span><span class="p">)</span>
+    <span class="n">Nloops</span>      <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">rtol</span>        <span class="o">=</span> <span class="mf">1e-7</span>
+    <span class="n">atol</span>        <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
+        <span class="n">shape</span><span class="p">,</span> <span class="n">axes</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">data</span>         <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">plan</span>         <span class="o">=</span> <span class="n">FFTmakeplan</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">rtime</span><span class="p">,</span> <span class="n">ntime</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">nloop</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nloops</span><span class="p">):</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="c1"># forward</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="n">data_dev</span> <span class="o">=</span> <span class="n">FFTprepare</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="n">fwd</span> <span class="o">=</span> <span class="n">FFTforward</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">data_dev</span><span class="p">,</span><span class="n">data_dev</span><span class="p">)</span>
+            <span class="n">rtime</span> <span class="o">+=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="n">fwd_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">ntime</span> <span class="o">+=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">actualf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fwd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">fwd</span><span class="p">))</span>
+            <span class="n">desiredf</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fwd_ref</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">fwd_ref</span><span class="p">))</span>
+
+            <span class="c1"># inverse</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="n">data_dev</span> <span class="o">=</span> <span class="n">FFTprepare</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">inv</span> <span class="o">=</span> <span class="n">FFTinverse</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span><span class="n">data_dev</span><span class="p">,</span><span class="n">data_dev</span><span class="p">)</span>
+            <span class="n">rtime</span> <span class="o">+=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="n">inv_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">ntime</span> <span class="o">+=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">actuali</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">inv</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">inv</span><span class="p">))</span>
+            <span class="n">desiredi</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">inv_ref</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">inv_ref</span><span class="p">))</span>
+
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">desiredf</span><span class="p">,</span> <span class="n">actualf</span><span class="p">,</span> <span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">desiredi</span><span class="p">,</span> <span class="n">actuali</span><span class="p">,</span> <span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+
+        <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;array size = </span><span class="si">%5d</span><span class="s1"> x </span><span class="si">%5d</span><span class="s1"> : gpu speedup = </span><span class="si">%g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="n">ntime</span> <span class="o">/</span> <span class="n">rtime</span><span class="p">))</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">aosat</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Module Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Markus Feldt.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
