@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat package &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <title>aosat package &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -48,10 +48,10 @@ to have one analyzer for each analysis task.  Analyzers are generally constructe
 then they are fed frames one by one, followed by a ‘finalize’ stage.  After the
 analysis is completed, the ‘make_report’ and ‘make_plot’ methods supply the relevant
 information.</p>
-<p>This is a dummy class with no actually functionality for ocumentation purposes.
+<p>This is a dummy class with no actually functionality for documentation purposes.
 It might be used to derive subclasses, but these can also be written independently.</p>
 <p>All analyzers should provide the methods of this one, and all methods
-should accept the aparemters of the ones implemented here,  Accepting
+should accept the parameters of the ones implemented here.  Accepting
 additional optional parameters is fine, but not supplying those should not imply
 fatal behaviour.</p>
 <dl class="field-list simple">
@@ -80,7 +80,7 @@ fatal behaviour.</p>
 <li><p><strong>frame</strong> (<em>2D residual wavefront</em>) – residual wavefront of a single timestep of the AO simulation.
 These residual WF frames are fed one by one, calculations should
 take into account this circumstance.</p></li>
-<li><p><strong>nframes</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – total number of rames to be fed</p></li>
+<li><p><strong>nframes</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – total number of frames to be fed</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -181,7 +181,7 @@ to be attached to the figure. (the default is ‘111’).</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dan</span><span class="o">.</span><span class="n">feed_frame</span><span class="p">(</span><span class="n">rf</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dan</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dan</span><span class="o">.</span><span class="n">make_report</span><span class="p">()</span>
-<span class="go">&#39;This is a dummy with no actuctual functionality&#39;</span>
+<span class="go">&#39;This is a dummy with no actual functionality&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -350,7 +350,7 @@ for the worst piston frame in the sequence.</p>
 <dd class="field-odd"><p><strong>none</strong> – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>fonr for matplotlib</p>
+<dd class="field-even"><p>font for matplotlib</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>font</p>
@@ -396,6 +396,70 @@ report.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="aosat.analyze.phs_analyzer">
+<em class="property">class </em><code class="sig-prename descclassname">aosat.analyze.</code><code class="sig-name descname">phs_analyzer</code><span class="sig-paren">(</span><em class="sig-param">sd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#phs_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.phs_analyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Analyze phase error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sd</strong> (<em>dictionary</em>) – Analysis setup dictionary</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sd</span><span class="o">=</span><span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">an</span><span class="o">=</span><span class="n">phs_analyzer</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">Available after calling finalize()!</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aosat.analyze.phs_analyzer.rms">
+<code class="sig-name descname">rms</code><a class="headerlink" href="#aosat.analyze.phs_analyzer.rms" title="Permalink to this definition">¶</a></dt>
+<dd><p>mean RMS of all wavefronts in nm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="aosat.analyze.phs_analyzer.lastphase">
+<code class="sig-name descname">lastphase</code><a class="headerlink" href="#aosat.analyze.phs_analyzer.lastphase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last residual phasescreen (in nm)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>2D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.phs_analyzer.feed_frame">
+<code class="sig-name descname">feed_frame</code><span class="sig-paren">(</span><em class="sig-param">frame</em>, <em class="sig-param">nframes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#phs_analyzer.feed_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.phs_analyzer.feed_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.phs_analyzer.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#phs_analyzer.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.phs_analyzer.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.phs_analyzer.make_plot">
+<code class="sig-name descname">make_plot</code><span class="sig-paren">(</span><em class="sig-param">fig=None</em>, <em class="sig-param">index=111</em>, <em class="sig-param">plotkwargs={}</em>, <em class="sig-param">subplotkwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#phs_analyzer.make_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.phs_analyzer.make_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.phs_analyzer.make_report">
+<code class="sig-name descname">make_report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#phs_analyzer.make_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.phs_analyzer.make_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="aosat.analyze.psf_analyzer">
 <em class="property">class </em><code class="sig-prename descclassname">aosat.analyze.</code><code class="sig-name descname">psf_analyzer</code><span class="sig-paren">(</span><em class="sig-param">sd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#psf_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.psf_analyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -427,8 +491,8 @@ report.</p>
 <dd><p>Run the analysis using a set of Analyzers.</p>
 <p>All frames of residual wavefronts are served to each
 analyzer one by one. When finished, the ‘finalize()’
-method of each analyzer is calledself.</p>
-<p>Thus, all analyzers should contain the relvant informative
+method of each analyzer is called.</p>
+<p>Thus, all analyzers should contain the relevant informative
 attributes upon completion, and be ready to have the
 ‘make_report()’ and ‘make_plot()’ methods called.</p>
 <dl class="field-list simple">
@@ -461,7 +525,7 @@ attributes upon completion, and be ready to have the
 <dt>CFG_SETTINGS[‘pupilmask’]</dt><dd><p>Path to FITS file containing the telescope aperture,
 relative to the path to the config file itself</p>
 </dd>
-<dt>CFG_SETTINGS[‘ppm’]</dt><dd><p>float giving th epixels per metre in the aperture plane</p>
+<dt>CFG_SETTINGS[‘ppm’]</dt><dd><p>float giving the pixels per metre in the aperture plane</p>
 </dd>
 <dt>CFG_SETTINGS[‘an_lambda’]</dt><dd><p>analysis wavelength in metres</p>
 </dd>
@@ -494,7 +558,7 @@ relative to the path to the config file itself</p>
 of informative plots for a simulation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_file</strong> (<em>string</em>) – <p>(Full path to) configuration file for the analysisself.
+<dd class="field-odd"><p><strong>config_file</strong> (<em>string</em>) – <p>(Full path to) configuration file for the analysis.
 In addition to the standard descriptive parameters, tearsheet
 evaluates the following:</p>
 <dl class="simple">
@@ -502,9 +566,9 @@ evaluates the following:</p>
 to the config file!</p>
 </dd>
 </dl>
-<p>ts_title         - title of the tearsheet written on topself.</p>
+<p>ts_title         - title of the tearsheet written on top.</p>
 <p>A copy of the config file’s content is printed in the first
-plot space on the tearsheet. So in pronciple you can add more
+plot space on the tearsheet. So in principle you can add more
 parameters than are being evaluated!</p>
 </p>
 </dd>
@@ -662,7 +726,7 @@ is simulated according to  (the default is ‘raw’).</p></li>
 <dl class="function">
 <dt id="aosat.aosat_cfg.configure">
 <code class="sig-prename descclassname">aosat.aosat_cfg.</code><code class="sig-name descname">configure</code><span class="sig-paren">(</span><em class="sig-param">setupfile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/aosat_cfg.html#configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.aosat_cfg.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set up a configuration ‘repdict’ from default or coniguration file.</p>
+<dd><p>Set up a configuration ‘repdict’ from default or configuration file.</p>
 <p>The general format of configuration files is</p>
 <p>name = value</p>
 <p>pairs. If a # appears in a line, the remainder is ignored.
@@ -685,7 +749,7 @@ aosat_loglevel = ‘DEBUG’      # log level</p>
 by calling ‘repstring(repdict)’</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>setupfile</strong> (<em>&lt;class 'str'&gt;</em><em> or </em><em>&lt;class 'NoneType'&gt;</em>) – Name of coniguration file to parse. If None,
+<dd class="field-odd"><p><strong>setupfile</strong> (<em>&lt;class 'str'&gt;</em><em> or </em><em>&lt;class 'NoneType'&gt;</em>) – Name of configuration file to parse. If None,
 the default configuration repdict is returned</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -710,7 +774,7 @@ starmag                  =   2.00
 optical_throughput       = 0.2243
 aosat_logfile            = None
 aosat_loglevel           = ‘INFO’</p>
-<p>When reading this file from the examples diretory, the resulting repdict will change
+<p>When reading this file from the examples directory, the resulting repdict will change
 to contain the new loglevel ‘INFO’:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">repdict</span> <span class="o">=</span> <span class="n">configure</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;example_report.py&#39;</span><span class="p">))</span>
@@ -762,7 +826,7 @@ after.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">repdict</span> <span class="o">=</span> <span class="n">configure</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span><span class="s1">&#39;example_report.py&#39;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">repString</span><span class="p">(</span><span class="n">repdict</span><span class="p">))</span>
-<span class="go">           an_lambda : 3e-06...</span>
+<span class="go">           an_lambda : 1e-06...</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -845,7 +909,7 @@ to numpy FFTs if neither is available.</p>
 <dd class="field-odd"><p><strong>inarr</strong> (<em>numpy array</em>) – Then input array</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>FFT plan to be exectued upon calls.
+<dd class="field-even"><p>FFT plan to be executed upon calls.
 In the current case where numpy FFTs
 are used, plan is None!</p>
 </dd>
@@ -893,7 +957,7 @@ are used, plan is None!</p>
 FFTinverse</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>inarr</strong> (<em>numpy array</em>) – The array to be transforemed</p>
+<dd class="field-odd"><p><strong>inarr</strong> (<em>numpy array</em>) – The array to be transformed</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>In the current case of numpy FFTs, the array itself</p>
@@ -940,7 +1004,7 @@ the zero component is centered</p>
 <dt id="aosat.fftx.fftSpeedTest">
 <code class="sig-prename descclassname">aosat.fftx.</code><code class="sig-name descname">fftSpeedTest</code><span class="sig-paren">(</span><em class="sig-param">max_res=13</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/fftx.html#fftSpeedTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.fftx.fftSpeedTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test of speed of currently selected FFT vs. numpy.</p>
-<p>This is intended to verify that the selectd OpenCL / CUDA
+<p>This is intended to verify that the selected OpenCL / CUDA
 FFTs are indeed faster than numpy.  For older GPUs, that
 may not always be the case.</p>
 <p>When called, fftSpeedtest will test a series of array sizes
@@ -987,13 +1051,13 @@ In particular by the keywords</p>
 <dt>CFG_SETTINGS[‘startskip’]</dt><dd><p>Number of screens to skip before commencing analysis. good
 for avoiding loop closure troubles</p>
 </dd>
-<dt>CFG_SETTINGS[‘skipstep’]</dt><dd><p>Number of frames to skip over between analyszed frames.
+<dt>CFG_SETTINGS[‘skipstep’]</dt><dd><p>Number of frames to skip over between analyzed frames.
 Can speed up execution during trial runs, or avoid
 high-correlation frames when the simulation frequency is much
 higher than the AO loop frequency</p>
 </dd>
 <dt>CFG_SETTINGS[‘totalnumber’]</dt><dd><p>Total number of frames to be analyzed, should be equal
-or lowar to the number of available frames. If the key
+or lower to the number of available frames. If the key
 does not exist, will be all frames available</p>
 </dd>
 <dt>CFG_SETTINGS[‘an_lambda’]</dt><dd><p>The wavelength at which the analysis will be carried out.
@@ -1008,7 +1072,7 @@ vi an_lambda!</p>
 <dt>CFG_SETTINGS[‘setup_path’]</dt><dd><p>Path to the setup file used last for configuration. Defaults
 to current working directory if never invoked.</p>
 </dd>
-<dt>CFG_SETTINGS[‘screen_dir’]</dt><dd><p>Path to the dierotory where the screens are in,
+<dt>CFG_SETTINGS[‘screen_dir’]</dt><dd><p>Path to the directory where the screens are in,
 RELATIVE to the above!</p>
 </dd>
 <dt>CFG_SETTINGS[‘screen_fpattern’]</dt><dd><p>Wildcard pattern that matches all files where phase screens are
@@ -1063,7 +1127,7 @@ be</p>
 <dl class="function">
 <dt id="aosat.frameserver.sortFiles">
 <code class="sig-prename descclassname">aosat.frameserver.</code><code class="sig-name descname">sortFiles</code><span class="sig-paren">(</span><em class="sig-param">file_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/frameserver.html#sortFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.frameserver.sortFiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sort filenames accoring to inter numnber in every name</p>
+<dd><p>Sort filenames according to inter number in every name</p>
 <p>If filenames contain more than one integer, the last one
 will be used for sorting!
 The list will be sorted according to these numbers in
@@ -1232,14 +1296,14 @@ fill        - Optional  : bar fill character (Str)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>frame</strong> (<em>2D array</em><em>, </em><em>square</em><em>(</em><em>!</em><em>)</em>) – Input frame of the shape for which the 2D order should be calulated</p></li>
+<li><p><strong>frame</strong> (<em>2D array</em><em>, </em><em>square</em><em>(</em><em>!</em><em>)</em>) – Input frame of the shape for which the 2D order should be calculated</p></li>
 <li><p><strong>outer_radius</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><em>float</em></a>) – Radius (in pixels) out to which the order should be calculated.
 Default is to calculate fora all pixels</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>r - array pof the same shape as frame where each pixel contains</dt><dd><p>the radial ditsance to the centre</p>
+<dt>r - array pof the same shape as frame where each pixel contains</dt><dd><p>the radial distance to the centre</p>
 </dd>
 <dt>pixels - indices of the pixels closer to the centre than</dt><dd><p>outer_radius.</p>
 </dd>
@@ -1263,7 +1327,7 @@ frame[pixels][rord]</p>
 <dl class="function">
 <dt id="aosat.util.rolling_variance">
 <code class="sig-prename descclassname">aosat.util.</code><code class="sig-name descname">rolling_variance</code><span class="sig-paren">(</span><em class="sig-param">old</em>, <em class="sig-param">newValue</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/util.html#rolling_variance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.util.rolling_variance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rolling varince computation according to  Welford’s algorithm.
+<dd><p>Rolling variance computation according to  Welford’s algorithm.
 <a class="reference external" href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_Online_algorithm">https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford’s_Online_algorithm</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1303,7 +1367,7 @@ respectively</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nterms</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Number of basis functions to generate</p></li>
 <li><p><strong>npix</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Number of pixels in each screen (will be npix x npix)</p></li>
-<li><p><strong>tel_mirror</strong> (<em>2D array</em>) – Aperure mask representing the telescope mirror.
+<li><p><strong>tel_mirror</strong> (<em>2D array</em>) – Aperture mask representing the telescope mirror.
 If larger than npix x npix the central area will be used.
 Can be None</p></li>
 </ul>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat.analyze &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <title>aosat.analyze &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -70,11 +70,11 @@
 <span class="sd">    analysis is completed, the &#39;make_report&#39; and &#39;make_plot&#39; methods supply the relevant</span>
 <span class="sd">    information.</span>
 
-<span class="sd">    This is a dummy class with no actually functionality for ocumentation purposes.</span>
+<span class="sd">    This is a dummy class with no actually functionality for documentation purposes.</span>
 <span class="sd">    It might be used to derive subclasses, but these can also be written independently.</span>
 
 <span class="sd">    All analyzers should provide the methods of this one, and all methods</span>
-<span class="sd">    should accept the aparemters of the ones implemented here,  Accepting</span>
+<span class="sd">    should accept the parameters of the ones implemented here.  Accepting</span>
 <span class="sd">    additional optional parameters is fine, but not supplying those should not imply</span>
 <span class="sd">    fatal behaviour.</span>
 
@@ -129,7 +129,7 @@
 <span class="sd">            These residual WF frames are fed one by one, calculations should</span>
 <span class="sd">            take into account this circumstance.</span>
 <span class="sd">        nframes: int</span>
-<span class="sd">            total number of rames to be fed</span>
+<span class="sd">            total number of frames to be fed</span>
 
 
 <span class="sd">        Returns</span>
@@ -195,9 +195,9 @@
 <span class="sd">        &gt;&gt;&gt; dan.feed_frame(rf,1)</span>
 <span class="sd">        &gt;&gt;&gt; dan.finalize()</span>
 <span class="sd">        &gt;&gt;&gt; dan.make_report()</span>
-<span class="sd">        &#39;This is a dummy with no actuctual functionality&#39;</span>
+<span class="sd">        &#39;This is a dummy with no actual functionality&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">report</span> <span class="o">=</span> <span class="s2">&quot;This is a dummy with no actuctual functionality&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="s2">&quot;This is a dummy with no actual functionality&quot;</span>
         <span class="k">return</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="dmy_analyzer.make_plot"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.dmy_analyzer.make_plot">[docs]</a>    <span class="k">def</span> <span class="nf">make_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;111&#39;</span><span class="p">,</span><span class="n">plotkwargs</span><span class="o">=</span><span class="p">{},</span><span class="n">subplotkwargs</span><span class="o">=</span><span class="p">{}):</span>
@@ -571,6 +571,113 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rcvecmin</span>  <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rcvecmax</span>  <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span></div></div>
 
+<div class="viewcode-block" id="phs_analyzer"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.phs_analyzer">[docs]</a><span class="k">class</span> <span class="nc">phs_analyzer</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Analyze phase error</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sd : dictionary</span>
+<span class="sd">        Analysis setup dictionary</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; sd={}</span>
+<span class="sd">    &gt;&gt;&gt; an=phs_analyzer</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Available after calling finalize()!</span>
+<span class="sd">    rms : float</span>
+<span class="sd">        mean RMS of all wavefronts in nm.</span>
+<span class="sd">    lastphase : 2D array</span>
+<span class="sd">        Last residual phasescreen (in nm)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sd</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sd</span>        <span class="o">=</span> <span class="n">sd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmst</span>      <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms</span>       <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastphase</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ffed</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="phs_analyzer.feed_frame"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.phs_analyzer.feed_frame">[docs]</a>    <span class="k">def</span> <span class="nf">feed_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">nframes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ffed</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rmst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nframes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ffed</span> <span class="o">==</span> <span class="p">(</span><span class="n">nframes</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastphase</span> <span class="o">=</span> <span class="n">frame</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">][</span><span class="s1">&#39;an_lambda&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e9</span> <span class="c1"># in nm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmst</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ffed</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;wnz&#39;</span><span class="p">]]</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">][</span><span class="s1">&#39;an_lambda&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e9</span><span class="p">)</span> <span class="c1"># in nm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ffed</span> <span class="o">+=</span> <span class="mi">1</span></div>
+<div class="viewcode-block" id="phs_analyzer.finalize"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.phs_analyzer.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rmst</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="phs_analyzer.make_report"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.phs_analyzer.make_report">[docs]</a>    <span class="k">def</span> <span class="nf">make_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">report</span> <span class="o">=</span>  <span class="s2">&quot;##</span><span class="se">\n</span><span class="s2">##</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;## reporting analyzer: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">##</span><span class="se">\n</span><span class="s2">##</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;## Mean RMS of wavefront:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">report</span> <span class="o">+=</span> <span class="s2">&quot;std_wf    = </span><span class="si">%s</span><span class="s2"> # nm</span><span class="se">\n\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">rms</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
+<div class="viewcode-block" id="phs_analyzer.make_plot"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.phs_analyzer.make_plot">[docs]</a>    <span class="k">def</span> <span class="nf">make_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="mi">111</span><span class="p">,</span><span class="n">plotkwargs</span><span class="o">=</span><span class="p">{},</span><span class="n">subplotkwargs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="c1">## plot region</span>
+        <span class="n">sdim</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastphase</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="o">-</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">r</span>     <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+        <span class="n">plts</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">max</span><span class="p">((</span><span class="n">r</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;tel_mirror&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span><span class="o">*</span><span class="mf">1.1</span><span class="p">,</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span>
+        <span class="n">sreg</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">plts</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">sdim</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">plts</span><span class="p">))</span>
+
+        <span class="c1">## what to show</span>
+        <span class="n">mphase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastphase</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;wnz&#39;</span><span class="p">]])</span>
+        <span class="n">sphase</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lastphase</span><span class="p">)</span>
+        <span class="n">sphase</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;wnz&#39;</span><span class="p">]]</span> <span class="o">-=</span>  <span class="n">mphase</span>
+        <span class="n">pp</span>     <span class="o">=</span> <span class="n">sphase</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;wnz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">pmin</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">pmax</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span><span class="mi">95</span><span class="p">)</span>
+        <span class="n">sshow</span> <span class="o">=</span> <span class="n">sphase</span><span class="p">[</span><span class="n">sreg</span><span class="p">,</span><span class="n">sreg</span><span class="p">]</span>
+
+
+        <span class="c1">##</span>
+        <span class="c1">## default appearance</span>
+        <span class="c1">##</span>
+        <span class="k">if</span> <span class="s1">&#39;xlabel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subplotkwargs</span><span class="p">:</span>
+            <span class="n">subplotkwargs</span><span class="p">[</span><span class="s1">&#39;xlabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\delta$x[m]&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;ylabel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subplotkwargs</span><span class="p">:</span>
+            <span class="n">subplotkwargs</span><span class="p">[</span><span class="s1">&#39;ylabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\delta$y[m]&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;title&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subplotkwargs</span><span class="p">:</span>
+            <span class="n">subplotkwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Last Residual Phase</span><span class="se">\n</span><span class="s1"> &#39;</span>
+
+
+        <span class="k">if</span> <span class="s1">&#39;cmap&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotkwargs</span><span class="p">:</span>
+            <span class="n">plotkwargs</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nipy_spectral&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;extent&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotkwargs</span><span class="p">:</span>
+            <span class="n">plotkwargs</span><span class="p">[</span><span class="s1">&#39;extent&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">plts</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;ppm&#39;</span><span class="p">],</span><span class="o">-</span><span class="p">(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">plts</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;ppm&#39;</span><span class="p">],</span><span class="o">-</span><span class="p">(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">plts</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;ppm&#39;</span><span class="p">],(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">plts</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;ppm&#39;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="s1">&#39;origin&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotkwargs</span><span class="p">:</span>
+            <span class="n">plotkwargs</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;vmin&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotkwargs</span><span class="p">:</span>
+            <span class="n">plotkwargs</span><span class="p">[</span><span class="s1">&#39;vmin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmin</span>
+        <span class="k">if</span> <span class="s1">&#39;vmax&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotkwargs</span><span class="p">:</span>
+            <span class="n">plotkwargs</span><span class="p">[</span><span class="s1">&#39;vmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pmax</span>
+
+
+        <span class="c1">##</span>
+        <span class="c1">##  create (only) subplot</span>
+        <span class="c1">##</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Subplot keyword args:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">aosat_cfg</span><span class="o">.</span><span class="n">repString</span><span class="p">(</span><span class="n">subplotkwargs</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Plot keyword args:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">aosat_cfg</span><span class="o">.</span><span class="n">repString</span><span class="p">(</span><span class="n">plotkwargs</span><span class="p">))</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="o">**</span><span class="n">subplotkwargs</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="c1">#</span>
+        <span class="n">im</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">sshow</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">[</span><span class="s1">&#39;tel_mirror&#39;</span><span class="p">][</span><span class="n">sreg</span><span class="p">,</span><span class="n">sreg</span><span class="p">],</span> <span class="o">**</span><span class="n">plotkwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="s2">&quot;Mean RMS WF:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%.1f</span><span class="s2"> nm&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">rms</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span><span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+        <span class="n">dividerpi</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">caxpi</span> <span class="o">=</span> <span class="n">dividerpi</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;10%&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">caxpi</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">caxpi</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">pmin</span><span class="o">+</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">11</span><span class="p">))</span><span class="o">/</span><span class="mf">10.0</span><span class="o">*</span><span class="p">(</span><span class="n">pmax</span><span class="o">-</span><span class="n">pmin</span><span class="p">)</span>
+        <span class="n">cbarpi</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">caxpi</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">t</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Phase [nm]&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div></div>
+
 
 <div class="viewcode-block" id="frg_analyzer"><a class="viewcode-back" href="../../api/aosat.html#aosat.analyze.frg_analyzer">[docs]</a><span class="k">class</span> <span class="nc">frg_analyzer</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Analyze the island effect, i.e. the impact of pupil</span>
@@ -806,7 +913,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    font</span>
-<span class="sd">        fonr for matplotlib</span>
+<span class="sd">        font for matplotlib</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">font0</span> <span class="o">=</span> <span class="n">FontProperties</span><span class="p">()</span>
@@ -834,7 +941,7 @@
 <span class="sd">        relative to the path to the config file itself</span>
 
 <span class="sd">    CFG_SETTINGS[&#39;ppm&#39;]</span>
-<span class="sd">        float giving th epixels per metre in the aperture plane</span>
+<span class="sd">        float giving the pixels per metre in the aperture plane</span>
 
 <span class="sd">    CFG_SETTINGS[&#39;an_lambda&#39;]</span>
 <span class="sd">        analysis wavelength in metres</span>
@@ -1008,9 +1115,9 @@
 
 <span class="sd">    All frames of residual wavefronts are served to each</span>
 <span class="sd">    analyzer one by one. When finished, the &#39;finalize()&#39;</span>
-<span class="sd">    method of each analyzer is calledself.</span>
+<span class="sd">    method of each analyzer is called.</span>
 
-<span class="sd">    Thus, all analyzers should contain the relvant informative</span>
+<span class="sd">    Thus, all analyzers should contain the relevant informative</span>
 <span class="sd">    attributes upon completion, and be ready to have the</span>
 <span class="sd">    &#39;make_report()&#39; and &#39;make_plot()&#39; methods called.</span>
 
@@ -1051,7 +1158,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config_file : string</span>
-<span class="sd">        (Full path to) configuration file for the analysisself.</span>
+<span class="sd">        (Full path to) configuration file for the analysis.</span>
 <span class="sd">        In addition to the standard descriptive parameters, tearsheet</span>
 <span class="sd">        evaluates the following:</span>
 
@@ -1059,10 +1166,10 @@
 <span class="sd">                           If it contains path information, it&#39;s relative</span>
 <span class="sd">                           to the config file!</span>
 
-<span class="sd">        ts_title         - title of the tearsheet written on topself.</span>
+<span class="sd">        ts_title         - title of the tearsheet written on top.</span>
 
 <span class="sd">        A copy of the config file&#39;s content is printed in the first</span>
-<span class="sd">        plot space on the tearsheet. So in pronciple you can add more</span>
+<span class="sd">        plot space on the tearsheet. So in principle you can add more</span>
 <span class="sd">        parameters than are being evaluated!</span>
 
 <span class="sd">    Returns</span>
@@ -1092,7 +1199,7 @@
     <span class="c1">##</span>
     <span class="c1">## add all available analyzers, then run</span>
     <span class="c1">##</span>
-    <span class="n">analyzers</span><span class="o">=</span><span class="p">[</span><span class="n">psf_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span> <span class="n">frg_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span> <span class="n">tvc_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span><span class="n">ctype</span><span class="o">=</span><span class="s1">&#39;icor&#39;</span><span class="p">),</span> <span class="n">tvc_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">)]</span>
+    <span class="n">analyzers</span><span class="o">=</span><span class="p">[</span><span class="n">psf_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span> <span class="n">frg_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span> <span class="n">phs_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span> <span class="n">tvc_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span><span class="n">ctype</span><span class="o">=</span><span class="s1">&#39;icor&#39;</span><span class="p">),</span> <span class="n">tvc_analyzer</span><span class="p">(</span><span class="n">sd</span><span class="p">)]</span>
     <span class="n">run</span><span class="p">(</span><span class="n">analyzers</span><span class="p">)</span>
 
     <span class="c1">##</span>

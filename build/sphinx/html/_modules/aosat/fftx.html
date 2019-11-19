@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat.fftx &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <title>aosat.fftx &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -105,7 +105,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        plan</span>
-<span class="sd">            FFT plan to be exectued upon calls.</span>
+<span class="sd">            FFT plan to be executed upon calls.</span>
 <span class="sd">            In the current case where numpy FFTs</span>
 <span class="sd">            are used, plan is None!</span>
 
@@ -127,7 +127,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        inarr : numpy array</span>
-<span class="sd">            The array to be transforemed</span>
+<span class="sd">            The array to be transformed</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -255,7 +255,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        plan</span>
-<span class="sd">            FFT plan to be exectued upon calls.</span>
+<span class="sd">            FFT plan to be executed upon calls.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        -------</span>
@@ -273,7 +273,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        inarr : numpy array, preferrably np.complex64</span>
+<span class="sd">        inarr : numpy array, preferably np.complex64</span>
 <span class="sd">            Sample of input array, same size and type which you</span>
 <span class="sd">            are going to transform a lot later on.</span>
 
@@ -281,7 +281,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        FFTout object</span>
 <span class="sd">            The output object which must be passed to FFTplan</span>
-<span class="sd">            later on. Will not be used explicitely</span>
+<span class="sd">            later on. Will not be used explicitly</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        -------</span>
@@ -331,7 +331,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        numpy array</span>
-<span class="sd">            FFT transfor of input array</span>
+<span class="sd">            FFT transform of input array</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        -------</span>
@@ -431,7 +431,7 @@
 <div class="viewcode-block" id="fftSpeedTest"><a class="viewcode-back" href="../../api/aosat.html#aosat.fftx.fftSpeedTest">[docs]</a><span class="k">def</span> <span class="nf">fftSpeedTest</span><span class="p">(</span><span class="n">max_res</span><span class="o">=</span><span class="mi">13</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Test of speed of currently selected FFT vs. numpy.</span>
 
-<span class="sd">    This is intended to verify that the selectd OpenCL / CUDA</span>
+<span class="sd">    This is intended to verify that the selected OpenCL / CUDA</span>
 <span class="sd">    FFTs are indeed faster than numpy.  For older GPUs, that</span>
 <span class="sd">    may not always be the case.</span>
 

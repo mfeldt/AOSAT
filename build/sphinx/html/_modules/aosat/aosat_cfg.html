@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat.aosat_cfg &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <title>aosat.aosat_cfg &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -90,7 +90,7 @@
 
 
 <div class="viewcode-block" id="configure"><a class="viewcode-back" href="../../api/aosat.html#aosat.aosat_cfg.configure">[docs]</a><span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">setupfile</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Set up a configuration &#39;repdict&#39; from default or coniguration file.</span>
+    <span class="sd">&quot;&quot;&quot;Set up a configuration &#39;repdict&#39; from default or configuration file.</span>
 
 <span class="sd">    The general format of configuration files is</span>
 
@@ -122,7 +122,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    setupfile : &lt;class &#39;str&#39;&gt; or &lt;class &#39;NoneType&#39;&gt;</span>
-<span class="sd">        Name of coniguration file to parse. If None,</span>
+<span class="sd">        Name of configuration file to parse. If None,</span>
 <span class="sd">        the default configuration repdict is returned</span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -151,7 +151,7 @@
 <span class="sd">    aosat_logfile            = None</span>
 <span class="sd">    aosat_loglevel           = &#39;INFO&#39;</span>
 
-<span class="sd">    When reading this file from the examples diretory, the resulting repdict will change</span>
+<span class="sd">    When reading this file from the examples directory, the resulting repdict will change</span>
 <span class="sd">    to contain the new loglevel &#39;INFO&#39;:</span>
 
 <span class="sd">    &gt;&gt;&gt; import os</span>
@@ -195,7 +195,7 @@
 <span class="sd">    &gt;&gt;&gt; import os</span>
 <span class="sd">    &gt;&gt;&gt; repdict = configure(os.path.join(os.path.dirname(os.path.abspath(__file__)),&#39;examples&#39;,&#39;example_report.py&#39;))</span>
 <span class="sd">    &gt;&gt;&gt; print(repString(repdict))</span>
-<span class="sd">               an_lambda : 3e-06...</span>
+<span class="sd">               an_lambda : 1e-06...</span>
 
 
 <span class="sd">    &quot;&quot;&quot;</span>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat.util &#8212; aosat 0.0.post0.dev35+g1480473.dirty documentation</title>
+    <title>aosat.util &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -69,7 +69,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    frame : 2D array, square(!)</span>
-<span class="sd">        Input frame of the shape for which the 2D order should be calulated</span>
+<span class="sd">        Input frame of the shape for which the 2D order should be calculated</span>
 <span class="sd">    outer_radius : float</span>
 <span class="sd">        Radius (in pixels) out to which the order should be calculated.</span>
 <span class="sd">        Default is to calculate fora all pixels</span>
@@ -78,7 +78,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    tuple (r,pixels,rord)</span>
 <span class="sd">        r - array pof the same shape as frame where each pixel contains</span>
-<span class="sd">            the radial ditsance to the centre</span>
+<span class="sd">            the radial distance to the centre</span>
 
 <span class="sd">        pixels - indices of the pixels closer to the centre than</span>
 <span class="sd">                 outer_radius.</span>
@@ -105,7 +105,7 @@
     <span class="k">return</span><span class="p">((</span><span class="n">r</span><span class="p">,</span><span class="n">pixels</span><span class="p">,</span><span class="n">rord</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="rolling_variance"><a class="viewcode-back" href="../../api/aosat.html#aosat.util.rolling_variance">[docs]</a><span class="k">def</span> <span class="nf">rolling_variance</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">newValue</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Rolling varince computation according to  Welford&#39;s algorithm.</span>
+    <span class="sd">&quot;&quot;&quot;Rolling variance computation according to  Welford&#39;s algorithm.</span>
 <span class="sd">    https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford&#39;s_Online_algorithm</span>
 
 <span class="sd">    Parameters</span>
@@ -154,7 +154,7 @@
 <span class="sd">    npix : int</span>
 <span class="sd">        Number of pixels in each screen (will be npix x npix)</span>
 <span class="sd">    tel_mirror : 2D array</span>
-<span class="sd">        Aperure mask representing the telescope mirror.</span>
+<span class="sd">        Aperture mask representing the telescope mirror.</span>
 <span class="sd">        If larger than npix x npix the central area will be used.</span>
 <span class="sd">        Can be None</span>
 

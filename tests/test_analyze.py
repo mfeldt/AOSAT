@@ -233,3 +233,30 @@ def test_frg_tilt():
     an.finalize()
     assert np.abs(an.ttx - np.repeat(1.0,6)).sum() < 5e-3
     assert np.abs(an.tty - np.repeat(0.0,6)).sum() < 5e-3
+
+def test_phs():
+
+
+    sd = analyze.setup()
+    an = analyze.phs_analyzer(sd)
+
+
+    ##
+    ## make frames
+    ##
+    sdim=sd['tel_mirror'].shape[0]
+
+    p1 = sd['tel_mirror']*0+1.0
+    p1[::2] = 0.0 # every other row 0, so SDEV=0.5
+
+    ## feed frames
+    nframes=10
+    for i in range(nframes):
+        an.feed_frame(p1,nframes)
+
+
+    ##
+    ## finalize and check
+    ##
+    an.finalize()
+    assert np.abs(an.rms - 0.5/2/np.pi*sd['cfg']['an_lambda']*1e9)<1e-5
