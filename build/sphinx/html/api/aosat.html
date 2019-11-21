@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>aosat package &#8212; aosat 0.0.post0.dev40+ge86b666.dirty documentation</title>
+    <title>aosat package &#8212; aosat 0.0.post0.dev41+gb3fcde2.dirty documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -719,6 +719,32 @@ is simulated according to  (the default is ‘raw’).</p></li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="aosat.analyze.zrn_analyzer">
+<em class="property">class </em><code class="sig-prename descclassname">aosat.analyze.</code><code class="sig-name descname">zrn_analyzer</code><span class="sig-paren">(</span><em class="sig-param">sd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#zrn_analyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.zrn_analyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="aosat.analyze.zrn_analyzer.feed_frame">
+<code class="sig-name descname">feed_frame</code><span class="sig-paren">(</span><em class="sig-param">frame</em>, <em class="sig-param">nframes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#zrn_analyzer.feed_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.zrn_analyzer.feed_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.zrn_analyzer.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#zrn_analyzer.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.zrn_analyzer.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.zrn_analyzer.make_plot">
+<code class="sig-name descname">make_plot</code><span class="sig-paren">(</span><em class="sig-param">fig=None</em>, <em class="sig-param">index=111</em>, <em class="sig-param">plotkwargs={}</em>, <em class="sig-param">subplotkwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#zrn_analyzer.make_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.zrn_analyzer.make_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aosat.analyze.zrn_analyzer.make_report">
+<code class="sig-name descname">make_report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/analyze.html#zrn_analyzer.make_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.analyze.zrn_analyzer.make_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-aosat.aosat_cfg">
 <span id="aosat-aosat-cfg-module"></span><h2>aosat.aosat_cfg module<a class="headerlink" href="#module-aosat.aosat_cfg" title="Permalink to this headline">¶</a></h2>
@@ -1263,13 +1289,13 @@ values should be 1 or 0.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Examples should be written in doctest format, and
-should illustrate how to use the function/class.
-&gt;&gt;&gt; zb = zernike_basis(10,512,None)
-&gt;&gt;&gt; s = np.array([zb[i]*i/10.0 for i in range(10)]).sum(axis=0)
-&gt;&gt;&gt; tm = np.isfinite(s)*1.0
-&gt;&gt;&gt; basis_expand(s,zb,tm)
-array([…</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zb</span> <span class="o">=</span> <span class="n">zernike_basis</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">512</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">zb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">i</span><span class="o">/</span><span class="mf">10.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">basis_expand</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">zb</span><span class="p">,</span><span class="n">tm</span><span class="p">)</span>
+<span class="go">array([...</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -1362,14 +1388,18 @@ respectively</p>
 <dt id="aosat.util.zernike_basis">
 <code class="sig-prename descclassname">aosat.util.</code><code class="sig-name descname">zernike_basis</code><span class="sig-paren">(</span><em class="sig-param">nterms</em>, <em class="sig-param">npix</em>, <em class="sig-param">tel_mirror</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aosat/util.html#zernike_basis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aosat.util.zernike_basis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a Zernike basis</p>
+<p>Note that even though called “zernike”, it actually calls
+poppy’s “arbitrary_basis”, which uses a Gram-Schmidt
+orthonormalization to adapt to the actual pupil!</p>
+<p>For this reason, the aperture mask (tel_mirror) must be
+supplied!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nterms</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Number of basis functions to generate</p></li>
 <li><p><strong>npix</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Number of pixels in each screen (will be npix x npix)</p></li>
 <li><p><strong>tel_mirror</strong> (<em>2D array</em>) – Aperture mask representing the telescope mirror.
-If larger than npix x npix the central area will be used.
-Can be None</p></li>
+If larger than npix x npix the central area will be used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

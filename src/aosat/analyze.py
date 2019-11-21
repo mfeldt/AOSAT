@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
 from matplotlib.colors import LogNorm
+from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import matplotlib.image as mpimg
@@ -865,6 +866,74 @@ class frg_analyzer():
 
 
 
+class zrn_analyzer():
+    def __init__(self,sd):
+        self.sd      = sd
+        self.ffed    = 0
+        self.modes   = np.zeros(sd['cfg']['zterms'])
+        self.dmodes  = np.zeros(sd['cfg']['zterms'])
+        self.modest  = None
+        self._ffed   = 0
+
+    def feed_frame(self,frame,nframes):
+        if self._ffed == 0:
+            self.modest = np.zeros((self.sd['cfg']['zterms'],nframes))
+
+        self.modest[:,self._ffed] = util.basis_expand(frame/2/np.pi*self.sd['cfg']['an_lambda']*1e9,self.sd['zernike_basis'],self.sd['tel_mirror']) #in nm
+
+        self._ffed +=1
+
+    def finalize(self):
+        self.modes  = np.mean(self.modest,axis=1)
+        self.dmodes = np.std(self.modest,axis=1)
+
+
+    def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
+
+        if fig is None:
+            fig = plt.figure()
+
+        ##
+        ## default appearance
+        ##
+        if not 'color' in plotkwargs:
+            plotkwargs['color'] = 'blue'
+        if 'xlim' not in subplotkwargs:
+            subplotkwargs['xlim'] =(1,self.sd['cfg']['zterms'])
+        if 'ylim' not in subplotkwargs:
+            subplotkwargs['ylim'] =(0,np.max(np.maximum(self.modes**2,self.dmodes**2)[1:])*1.1)
+        if 'xlabel' not in subplotkwargs:
+            subplotkwargs['xlabel'] = 'Term #'
+        if 'ylabel' not in subplotkwargs:
+            subplotkwargs['ylabel'] = r'Amplitude$^2$ and Variance [nm$^2$]'
+        if 'title' not in subplotkwargs:
+            subplotkwargs['title'] = r'Zernike Expansion'
+
+        if 'color' not in plotkwargs:
+            plotkwargs['color']='blue'
+        ##
+        ##  create (only) subplot
+        ##
+        logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
+        ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
+        ax.fill_between(np.arange(len(self.modes)),np.repeat(0.0,len(self.modes)),self.dmodes**2,alpha=0.5,**plotkwargs)
+        ax.plot(np.arange(len(self.modes)),self.modes**2,**plotkwargs)
+        ax.text(0.75,0.95,r'Amplitude$^2$',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
+        ax.text(0.75,0.9,r'Variance',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
+
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        return(fig)
+
+    def make_report(self):
+
+        report =  "##\n##\n"
+        report += "## reporting analyzer: %s\n##\n##\n" % self.__class__.__name__
+        report += "## Basis expansion values (mean) [nm]:\n\n"
+        report += "modes_mean    = %s\n" % (np.array2string(self.modes,separator=',',precision=2))
+        report += "## Basis expansion values (standard deviation) [nm]:\n\n"
+        report += "modes_std     = %s\n" % (np.array2string(self.dmodes,separator=',',precision=2))
+        return(report)
+
 
 
 
@@ -931,8 +1000,8 @@ def setup():
     setup_dict = {}
 
     setup_dict['tel_mirror'] = pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))
-    ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))
-    ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))
+    ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))+1
+    ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))+1
     setup_dict['pupildiam']  = max([ext_x,ext_y])
 
     logger.debug("Found pupil diameter of %s pixels" % setup_dict['pupildiam'])
@@ -958,9 +1027,10 @@ def setup():
     x, y     = np.mgrid[-setup_dict['sdim']/2:setup_dict['sdim']/2,-setup_dict['sdim']/2:setup_dict['sdim']/2]/setup_dict['ppm']
     setup_dict['wtrk']          = np.where((setup_dict['tel_mirror'] != 0 ) * ((x-x.astype(int)) ==0) * ((y-y.astype(int))==0))
 
-    logger.info("Making Zernike basis with %s terms ..." % aosat_cfg.CFG_SETTINGS['zterms'])
-    setup_dict['zernike_basis'] = zernike.zernike_basis(nterms=aosat_cfg.CFG_SETTINGS['zterms'],npix=int(setup_dict['pupildiam']))
-
+    logger.info("Making Modal basis with %s terms ..." % aosat_cfg.CFG_SETTINGS['zterms'])
+    #setup_dict['zernike_basis'] = zernike.zernike_basis(nterms=aosat_cfg.CFG_SETTINGS['zterms'],npix=int(setup_dict['pupildiam']))
+    mreg = slice (int(setup_dict['sdim']/2-setup_dict['pupildiam']/2),int(setup_dict['sdim']/2+setup_dict['pupildiam']/2))
+    setup_dict['zernike_basis'] = zernike.arbitrary_basis(setup_dict['tel_mirror'][mreg,mreg],nterms=aosat_cfg.CFG_SETTINGS['zterms'],outside=0.0)
 
 
     return(setup_dict)
@@ -1166,7 +1236,7 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
+    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), zrn_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
     run(analyzers)
 
     ##

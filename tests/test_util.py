@@ -4,6 +4,7 @@ from aosat import aosat_cfg
 import os
 import numpy as np
 from astropy import units
+import pdb
 
 def test_rv():
     a=np.random.randn(100)
@@ -15,8 +16,10 @@ def test_rv():
     assert math.isclose(b[2]/b[0], a.var())
 
 def test_zernike():
-    zb = util.zernike_basis(10,512,None)
-    s = np.array([zb[i]*i/1e9 for i in range(10)]).sum(axis=0)
-    tm = np.isfinite(s)*1.0
+    x,y = np.mgrid[-256:256,-256:256]
+    r=(x**2+y**2)**0.5
+    tm = (r<=255)*1.0
+    zb = util.zernike_basis(10,512,tm)
+    s = np.array([zb[i]*i/1e1 for i in range(10)]).sum(axis=0)
     v=util.basis_expand(s,zb,tm)
-    assert not any(np.abs(v-np.arange(10)/1e9)>2e-11)
+    assert not any(np.abs(v-np.arange(10)/1e1)>3e-3)

@@ -85,7 +85,7 @@ def test_psf_analyze_ttwf():
     an.feed_frame(ps,1)
     an.finalize()
 
-    assert np.abs(an.ttjit - texc*1000.0) < 1e-4
+    assert np.abs(an.ttjit - texc*1000.0) < 2e-3
 
 
 def test_psf_analyze_ttpsf():
@@ -260,3 +260,42 @@ def test_phs():
     ##
     an.finalize()
     assert np.abs(an.rms - 0.5/2/np.pi*sd['cfg']['an_lambda']*1e9)<1e-5
+
+
+def test_zrn_modevec():
+    bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
+    aosat.aosat_cfg.CFG_SETTINGS['setup_path'] = bdir
+    aosat.aosat_cfg.CFG_SETTINGS['pupilmask'] = 'ExampleAnalyze/yao_pupil.fits'
+    sd = analyze.setup()
+    an = analyze.zrn_analyzer(sd)
+
+    mv = np.array([0.1,0.2,0.1,0.2,0.5,0.4,0.3,0.2,0.1,0.5,0.1,0.2,0.1,0.2,0.5,0.4,0.3,0.2,0.1,0.5])
+    #mv=np.repeat(0,20)
+    #mv[0]=1
+    assert len(mv) == sd['zernike_basis'].shape[0]
+    wsize    = sd['tel_mirror'].shape
+    bsize    = sd['zernike_basis'][0].shape
+    breg     = slice(int(wsize[0]/2-bsize[0]/2),int(wsize[0]/2+bsize[0]/2))
+    aperture = sd['tel_mirror'][breg,breg]
+    wgood    = np.where((aperture != 0.0) & np.isfinite(sd['zernike_basis'][1]))
+    ngood    = (wgood[0]).size
+    p1       = sd['tel_mirror']*0.0
+    for i in range(len(mv)):
+        p1[breg,breg] += mv[i]*sd['zernike_basis'][i]
+    ##
+    ## feed frames
+    ##
+    nframes=10
+    for i in np.arange(nframes):
+        an.feed_frame(p1*i,nframes)
+
+
+    ##
+    ## finalize and check
+    ##
+    an.finalize()
+    #final set of modes in nm
+    fmv  = mv*np.mean(np.arange(10))/2/np.pi*1e3
+    fdmv = mv*np.std(np.arange(10))/2/np.pi*1e3
+    assert not any(np.abs(fmv-an.modes)>1e-3)
+    assert not any(np.abs(fdmv-an.dmodes)>1e-3)

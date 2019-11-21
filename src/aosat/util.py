@@ -114,6 +114,13 @@ def rolling_variance(old,newValue):
 def zernike_basis(nterms,npix,tel_mirror):
     """Generate a Zernike basis
 
+    Note that even though called "zernike", it actually calls
+    poppy's "arbitrary_basis", which uses a Gram-Schmidt
+    orthonormalization to adapt to the actual pupil!
+
+    For this reason, the aperture mask (tel_mirror) must be
+    supplied!
+
     Parameters
     ----------
     nterms : int
@@ -123,7 +130,7 @@ def zernike_basis(nterms,npix,tel_mirror):
     tel_mirror : 2D array
         Aperture mask representing the telescope mirror.
         If larger than npix x npix the central area will be used.
-        Can be None
+
 
     Returns
     -------
@@ -144,8 +151,9 @@ def zernike_basis(nterms,npix,tel_mirror):
         tms = tel_mirror.shape[0]
         tm = tel_mirror[int(tms/2-npix/2):int(tms/2+npix/2),int(tms/2-npix/2):int(tms/2+npix/2)]
     else:
-        tm = None
-    zbase = zernike.zernike_basis(nterms=nterms,npix=npix,aperture=tm)
+        logger.error("Aperture (tel_mirror) must be supplied!")
+    #zbase = zernike.zernike_basis(nterms=nterms,npix=npix,aperture=tm)
+    zbase = zernike.arbitrary_basis(tm,nterms=nterms,outside=0.0)
     return(zbase)
 
 
@@ -175,8 +183,7 @@ def basis_expand(wf, basis, tel_mirror):
         Coefficients of the basis expansion
     Examples
     -------
-    Examples should be written in doctest format, and
-    should illustrate how to use the function/class.
+
     >>> zb = zernike_basis(10,512,None)
     >>> s = np.array([zb[i]*i/10.0 for i in range(10)]).sum(axis=0)
     >>> tm = np.isfinite(s)*1.0
