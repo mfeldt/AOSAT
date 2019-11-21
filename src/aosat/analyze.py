@@ -1205,6 +1205,8 @@ def tearsheet(config_file):
 
         ts_title         - title of the tearsheet written on top.
 
+        If set to None, no new configuration will be preformed.
+
         A copy of the config file's content is printed in the first
         plot space on the tearsheet. So in principle you can add more
         parameters than are being evaluated!
@@ -1223,7 +1225,8 @@ def tearsheet(config_file):
     ##
     ## prepare config
     ##
-    aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
+    if config_file is not None:
+        aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
     logger.debug("\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS))
     reload(fftx)
 

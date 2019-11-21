@@ -149,6 +149,19 @@ def frameServer():
             errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],
                                                           aosat_cfg.CFG_SETTINGS['screen_dir'],
                                                           aosat_cfg.CFG_SETTINGS['screen_fpattern']))
+    ##
+    ## division mask
+    ##
+    tel_mirror_divpm =  pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))
+    tel_mirror_divpm[tel_mirror_divpm == 0.0] = 1.0
+    if 'divide_phase_by_mask' in aosat_cfg.CFG_SETTINGS:
+        if aosat_cfg.CFG_SETTINGS == True:
+            pass
+        else:
+            tel_mirror_divpm = tel_mirror_divpm *0.+1.0
+    else:
+        tel_mirror_divpm = tel_mirror_divpm *0.+1.0
+
     frame_num = 0
     total_num = 0
     start_frame_index  = np.zeros(len(file_list)).astype(int)
@@ -196,9 +209,9 @@ def frameServer():
             while this_index < (num_frames_in_file[i]) and frames_served < totalnumber:
                 logger.debug("Serving frame %s as %s!" % (this_index,frames_served))
                 if num_frames_in_file[i] > 1:
-                    frame = data[this_index] * pcf
+                    frame = data[this_index] * pcf / tel_mirror_divpm
                 else:
-                    frame = data*pcf
+                    frame = data*pcf / tel_mirror_divpm
                 this_frame_num += skipstep
                 this_index = this_frame_num - start_frame_index[i]
                 frames_served += 1
