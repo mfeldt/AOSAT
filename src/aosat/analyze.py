@@ -240,7 +240,6 @@ class psf_analyzer():
         frame_dev = fftx.FFTprepare(in_field)
         fftframe  = fftx.FFTshift(fftx.FFTforward(self.sd['fft_plan'],self.sd['fft_out'],frame_dev))
         psf       = np.abs(fftframe)**2
-
         if self.ffed == 0:
             logger.debug("Initializing variables...")
             self.psf       = psf*0
@@ -518,17 +517,20 @@ class tvc_analyzer():
 
         return(report)
 
+
     def finalize(self):
 
         variance      = self.variance[2]/self.variance[0]
-        mean          = self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor')
+        mean          = self.variance[1]#*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor')
         sigma         = variance**0.5
+        max_no_cor    = np.max(self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor'))
         self.mean     = mean
-        self.contrast = 5*sigma/np.max(self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor'))
-        self.rcontrast = mean/np.max(self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor'))
-        r,pixels,rord = util.rad_order(self.contrast)
 
-        self.rvec  = r[pixels][rord]*self.sd['aspp']
+        self.contrast = 5*sigma/max_no_cor
+        self.rcontrast = mean/max_no_cor
+        ra,pixels,rord = util.rad_order(self.contrast)
+
+        self.rvec  = ra[pixels][rord]*self.sd['aspp']
         c          = pd.Series(self.contrast[pixels][rord])
         r          = pd.Series(self.rcontrast[pixels][rord])
 
@@ -575,6 +577,7 @@ class phs_analyzer():
             self.lastphase = frame/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # in nm
         self.rmst[self._ffed] = np.std(frame[self.sd['wnz']]/2/np.pi*self.sd['cfg']['an_lambda']*1e9) # in nm
         self._ffed += 1
+
     def finalize(self):
         self.rms=np.mean(self.rmst)
 
@@ -584,6 +587,7 @@ class phs_analyzer():
         report += "## Mean RMS of wavefront:\n\n"
         report += "std_wf    = %s # nm\n\n\n" % self.rms
         return(report)
+
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
         if fig is None:
             fig = plt.figure()
@@ -999,7 +1003,21 @@ def setup():
     logger.info("Setting up analysis...")
     setup_dict = {}
 
-    setup_dict['tel_mirror'] = pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))
+    setup_dict['tel_mirror'] = np.nan_to_num(pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask'])))
+
+    if 'embed_frame' in aosat_cfg.CFG_SETTINGS:
+        des_x_size = aosat_cfg.CFG_SETTINGS["embed_frame"][0]
+        des_y_size = aosat_cfg.CFG_SETTINGS["embed_frame"][1]
+        xs = setup_dict['tel_mirror'].shape[1]
+        ys = setup_dict['tel_mirror'].shape[0]
+
+        embd = ((int((des_x_size-xs)/2),
+                int(des_x_size-xs-int((des_x_size-xs)/2))),
+                (int((des_y_size-ys)/2),
+                int(des_y_size-ys-int((des_y_size-ys)/2))))
+        setup_dict['tel_mirror'] = np.pad(setup_dict['tel_mirror'],embd,'constant')
+        logger.debug("Embedded mirror in %s,%s array" % aosat_cfg.CFG_SETTINGS['embed_frame'])
+
     ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))+1
     ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))+1
     setup_dict['pupildiam']  = max([ext_x,ext_y])
@@ -1227,6 +1245,8 @@ def tearsheet(config_file):
     ##
     if config_file is not None:
         aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
+    aosat_cfg.configureLogging(aosat_cfg.CFG_SETTINGS)
+    logging.config.dictConfig(aosat_cfg.LOG_SETTINGS)
     logger.debug("\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS))
     reload(fftx)
 

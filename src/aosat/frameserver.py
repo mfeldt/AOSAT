@@ -164,13 +164,28 @@ def frameServer():
 
     frame_num = 0
     total_num = 0
+    embd = None
+    # if "shift_frame" in aosat_cfg.CFG_SETTINGS:
+    #     shft = aosat_cfg.CFG_SETTINGS["shift_frame"]
+    # else:
+    #     shft = None
     start_frame_index  = np.zeros(len(file_list)).astype(int)
     num_frames_in_file = np.zeros(len(file_list)).astype(int)
     logger.info("Scanning file headers...")
-
     for i in range(len(file_list)):
         hdr = pyfits.getheader(file_list[i])
         start_frame_index[i] = total_num
+
+        if "embed_frame" in aosat_cfg.CFG_SETTINGS and embd is None:
+            des_x_size = aosat_cfg.CFG_SETTINGS["embed_frame"][0]
+            des_y_size = aosat_cfg.CFG_SETTINGS["embed_frame"][1]
+
+            embd = ((int((des_x_size-hdr['NAXIS1'])/2),
+                    int(des_x_size-hdr['NAXIS1']-int((des_x_size-hdr['NAXIS1'])/2))),
+                    (int((des_y_size-hdr['NAXIS2'])/2),
+                    int(des_y_size-hdr['NAXIS2']-int((des_y_size-hdr['NAXIS2'])/2))))
+
+
         if hdr['NAXIS'] == 2:
             total_num += 1
             num_frames_in_file[i] = 1
@@ -183,12 +198,12 @@ def frameServer():
 
     if 'totalnumber' in aosat_cfg.CFG_SETTINGS:
         totalnumber = aosat_cfg.CFG_SETTINGS['totalnumber']
-        if totalnumber > total_num:
+        if totalnumber + startskip > total_num:
             logger.warning("Desired total number of %s is larger than available number of frames %s, adjusting!" % (totalnumber,total_num))
-            totalnumber=total_num
+            totalnumber=total_num-startskip
     else:
-        totalnumber = total_num
-    logger.info("Found %s residual phase screens, serving screen %s to %s in steps of %s!" % (total_num, startskip+1, startskip+totalnumber*skipstep,skipstep ))
+        totalnumber = total_num-startskip
+    logger.info("Found %s residual phase screens, serving screen %s to %s in steps of %s, total number will be %s!" % (total_num, startskip+1, startskip+totalnumber*skipstep,skipstep, totalnumber ))
 
     ##
     ## read and serve the frames
@@ -212,10 +227,14 @@ def frameServer():
                     frame = data[this_index] * pcf / tel_mirror_divpm
                 else:
                     frame = data*pcf / tel_mirror_divpm
+                if embd is not None:
+                    logger.debug("Embedding frame in %s,%s array!"%embd)
+                    frame = np.pad(frame,embd,'constant')
+
                 this_frame_num += skipstep
                 this_index = this_frame_num - start_frame_index[i]
                 frames_served += 1
-                yield(frame,frames_served,totalnumber)
+                yield(np.nan_to_num(frame),frames_served,totalnumber)
 
     return
 

@@ -209,6 +209,7 @@ def configureLogging(repdict):
         else:
             LOG_SETTINGS['handlers']['console']['formatter']='normal'
     else:
+        LOG_SETTINGS['handlers'].pop('file',None)
         LOG_SETTINGS['handlers']['file'] = {
             'class': 'logging.handlers.RotatingFileHandler',
             'mode': 'a',
