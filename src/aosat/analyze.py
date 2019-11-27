@@ -900,16 +900,17 @@ class zrn_analyzer():
         ##
         ## default appearance
         ##
+        ylim = np.max(np.maximum(np.abs(self.modes+self.dmodes),np.abs(self.modes-self.dmodes))[1:])*1.1
         if not 'color' in plotkwargs:
             plotkwargs['color'] = 'blue'
         if 'xlim' not in subplotkwargs:
-            subplotkwargs['xlim'] =(1,self.sd['cfg']['zterms'])
+            subplotkwargs['xlim'] =(1,self.sd['cfg']['zterms']-1)
         if 'ylim' not in subplotkwargs:
-            subplotkwargs['ylim'] =(0,np.max(np.maximum(self.modes**2,self.dmodes**2)[1:])*1.1)
+            subplotkwargs['ylim'] = (-1*ylim,ylim)
         if 'xlabel' not in subplotkwargs:
             subplotkwargs['xlabel'] = 'Term #'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = r'Amplitude$^2$ and Variance [nm$^2$]'
+            subplotkwargs['ylabel'] = r'Amplitude and Standard Variation [nm]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = r'Zernike Expansion'
 
@@ -920,10 +921,10 @@ class zrn_analyzer():
         ##
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
-        ax.fill_between(np.arange(len(self.modes)),np.repeat(0.0,len(self.modes)),self.dmodes**2,alpha=0.5,**plotkwargs)
-        ax.plot(np.arange(len(self.modes)),self.modes**2,**plotkwargs)
-        ax.text(0.75,0.95,r'Amplitude$^2$',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
-        ax.text(0.75,0.9,r'Variance',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
+        ax.fill_between(np.arange(len(self.modes)),self.modes-self.dmodes,self.modes+self.dmodes,alpha=0.5,**plotkwargs)
+        ax.plot(np.arange(len(self.modes)),self.modes,**plotkwargs)
+        ax.text(0.75,0.95,r'Amplitude',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
+        ax.text(0.75,0.9,r'$\sigma$',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
 
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         return(fig)
@@ -1246,8 +1247,9 @@ def tearsheet(config_file):
     if config_file is not None:
         aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(config_file)
     aosat_cfg.configureLogging(aosat_cfg.CFG_SETTINGS)
-    logging.config.dictConfig(aosat_cfg.LOG_SETTINGS)
     logger.debug("\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS))
+    logger.debug("\n"+aosat_cfg.repString(aosat_cfg.LOG_SETTINGS))
+
     reload(fftx)
 
     ##

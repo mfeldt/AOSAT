@@ -5,7 +5,7 @@ These are a number of default parameters to be used of nothing can be found else
 
 import collections
 import os
-
+import logging
 
 fpars = collections.OrderedDict([('an_lambda',     1e-6),  # analysis wavelength in metres
                                  ('ppm',           10.0),  # pixel per metre in pupil plane
@@ -31,7 +31,7 @@ LOG_SETTINGS = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'detailed',
-            'stream': 'ext://sys.stdout',
+            'stream': 'ext://sys.stderr',
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
@@ -52,7 +52,8 @@ LOG_SETTINGS = {
             '%(levelname)-8s %(message)s',
         },
     },
-    'disable_existing_loggers':False
+    'disable_existing_loggers':False,
+    'propagate':False
 }
 
 
@@ -202,14 +203,11 @@ def configureLogging(repdict):
     """
 
     if repdict['aosat_logfile'] is None:
-        LOG_SETTINGS['handlers'].pop('file',None) # remove the file handlers
-        LOG_SETTINGS['root']['handlers'] = ['console']
-        if repdict['aosat_loglevel'] == 'DEBUG':
-            LOG_SETTINGS['handlers']['console']['formatter']='detailed'
-        else:
-            LOG_SETTINGS['handlers']['console']['formatter']='normal'
+        if 'file' in LOG_SETTINGS['handlers']:
+            LOG_SETTINGS['handlers'].pop('file',None)
     else:
-        LOG_SETTINGS['handlers'].pop('file',None)
+        if 'file' in LOG_SETTINGS['handlers']:
+            LOG_SETTINGS['handlers'].pop('file',None)
         LOG_SETTINGS['handlers']['file'] = {
             'class': 'logging.handlers.RotatingFileHandler',
             'mode': 'a',
@@ -222,7 +220,7 @@ def configureLogging(repdict):
         else:
             LOG_SETTINGS['handlers']['file']['formatter']='normal'
     LOG_SETTINGS['root']['level']=repdict['aosat_loglevel']
-
+    logging.config.dictConfig(LOG_SETTINGS)
 
 
 if __name__ == "__main__":

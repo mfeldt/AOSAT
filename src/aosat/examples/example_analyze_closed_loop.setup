@@ -10,3 +10,5 @@ pupilmask       = 'frag_pupil.fits' # relative to this file!
 aosat_fft_forcenumpy = True
 ts_basefilename = 'ts_test'
 ts_title        = 'Example TS'
+aosat_loglevel  = "INFO"
+aosat_logfile   = None
