@@ -10,7 +10,7 @@ except DistributionNotFound:
 finally:
     del get_distribution, DistributionNotFound
 
-__all__ = ["aosat_cfg","fftx","frameserver","analyze"]
+__all__ = ["aosat_cfg","fftx","frameserver","analyze","_analyzers"]
 
 #import aosat_cfg
 
@@ -23,7 +23,6 @@ from . import aosat_cfg
 
 repdict = aosat_cfg.configure(None)
 aosat_cfg.configureLogging(repdict)
-logging.config.dictConfig(aosat_cfg.LOG_SETTINGS)
 logger = logging.getLogger(__name__)
 logger.debug('Completed configuring logger()!')
 
