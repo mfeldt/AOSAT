@@ -27,6 +27,10 @@ import matplotlib.image as mpimg
 
 from astropy.modeling import models, fitting
 
+
+import logging
+logger = logging.getLogger(__name__)
+
 class zrn_analyzer():
     def __init__(self,sd):
         self.sd      = sd
