@@ -202,12 +202,11 @@ def configureLogging(repdict):
 
     """
 
-    if repdict['aosat_logfile'] is None:
-        if 'file' in LOG_SETTINGS['handlers']:
-            LOG_SETTINGS['handlers'].pop('file',None)
-    else:
-        if 'file' in LOG_SETTINGS['handlers']:
-            LOG_SETTINGS['handlers'].pop('file',None)
+    if 'file' in LOG_SETTINGS['handlers']:
+        LOG_SETTINGS['handlers'].pop('file',None)
+    if 'file' in LOG_SETTINGS['root']['handlers']:
+        LOG_SETTINGS['root']['handlers'].remove('file')
+    if repdict['aosat_logfile'] is not None:
         LOG_SETTINGS['handlers']['file'] = {
             'class': 'logging.handlers.RotatingFileHandler',
             'mode': 'a',
@@ -215,6 +214,7 @@ def configureLogging(repdict):
             'backupCount': 5,
         }
         LOG_SETTINGS['handlers']['file']['filename'] = repdict['aosat_logfile']
+        LOG_SETTINGS['root']['handlers'].append('file')
         if repdict['aosat_loglevel'] == 'DEBUG':
             LOG_SETTINGS['handlers']['file']['formatter']='detailed'
         else:
