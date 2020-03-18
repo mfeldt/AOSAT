@@ -73,8 +73,7 @@ def setup():
     none.
 
     Relevant settings are taken from the config settings.
-    In particular the following parameters are sued:
-
+    In particular the following parameters are used:
 
     CFG_SETTINGS['pupilmask']
         Path to FITS file containing the telescope aperture,
@@ -88,7 +87,6 @@ def setup():
 
     CFG_SETTINGS['zterms']
         int giving the number of zernike terms to analyze
-
 
     Returns
     -------
@@ -136,10 +134,8 @@ def setup():
     setup_dict['cfg']           = aosat_cfg.CFG_SETTINGS
     setup_dict['ppm']           = aosat_cfg.CFG_SETTINGS['ppm'] # pix per metre
     setup_dict['aspp']          = aosat_cfg.CFG_SETTINGS['ppm']*3600/(np.pi/180.0)/setup_dict['sdim'] *aosat_cfg.CFG_SETTINGS['an_lambda'] # arc sec per pix
-    setup_dict['crad']          = aosat_cfg.CFG_SETTINGS['an_lambda']/(5.0/setup_dict['ppm'])/np.pi*180*3600 # estimate of control radius assuming
-                                                                                                             # a sampling of 5 pixels per actuator, in arc sec
+    setup_dict['crad']          = aosat_cfg.CFG_SETTINGS['an_lambda']/(5.0/setup_dict['ppm'])/np.pi*180*3600 # estimate of control radius assuming                                                                                                     # a sampling of 5 pixels per actuator, in arc sec
     setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/(setup_dict['pupildiam']/setup_dict['ppm'])*3600*180/np.pi # diffraction limit
-
 
     x, y     = np.mgrid[-setup_dict['sdim']/2:setup_dict['sdim']/2,-setup_dict['sdim']/2:setup_dict['sdim']/2]/setup_dict['ppm']
     setup_dict['wtrk']          = np.where((setup_dict['tel_mirror'] != 0 ) * ((x-x.astype(int)) ==0) * ((y-y.astype(int))==0))
@@ -148,7 +144,6 @@ def setup():
     #setup_dict['zernike_basis'] = zernike.zernike_basis(nterms=aosat_cfg.CFG_SETTINGS['zterms'],npix=int(setup_dict['pupildiam']))
     mreg = slice (int(setup_dict['sdim']/2-setup_dict['pupildiam']/2),int(setup_dict['sdim']/2+setup_dict['pupildiam']/2))
     setup_dict['zernike_basis'] = zernike.arbitrary_basis(setup_dict['tel_mirror'][mreg,mreg],nterms=aosat_cfg.CFG_SETTINGS['zterms'],outside=0.0)
-
 
     return(setup_dict)
 
@@ -244,7 +239,6 @@ def makeTearsheetReport(analyzers):
     nothing
 
 
-
     """
 
     filename = aosat_cfg.CFG_SETTINGS["ts_basefilename"]+".txt"
@@ -256,11 +250,6 @@ def makeTearsheetReport(analyzers):
         report += analyzer.make_report()
     with open(filename, "w") as text_file:
         text_file.write(report)
-
-
-
-
-
 
 
 

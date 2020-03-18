@@ -7,6 +7,7 @@ from astropy import units
 from astropy.io import fits as pyfits
 import pandas as pd
 import copy
+import pdb
 
 from aosat import aosat_cfg
 from aosat import fftx
@@ -85,6 +86,9 @@ class tvc_analyzer():
         self.cvecmean  = None
         self.cvecmin   = None
         self.cvecmax   = None
+        self._ffed     = 0
+        self.ptrak     = None
+        self.ppos      = np.zeros(6,dtype=np.int32)
 
     def feed_frame(self,frame,nframes):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
@@ -103,7 +107,12 @@ class tvc_analyzer():
         self.variance = util.rolling_variance(self.variance,psf)
         if self.ctype=='icor':
             self.variance2 = util.rolling_variance(self.variance2,psf2)
-
+        if self._ffed == 0:
+            posvec = (np.random.random(6)*len(self.sd['wnz'][0])).astype(int)
+            self.ppos = (self.sd['wnz'][0][posvec],self.sd['wnz'][1][posvec])
+            self.ptrak=np.zeros((nframes,6))
+        self.ptrak[self._ffed] = frame[self.ppos] # track phase at 6 random locations
+        self._ffed +=1
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
 
         if fig is None:
