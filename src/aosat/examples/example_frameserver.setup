@@ -6,3 +6,4 @@ skipstep        = 1                      # step between consecutive frames, 1=us
 startskip       = 0                      # frames to skip before evaluation starts, 0= start from beginning
 totalnumber     = 10                     # number of frames to analyze in total
 an_lambda       = 1.0                    # analysis wavelength in micrometres
+loopfreq        = 1000.0

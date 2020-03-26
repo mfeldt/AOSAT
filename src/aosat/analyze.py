@@ -136,6 +136,7 @@ def setup():
     setup_dict['aspp']          = aosat_cfg.CFG_SETTINGS['ppm']*3600/(np.pi/180.0)/setup_dict['sdim'] *aosat_cfg.CFG_SETTINGS['an_lambda'] # arc sec per pix
     setup_dict['crad']          = aosat_cfg.CFG_SETTINGS['an_lambda']/(5.0/setup_dict['ppm'])/np.pi*180*3600 # estimate of control radius assuming                                                                                                     # a sampling of 5 pixels per actuator, in arc sec
     setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/(setup_dict['pupildiam']/setup_dict['ppm'])*3600*180/np.pi # diffraction limit
+    setup_dict['loopfreq']      = aosat_cfg.CFG_SETTINGS['loopfreq'] # loop frequency
 
     x, y     = np.mgrid[-setup_dict['sdim']/2:setup_dict['sdim']/2,-setup_dict['sdim']/2:setup_dict['sdim']/2]/setup_dict['ppm']
     setup_dict['wtrk']          = np.where((setup_dict['tel_mirror'] != 0 ) * ((x-x.astype(int)) ==0) * ((y-y.astype(int))==0))

@@ -28,6 +28,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.image as mpimg
 
 from astropy.modeling import models, fitting
+from statsmodels.tsa.stattools import acf
 
 
 import logging
@@ -64,7 +65,7 @@ class tvc_analyzer():
     rvec : array
         Vector of radii where contrast values are given
     cvecmean : array
-        Mean contrast at locations in rvec. Same length as rvec.
+        Mean contrast at locatstepoions in rvec. Same length as rvec.
     cvecmin : type
         Minimum contrast at locations in rvec. Same length as rvec.
     cvecmax : type
@@ -87,8 +88,10 @@ class tvc_analyzer():
         self.cvecmin   = None
         self.cvecmax   = None
         self._ffed     = 0
+        self.ntracks   = self.sd['cfg']['ntracks']
         self.ptrak     = None
-        self.ppos      = np.zeros(6,dtype=np.int32)
+        self.ppos      = np.zeros(self.ntracks,dtype=np.int32)
+        self.corrlen   = 0.0
 
     def feed_frame(self,frame,nframes):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
@@ -108,9 +111,9 @@ class tvc_analyzer():
         if self.ctype=='icor':
             self.variance2 = util.rolling_variance(self.variance2,psf2)
         if self._ffed == 0:
-            posvec = (np.random.random(6)*len(self.sd['wnz'][0])).astype(int)
+            posvec = (np.random.random(self.ntracks)*len(self.sd['wnz'][0])).astype(int)
             self.ppos = (self.sd['wnz'][0][posvec],self.sd['wnz'][1][posvec])
-            self.ptrak=np.zeros((nframes,6))
+            self.ptrak=np.zeros((nframes,self.ntracks))
         self.ptrak[self._ffed] = frame[self.ppos] # track phase at 6 random locations
         self._ffed +=1
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
@@ -135,10 +138,9 @@ class tvc_analyzer():
             subplotkwargs['title'] = r'Simple Single-Pixel %s Contrast' % self.ctype
         if 'yscale' not in subplotkwargs:
             subplotkwargs['yscale'] = 'log'
-        if 'aspect' not in subplotkwargs:
-            subplotkwargs['aspect'] = 1.0
-        subplotkwargs['adjustable'] = 'box'
-
+        #if 'aspect' not in subplotkwargs:
+        #    subplotkwargs['aspect'] = 1.0
+        #subplotkwargs['adjustable'] = 'box'
         ##
         ##  create (only) subplot
         ##
@@ -146,6 +148,12 @@ class tvc_analyzer():
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
         ax.fill_between(self.rvec,self.cvecmin,self.cvecmax,alpha=0.15,**plotkwargs)
         ax.plot(self.rvec,self.cvecmean,**plotkwargs)
+        if self.corrlen > 0:
+            num_frames_per_hour = 3600.0/(self.corrlen/self.sd['loopfreq'])
+            plotkwargsP = copy.copy(plotkwargs)
+            plotkwargsP['linestyle'] = 'dotted'
+            ax.plot(self.rvec,self.cvecmean/(num_frames_per_hour**0.5),**plotkwargsP)
+
         ax.text(0.5,0.9,'No photon noise,',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.5,0.85,'due to PSF variation only!',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.5,0.95,r'5 $\sigma$ TVC',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
@@ -153,8 +161,15 @@ class tvc_analyzer():
         plotkwargs2['color']='black'
         ax.fill_between(self.rvec,self.rcvecmin,self.rcvecmax,alpha=0.15,**plotkwargs2)
         ax.plot(self.rvec,self.rcvecmean,**plotkwargs2)
+        if self.corrlen > 0:
+            plotkwargsP = copy.copy(plotkwargs2)
+            plotkwargsP['linestyle'] = 'dotted'
+            ax.plot(self.rvec,self.rcvecmean/(num_frames_per_hour**0.5),**plotkwargsP)
         ax.text(0.5,0.8,'Raw (PSF profile)',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
-        ax.set_aspect(subplotkwargs['aspect'],'box')
+        if self.corrlen>0:
+            ax.text(0.5,0.75,'Dotted lines: est. best 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
+        #ax.set_aspect(subplotkwargs['aspect'],'box')
+
         return(fig)
 
     def make_report(self):
@@ -180,8 +195,9 @@ class tvc_analyzer():
         report += "raw_%s_sepvec    = %s\n" % (self.ctype,np.array2string(rep_vec_r,separator=',',precision=4))
         report += "raw_%s_ctrstmean = %s\n" % (self.ctype,np.array2string(rep_vec_rcmean,separator=','))
         report += "raw_%s_ctrstmin  = %s\n" % (self.ctype,np.array2string(rep_vec_rcmin,separator=','))
-        report += "raw_%s_ctrstmax  = %s\n\n\n" % (self.ctype,np.array2string(rep_vec_rcmax,separator=','))
-
+        report += "raw_%s_ctrstmax  = %s\n##\n" % (self.ctype,np.array2string(rep_vec_rcmax,separator=','))
+        report += "## estimated correlation time [ms] \n##\n"
+        report += "estim_corr_time   = %s \n\n\n" % (1000*self.corrlen/self.sd['loopfreq'])
         return(report)
 
 
@@ -207,3 +223,11 @@ class tvc_analyzer():
         self.rcvecmean = r.rolling(window=50).mean()
         self.rcvecmin  = r.rolling(window=50).min()
         self.rcvecmax  = r.rolling(window=50).max()
+
+        max_corr_len=0.0
+        for i in range(self.ntracks):
+            acff,conf    = acf(self.ptrak[:,i],fft=True,alpha=0.05,nlags=min([500,len(self.ptrak[:,i])-1]))
+            where_uncorr = np.where(acff < (conf[:,1] - acff))[0]
+            if len(where_uncorr) > 0:
+                max_corr_len = np.max([max_corr_len,np.min(where_uncorr)])
+        self.corrlen = max_corr_len*1.0

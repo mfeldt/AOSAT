@@ -5,3 +5,4 @@ starmag                  =   2.00
 optical_throughput       = 0.2243
 aosat_logfile            = None
 aosat_loglevel           = 'INFO'
+loopfreq                 = 1000.0
