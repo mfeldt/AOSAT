@@ -113,7 +113,7 @@ def setup():
                 (int((des_y_size-ys)/2),
                 int(des_y_size-ys-int((des_y_size-ys)/2))))
         setup_dict['tel_mirror'] = np.pad(setup_dict['tel_mirror'],embd,'constant')
-        logger.debug("Embedded mirror in %s,%s array" % aosat_cfg.CFG_SETTINGS['embed_frame'])
+        logger.debug("Embedded mirror in %s,%s array" % (aosat_cfg.CFG_SETTINGS['embed_frame'][0],aosat_cfg.CFG_SETTINGS['embed_frame'][1]))
 
     ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))+1
     ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))+1
