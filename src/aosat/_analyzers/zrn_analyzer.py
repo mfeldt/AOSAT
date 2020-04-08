@@ -71,7 +71,7 @@ class zrn_analyzer():
         if 'xlabel' not in subplotkwargs:
             subplotkwargs['xlabel'] = 'Term #'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = r'Amplitude and Standard Variation [nm]'
+            subplotkwargs['ylabel'] = r'Amplitude and Standard Deviation [nm]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = r'Zernike Expansion'
 
@@ -85,7 +85,7 @@ class zrn_analyzer():
         ax.fill_between(np.arange(len(self.modes)),self.modes-self.dmodes,self.modes+self.dmodes,alpha=0.5,**plotkwargs)
         ax.plot(np.arange(len(self.modes)),self.modes,**plotkwargs)
         ax.text(0.75,0.95,r'Amplitude',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
-        ax.text(0.75,0.9,r'$\sigma$',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
+        ax.text(0.75,0.9,r'Std. Dev.',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
 
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         return(fig)

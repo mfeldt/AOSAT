@@ -104,9 +104,9 @@ class phs_analyzer():
         ## default appearance
         ##
         if 'xlabel' not in subplotkwargs:
-            subplotkwargs['xlabel'] = r'$\delta$x[m]'
+            subplotkwargs['xlabel'] = r'$\delta$x [m]'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = r'$\delta$y[m]'
+            subplotkwargs['ylabel'] = r'$\delta$y [m]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = 'Last Residual Phase\n '
 
@@ -114,7 +114,7 @@ class phs_analyzer():
         if 'cmap' not in plotkwargs:
             plotkwargs['cmap'] = 'nipy_spectral'
         if 'extent' not in plotkwargs:
-            plotkwargs['extent']=[(1.0*plts)/self.sd['ppm'],-(1.0*plts)/self.sd['ppm'],-(1.0*plts)/self.sd['ppm'],(1.0*plts)/self.sd['ppm']]
+            plotkwargs['extent']=[-(1.0*plts)/self.sd['ppm'],(1.0*plts)/self.sd['ppm'],-(1.0*plts)/self.sd['ppm'],(1.0*plts)/self.sd['ppm']]
         if 'origin' not in plotkwargs:
             plotkwargs['origin'] = 'lower'
         if 'vmin' not in plotkwargs:

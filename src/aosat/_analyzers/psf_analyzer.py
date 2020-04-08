@@ -127,9 +127,9 @@ class psf_analyzer():
         ## default appearance
         ##
         if 'xlabel' not in subplotkwargs:
-            subplotkwargs['xlabel'] = r'$\delta$RA[mas]'
+            subplotkwargs['xlabel'] = r'$\delta$RA [mas]'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = r'$\delta$DEC[mas]'
+            subplotkwargs['ylabel'] = r'$\delta$DEC [mas]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = 'PSF'
 
@@ -160,8 +160,8 @@ class psf_analyzer():
         ax.text(0.7,0.9,'SR (WF) = %.3f' % self.sr_wf.mean(),transform=ax.transAxes,size=6,ha='left',color='white')
         ax.text(0.05,0.1,r'$\sigma_{tt}$(PSF) = %.3f mas' % self.ttjit_psf,transform=ax.transAxes,size=6,ha='left',color='white')
         ax.text(0.05,0.05,r'$\sigma_{tt}$(WF) = %.3f mas' % self.ttjit,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.65,0.1,r'$Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
-        ax.text(0.65,0.05,r'$Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.55,0.1,r'$Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
+        ax.text(0.55,0.05,r'$Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
 
         ## color bar
         divider = make_axes_locatable(ax)
