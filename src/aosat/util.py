@@ -1,8 +1,15 @@
 import numpy as np
 from poppy import zernike
+import logging
+logger = logging.getLogger(__name__)
 
+from astropy.io import fits as pyfits
+import os
+dn = dn = os.path.dirname(os.path.realpath(__file__))
+pupil_file = os.path.join(dn, 'examples/ExampleAnalyze/yao_pupil.fits')
 
-
+# tel_mirror =  pyfits.getdata('examples/ExampleAnalyze/yao_pupil.fits')
+tel_mirror = pyfits.getdata(pupil_file)
 
 def printProgressBar (logger,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
     """
@@ -141,7 +148,7 @@ def zernike_basis(nterms,npix,tel_mirror):
     -------
     Examples should be written in doctest format, and
     should illustrate how to use the function/class.
-    >>> zb = zernike_basis(10,512,None)
+    >>> zb = zernike_basis(10,512,tel_mirror)
     >>> zb.shape
     (10, 512, 512)
 
@@ -184,7 +191,7 @@ def basis_expand(wf, basis, tel_mirror):
     Examples
     -------
 
-    >>> zb = zernike_basis(10,512,None)
+    >>> zb = zernike_basis(10,512,tel_mirror)
     >>> s = np.array([zb[i]*i/10.0 for i in range(10)]).sum(axis=0)
     >>> tm = np.isfinite(s)*1.0
     >>> basis_expand(s,zb,tm)
