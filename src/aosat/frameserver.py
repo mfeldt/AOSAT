@@ -1,13 +1,26 @@
 
 
 import re,os,glob, errno
+
+#from pip._internal.utils.misc import get_installed_distributions
+
+# if any(["cupy" in str(f) for f in get_installed_distributions()]):
+#     import cupy as np
+# else:
+#     import numpy as np
 import numpy as np
+
 from astropy import units
 from astropy.io import fits as pyfits
 from aosat import aosat_cfg
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def argsort(seq):
+    # http://stackoverflow.com/questions/3071415/efficient-method-to-calculate-the-rank-vector-of-a-list-in-python
+    return sorted(range(len(seq)), key=seq.__getitem__)
 
 def sortFiles(file_list):
     """Sort filenames according to inter number in every name
@@ -33,14 +46,15 @@ def sortFiles(file_list):
 
     >>> list = ['res_phase0125.fits','res_phase1835.fits','res_phase12.fits']
     >>> sortFiles(list)
-    array(['res_phase12.fits', 'res_phase0125.fits', 'res_phase1835.fits'],
-    ...
+    ['res_phase12.fits', 'res_phase0125.fits', 'res_phase1835.fits']
+
 
     """
     numlist = [int(re.findall(r'\d+', fname)[-1]) for fname in file_list]
-    order = np.argsort(numlist)
-    fnames = np.array(file_list)
-    return(fnames[order])
+    order = argsort(numlist)
+    #fnames = np.array(file_list)
+    #import pdb;pdb.set_trace()
+    return([file_list[i] for i in order])
 
 
 def getUnitCnv(sunit,an_lambda):
@@ -107,7 +121,7 @@ def frameServer():
     ... os.path.realpath(__file__)),'examples','example_frameserver.setup')
     >>> aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(cfg_file)
     >>> fs = frameServer()
-    >>> [f[0].mean() for f in fs]
+    >>> [f[0].mean().item() for f in fs]
     [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 
 
@@ -123,7 +137,7 @@ def frameServer():
     >>> aosat_cfg.CFG_SETTINGS['startskip'] = 2
     >>> aosat_cfg.CFG_SETTINGS['skipstep'] = 2
     >>> fs = frameServer()
-    >>> [f[0].mean() for f in fs]
+    >>> [f[0].mean().item() for f in fs]
     [3.0, 5.0, 7.0, 9.0]
 
     """
@@ -152,7 +166,7 @@ def frameServer():
     ##
     ## division mask
     ##
-    tel_mirror_divpm =  pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))
+    tel_mirror_divpm =  np.array(pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask'])))
     tel_mirror_divpm[tel_mirror_divpm == 0.0] = 1.0
     if 'divide_phase_by_mask' in aosat_cfg.CFG_SETTINGS:
         if aosat_cfg.CFG_SETTINGS == True:
@@ -218,7 +232,8 @@ def frameServer():
             next_step += 0.0333
         if this_frame_num >= start_frame_index[i] and this_frame_num < (start_frame_index[i] + num_frames_in_file[i]) and frames_served < totalnumber:
             logger.debug("Reading file %s, start index is %s, number of frames in file is %s!" % (file_list[i],start_frame_index[i],num_frames_in_file[i]))
-            data = pyfits.getdata(file_list[i])
+            data = np.array(pyfits.getdata(file_list[i])*1.0)
+            #import pdb; pdb.set_trace()
             this_index = this_frame_num - start_frame_index[i]
             logger.debug("Overall frame %s has index %s!" % (this_frame_num,this_index))
             while this_index < (num_frames_in_file[i]) and frames_served < totalnumber:

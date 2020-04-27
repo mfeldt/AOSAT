@@ -72,4 +72,4 @@ def test_uc3():
 
     sigma_ref = ps[wp].std()
     sigma_fs  = frame[wp].std()
-    assert sigma_ref == sigma_fs
+    assert sigma_ref == pytest.approx(sigma_fs.item(),1e-4)
