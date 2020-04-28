@@ -1,9 +1,9 @@
-#from pip._internal.utils.misc import get_installed_distributions
-# if any(["cupy" in str(f) for f in get_installed_distributions()]):
-#     import cupy as np
-# else:
-#     import numpy as np
-import numpy as np
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+#import numpy as np
 
 from poppy import zernike
 import logging
@@ -113,7 +113,7 @@ def rolling_variance(old,newValue):
     Examples
     -------
 
-    >>> a=np.arange(10)
+    >>> a=range(10)
     >>> b=(0.,0.,0.)
     >>> for i in range(10):
     ...     b=rolling_variance(b,a[i])
@@ -128,8 +128,7 @@ def rolling_variance(old,newValue):
     mean += delta / count
     delta2 = newValue - mean
     M2 += delta * delta2
-
-    return (count, mean.item(), M2.item())
+    return (count, mean, M2)
 
 def zernike_basis(nterms,npix,tel_mirror):
     """Generate a Zernike basis
