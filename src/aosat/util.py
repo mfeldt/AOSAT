@@ -1,4 +1,10 @@
+#from pip._internal.utils.misc import get_installed_distributions
+# if any(["cupy" in str(f) for f in get_installed_distributions()]):
+#     import cupy as np
+# else:
+#     import numpy as np
 import numpy as np
+
 from poppy import zernike
 import logging
 logger = logging.getLogger(__name__)
@@ -10,6 +16,13 @@ pupil_file = os.path.join(dn, 'examples/ExampleAnalyze/yao_pupil.fits')
 
 # tel_mirror =  pyfits.getdata('examples/ExampleAnalyze/yao_pupil.fits')
 tel_mirror = pyfits.getdata(pupil_file)
+
+def ensure_numpy(a):
+    if 'cupy' in str(type(a)):
+        return(np.asnumpy(a))
+    else:
+        return(a)
+
 
 def printProgressBar (logger,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
     """
@@ -116,7 +129,7 @@ def rolling_variance(old,newValue):
     delta2 = newValue - mean
     M2 += delta * delta2
 
-    return (count, mean, M2)
+    return (count, mean.item(), M2.item())
 
 def zernike_basis(nterms,npix,tel_mirror):
     """Generate a Zernike basis
@@ -160,7 +173,7 @@ def zernike_basis(nterms,npix,tel_mirror):
     else:
         logger.error("Aperture (tel_mirror) must be supplied!")
     #zbase = zernike.zernike_basis(nterms=nterms,npix=npix,aperture=tm)
-    zbase = zernike.arbitrary_basis(tm,nterms=nterms,outside=0.0)
+    zbase = np.array(zernike.arbitrary_basis(ensure_numpy(tm),nterms=nterms,outside=0.0))
     return(zbase)
 
 
