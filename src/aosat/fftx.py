@@ -16,9 +16,13 @@ log.addHandler(logging.NullHandler())
 ## Check for GPU support and select FFT function
 ##
 ##
-
-import numpy as np
 from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+#import numpy as np
+
 from packaging import version
 
 from aosat import aosat_cfg

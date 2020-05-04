@@ -1,7 +1,15 @@
 
 
 import os
-import numpy as np
+
+
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+#import numpy as np
+
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
@@ -16,7 +24,6 @@ from scipy import ndimage
 from poppy import zernike
 from importlib import reload
 
-import pdb
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
@@ -84,16 +91,17 @@ class frg_analyzer():
 
     """
     def __init__(self,sd):
+        num_fragments = np.max(sd['fragmask']).item()
         self.sd      = sd
         self.ffed    = 0
-        self.piston  = np.zeros(np.max(sd['fragmask']))
-        self.dpiston = np.zeros(np.max(sd['fragmask']))
+        self.piston  = np.zeros(num_fragments)
+        self.dpiston = np.zeros(num_fragments)
         self.pistont = None
-        self.ttx     = np.zeros(np.max(sd['fragmask']))
-        self.dttx    = np.zeros(np.max(sd['fragmask']))
+        self.ttx     = np.zeros(num_fragments)
+        self.dttx    = np.zeros(num_fragments)
         self.ttxt    = None
-        self.tty     = np.zeros(np.max(sd['fragmask']))
-        self.dtty    = np.zeros(np.max(sd['fragmask']))
+        self.tty     = np.zeros(num_fragments)
+        self.dtty    = np.zeros(num_fragments)
         self.ttyt    = None
         self.wfrag   = []
         self.x       = None
@@ -103,33 +111,35 @@ class frg_analyzer():
         self.tile      = 0.8
         self.worstid   = 0
 
-        for i in range(np.max(sd['fragmask'])):
+        for i in range(num_fragments):
             self.wfrag.append(np.where(sd['fragmask'] == (i+1)))
 
 
     def feed_frame(self,frame,nframes):
+        num_fragments = np.max(self.sd['fragmask']).item()
+
         if self.ffed == 0:
             logger.debug("Initializing variables...")
             sdim = frame.shape[0]
-            self.pistont = np.zeros((nframes,np.max(self.sd['fragmask'])))
-            self.ttxt = np.zeros((nframes,np.max(self.sd['fragmask'])))
-            self.ttyt = np.zeros((nframes,np.max(self.sd['fragmask'])))
+            self.pistont = np.zeros((nframes,num_fragments))
+            self.ttxt = np.zeros((nframes,num_fragments))
+            self.ttyt = np.zeros((nframes,num_fragments))
             self.x, self.y = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]/self.sd['ppm']
-            for i in range(np.max(self.sd['fragmask'])):
+            for i in range(num_fragments):
                 self.A.append(np.c_[self.x[self.wfrag[i]], self.y[self.wfrag[i]], self.x[self.wfrag[i]]*0.0+1.0])
 
             logger.debug("Done!")
 
-        for i in range(np.max(self.sd['fragmask'])):
+        for i in range(num_fragments):
             ## tilt from WF
-            C,_,_,_ = scipy.linalg.lstsq(self.A[i], frame[self.wfrag[i]])
+            C,_,_,_ = np.linalg.lstsq(self.A[i], frame[self.wfrag[i]])
             self.ttxt[self.ffed,i]    = C[0]
             self.ttyt[self.ffed,i]    = C[1]
             self.pistont[self.ffed,i] = C[2]
         self.ffed+=1
 
     def finalize(self,tile=0.8):
-        for i in range(np.max(self.sd['fragmask'])):
+        for i in range(np.max(self.sd['fragmask']).item()):
             self.piston[i]  = self.pistont[:,i].mean()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
             self.dpiston[i] = self.pistont[:,i].std()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
             self.ttx[i]     = self.ttxt[i].mean()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
@@ -146,7 +156,7 @@ class frg_analyzer():
         wmaxpist = np.argmax(pistmax[-lpa:]-pistmin[-lpa:])
 
         pistframe=self.sd['tel_mirror']*0
-        for i in range(np.max(self.sd['fragmask'])):
+        for i in range(np.max(self.sd['fragmask']).item()):
             xc = np.mean(self.x[np.where(self.sd['fragmask']==i)])
             yc = np.mean(self.y[np.where(self.sd['fragmask']==i)])
             tphase = (self.ttxt[-lpa:,i][wmaxpist]*(self.x-xc) + self.ttyt[-lpa:,i][wmaxpist]*(self.y-yc) + self.pistont[-lpa:,i][wmaxpist])/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # frame in nm
@@ -162,7 +172,7 @@ class frg_analyzer():
         sdim  = self.pistframe.shape[0]
         x, y  = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]
         r     = (x**2+y**2)**0.5
-        plts  = int(np.min([max((r*self.sd['tel_mirror']).flatten())*1.1,sdim/2])/2)*2
+        plts  = int(min([max((util.ensure_numpy(r*self.sd['tel_mirror'])).flatten())*1.1,sdim/2])/2)*2
         sreg = slice(int(sdim/2-plts),int(sdim/2+plts))
 
         ## what to show
@@ -170,11 +180,11 @@ class frg_analyzer():
         sphase = copy.copy(self.pistframe)
         sphase[self.sd['wnz']] -=  mphase
         pp     = sphase[self.sd['wnz']].flatten()
-        pmin  = np.percentile(pp,5)
-        pmax  = np.percentile(pp,95)
+        pmin  = np.percentile(pp,5).item()
+        pmax  = np.percentile(pp,95).item()
         sshow = sphase[sreg,sreg]
         sshow[np.where(self.sd['tel_mirror'][sreg,sreg] == 0)] = pmin
-
+        sshow = util.ensure_numpy(sshow)
 
         ##
         ## default appearance
@@ -207,7 +217,7 @@ class frg_analyzer():
 
         im=ax.imshow(sshow, **plotkwargs)
         x, y =  (np.mgrid[0:sdim,0:sdim]-sreg.start)/(sreg.stop-sreg.start)#np.mgrid[0:sdim,0:sdim]/sdim
-        for i in range(np.max(self.sd['fragmask'])):
+        for i in range(np.max(self.sd['fragmask']).item()):
             #pdb.set_trace()
             xc = np.mean(x[self.wfrag[i]])
             yc = np.mean(y[self.wfrag[i]])
@@ -220,7 +230,7 @@ class frg_analyzer():
         caxpi = dividerpi.append_axes("right", size="10%", pad=0.05)
         caxpi.tick_params(axis='both', which='major', labelsize=6)
         caxpi.tick_params(axis='both', which='minor', labelsize=5)
-        t = pmin+(np.arange(11))/10.0*(pmax-pmin)
+        t = util.ensure_numpy(pmin+(np.arange(11))/10.0*(pmax-pmin))
         cbarpi = plt.colorbar(im, cax=caxpi, ticks=t,label=r'Phase [nm]')
 
         return(fig)

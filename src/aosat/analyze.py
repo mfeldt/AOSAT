@@ -1,5 +1,13 @@
 import os
-import numpy as np
+
+
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+#import numpy as np
+
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
@@ -100,7 +108,7 @@ def setup():
     """
     logger.info("Setting up analysis...")
     setup_dict = {}
-    setup_dict['tel_mirror'] = np.nan_to_num(pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask'])))
+    setup_dict['tel_mirror'] = np.nan_to_num(np.array(1.0*pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))))
 
     if 'embed_frame' in aosat_cfg.CFG_SETTINGS:
         des_x_size = aosat_cfg.CFG_SETTINGS["embed_frame"][0]
@@ -115,8 +123,8 @@ def setup():
         setup_dict['tel_mirror'] = np.pad(setup_dict['tel_mirror'],embd,'constant')
         logger.debug("Embedded mirror in %s,%s array" % (aosat_cfg.CFG_SETTINGS['embed_frame'][0],aosat_cfg.CFG_SETTINGS['embed_frame'][1]))
 
-    ext_x  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0))+1
-    ext_y  = np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0))+1
+    ext_x  = np.atleast_1d(np.max(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0)[0])-np.min(np.where(setup_dict['tel_mirror'].sum(axis=1) != 0)[0])+1).item()
+    ext_y  = np.atleast_1d(np.max(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0)[0])-np.min(np.where(setup_dict['tel_mirror'].sum(axis=0) != 0)[0])+1).item()
     setup_dict['pupildiam']  = max([ext_x,ext_y])
 
     logger.debug("Found pupil diameter of %s pixels" % setup_dict['pupildiam'])
@@ -125,7 +133,7 @@ def setup():
     setup_dict['divpm']         = setup_dict['tel_mirror'] * 1.0
     setup_dict['divpm'][np.where(setup_dict['tel_mirror'] == 0.0)] = 1.0 # pupil mask for division if necessary
     setup_dict['wnz']           = np.where(setup_dict['tel_mirror'] != 0.0)
-    setup_dict['fragmask']      = ndimage.label(setup_dict['tel_mirror']>1e-6)[0]
+    setup_dict['fragmask']      = np.array(ndimage.label(util.ensure_numpy(setup_dict['tel_mirror'])>1e-6)[0])
 
     logger.debug("Found %s independent pupil fragments." % np.max(setup_dict['fragmask']))
     logger.info("Setting up FFTs...")
@@ -144,8 +152,7 @@ def setup():
     logger.info("Making Modal basis with %s terms ..." % aosat_cfg.CFG_SETTINGS['zterms'])
     #setup_dict['zernike_basis'] = zernike.zernike_basis(nterms=aosat_cfg.CFG_SETTINGS['zterms'],npix=int(setup_dict['pupildiam']))
     mreg = slice (int(setup_dict['sdim']/2-setup_dict['pupildiam']/2),int(setup_dict['sdim']/2+setup_dict['pupildiam']/2))
-    setup_dict['zernike_basis'] = zernike.arbitrary_basis(setup_dict['tel_mirror'][mreg,mreg],nterms=aosat_cfg.CFG_SETTINGS['zterms'],outside=0.0)
-
+    setup_dict['zernike_basis'] = np.array(zernike.arbitrary_basis(util.ensure_numpy(setup_dict['tel_mirror'][mreg,mreg]),nterms=aosat_cfg.CFG_SETTINGS['zterms'],outside=0.0))
     return(setup_dict)
 
 def sizeTearsheetLabels(f):
@@ -349,7 +356,7 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), zrn_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
+    analyzers=[psf_analyzer(sd)]#psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), zrn_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
     run(analyzers)
 
     ##

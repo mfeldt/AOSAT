@@ -1,7 +1,12 @@
 
 
 import os
-import numpy as np
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+#import numpy as np
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
@@ -16,7 +21,6 @@ from scipy import ndimage
 from poppy import zernike
 from importlib import reload
 
-import pdb
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
@@ -74,7 +78,7 @@ class psf_analyzer():
             self.tty_wf    = np.zeros(nframes)
             self.x, self.y = np.mgrid[-self.sdim/2:self.sdim/2,-self.sdim/2:self.sdim/2]/self.sd['ppm']
             self.A         = np.c_[self.x[self.sd['wnz']], self.y[self.sd['wnz']], self.x[self.sd['wnz']]*0.0+1.0]
-            self.M         = models.Gaussian2D(np.max(psf), 16, 16, 3, 3)
+            self.M         = models.Gaussian2D(np.max(psf).item(), 16, 16, 3, 3)
             logger.debug("Done!")
 
         ## Strehl from WF
@@ -86,7 +90,7 @@ class psf_analyzer():
 
         logger.debug("Solving tilt...")
         ## tilt from WF
-        C,_,_,_ = scipy.linalg.lstsq(self.A, frame[self.sd['wnz']])
+        C,_,_,_ = np.linalg.lstsq(self.A, frame[self.sd['wnz']])
         logger.debug("Constructing fitted WF")
         tphase = (C[0]*self.x + C[1]*self.y + C[2])/2/np.pi*self.sd['cfg']['an_lambda'] # frame in m
         self.ttilt[self.ffed] = (np.max(tphase[self.sd['wnz']]) - np.min(tphase[self.sd['wnz']]))/(self.sd['pupildiam']/self.sd['ppm'])/np.pi*180.0*3600.0 # arc sec

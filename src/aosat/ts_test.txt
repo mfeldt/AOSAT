@@ -1,0 +1,52 @@
+## CONFIG DATA:
+## Example TS
+##
+##            an_lambda : 3e-06
+##                  ppm : 10.0
+##             pup_diam : 37.0
+##                   L0 : 25.0
+##                 crad : 700.0
+##             loopfreq : 1000.0
+##               zterms : 20
+##              ntracks : 6
+##        aosat_logfile : None
+##       aosat_loglevel : INFO
+## aosat_fft_forcenumpy : True
+##           setup_path : /home/mfeldt/AOSAT/AOSAT/src/aosat/examples
+##            pupilmask : frag_pupil.fits
+##      screen_fpattern : *rwf*.fits
+##           screen_dir : ExampleClosedLoop
+##            phaseunit : micron
+##             skipstep : 1
+##            startskip : 0
+##      ts_basefilename : ts_test
+##             ts_title : Example TS
+##
+##
+## reporting analyzer: frg_analyzer
+##
+##
+## Fragment IDs:
+frag_id = [0 1 2 3 4 5]
+##
+## Average piston of fragments [nm]:
+pist_mean = [466.50919712 475.68711254 468.29708596 459.90567319 470.02998058
+ 466.86376297]
+##
+## Standard deviation of piston of fragments [nm]:
+pist_std = [56.46426111 57.82279309 55.07623473 56.98996522 55.9282413  55.39155172]
+##
+## Average tip of fragments [mas]:
+ttx_mean = [ 0.09123684  0.07866234  0.05549285  0.02944668  0.01202495 -0.00531847]
+##
+## Standard deviation of tip of fragments [mas]:
+ttx_std = [0.18111676 0.18234485 0.18570637 0.19312807 0.19642493 0.20008138]
+##
+## Average tilt of fragments [mas]:
+tty_mean = [-0.02276572 -0.02587421 -0.03847307 -0.04432898 -0.03825207 -0.02457481]
+##
+## Standard deviation of tilt of fragments [mas]:
+tty_std = [0.20976693 0.2180906  0.23141816 0.24535771 0.24163455 0.23821451]
+##
+
+
