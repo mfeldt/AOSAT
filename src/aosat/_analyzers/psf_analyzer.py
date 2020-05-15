@@ -55,8 +55,8 @@ class psf_analyzer():
         self.y        = None
         xx,yy = np.indices([32,32])
         self.sdim     = 0
-        self.xx       = xx
-        self.yy       = yy
+        self.xx       = util.ensure_numpy(xx)
+        self.yy       = util.ensure_numpy(yy)
 
     def feed_frame(self,frame,nframes):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
@@ -97,7 +97,7 @@ class psf_analyzer():
         logger.debug("Found tilt of %s arc sec", self.ttilt[self.ffed])
         logger.debug("Fitting position...")
         ## tip and tilt from PSF fitted position
-        result_lmf = self.lmf(self.M, self.xx, self.yy, psf[int(self.sdim/2-16):int(self.sdim/2+16),int(self.sdim/2-16):int(self.sdim/2+16)])
+        result_lmf = self.lmf(self.M, self.xx, self.yy, util.ensure_numpy(psf[int(self.sdim/2-16):int(self.sdim/2+16),int(self.sdim/2-16):int(self.sdim/2+16)]))
         self.ttx[self.ffed] = (result_lmf.x_mean - 16.0)*self.sd['aspp']
         self.tty[self.ffed] = (result_lmf.y_mean - 16.0)*self.sd['aspp']
         logger.debug("Found tt excursion of %.3f, %.3f mas from PSF!"%(self.ttx[self.ffed]*1000,self.tty[self.ffed]*1000))
@@ -138,7 +138,7 @@ class psf_analyzer():
             subplotkwargs['title'] = 'PSF'
 
         # size of extraction area
-        plts = int(min([np.round(self.sd['crad']/self.sd['aspp']/2.0)*2,self.sdim/2]))
+        plts = int(min([np.around(self.sd['crad']/self.sd['aspp']/2.0)*2,self.sdim/2]))
         sd2 = int(self.sdim/2)
 
         if 'cmap' not in plotkwargs:
@@ -157,7 +157,7 @@ class psf_analyzer():
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
 
         #   pdb.set_trace()
-        im = ax.imshow(self.psf[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.psf), **plotkwargs)
+        im = ax.imshow(util.ensure_numpy(self.psf[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.psf)), **plotkwargs)
 
         ## useful info
         ax.text(0.7,0.95,'SR (PSF) = %.3f' % self.strehl,transform=ax.transAxes,size=6,ha='left',color='white')
