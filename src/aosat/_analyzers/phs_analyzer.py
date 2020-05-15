@@ -1,7 +1,13 @@
 
 
 import os
-import numpy as np
+
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
@@ -87,7 +93,7 @@ class phs_analyzer():
         sdim  = self.lastphase.shape[0]
         x, y  = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]
         r     = (x**2+y**2)**0.5
-        plts  = int(np.min([max((r*self.sd['tel_mirror']).flatten())*1.1,sdim/2])/2)*2
+        plts  = int(min([max((r*self.sd['tel_mirror']).flatten())*1.1,sdim/2])/2)*2
         sreg = slice(int(sdim/2-plts),int(sdim/2+plts))
 
         ## what to show
@@ -129,14 +135,14 @@ class phs_analyzer():
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))#
-        im=ax.imshow(sshow*self.sd['tel_mirror'][sreg,sreg], **plotkwargs)
+        im=ax.imshow(util.ensure_numpy(sshow*self.sd['tel_mirror'][sreg,sreg]), **plotkwargs)
         ax.text(0.5,0.5,"Mean RMS WF:\n %.1f nm"%self.rms,color='white',transform=ax.transAxes,size=5,ha='center',va='center')
 
         dividerpi = make_axes_locatable(ax)
         caxpi = dividerpi.append_axes("right", size="10%", pad=0.05)
         caxpi.tick_params(axis='both', which='major', labelsize=6)
         caxpi.tick_params(axis='both', which='minor', labelsize=5)
-        t = pmin+(np.arange(11))/10.0*(pmax-pmin)
-        cbarpi = plt.colorbar(im, cax=caxpi, ticks=t,label=r'Phase [nm]')
+        t = util.ensure_numpy(pmin+(np.arange(11))/10.0*(pmax-pmin))
+        cbarpi = plt.colorbar(util.ensure_numpy(im), cax=caxpi, ticks=t,label=r'Phase [nm]')
 
         return(fig)
