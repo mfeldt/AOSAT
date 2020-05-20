@@ -4,7 +4,13 @@ from aosat import util
 from aosat import analyze
 from aosat import aosat_cfg
 import os
-import numpy as np
+
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
+
 from astropy import units
 from scipy import ndimage
 
@@ -17,15 +23,15 @@ def test_psf_analyze_strehl():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
     ## phase screen in rad at 1 micron
-    ps = pyfits.getdata(os.path.join(bdir,'ExampleClosedLoop','metis_370P_35L_rwf800.fits'))*2*np.pi
-    tm = pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))
+    ps = np.array(pyfits.getdata(os.path.join(bdir,'ExampleClosedLoop','metis_370P_35L_rwf800.fits'))*2*np.pi)
+    tm = np.array(pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))*1.0)
     wp = np.where(tm != 0)
 
     ## Strehl at 1 micron
-    sr   = np.exp(-1*(ps)[wp].std()**2)
+    sr   = np.exp(-1*(ps)[wp].std()**2).item()
     psf  = np.abs(np.fft.fft2(tm*np.exp(1j*ps)))**2
     psfr = np.abs(np.fft.fft2(tm*np.exp(1j*ps*0)))**2
-    srp  = np.max(psf)/np.max(psfr)
+    srp  = (np.max(psf)/np.max(psfr)).item()
 
     sd = analyze.setup()
 
@@ -34,9 +40,8 @@ def test_psf_analyze_strehl():
     an.feed_frame(ps,2)
     an.feed_frame(ps,2)
     an.finalize()
-
-    assert an.sr_wf.mean() == sr
-    assert an.strehl == srp
+    assert np.abs(an.sr_wf.mean() - sr) < 1e-5
+    assert np.abs(an.strehl - srp) < 1e-5
 
 
 def polyfit2d(x, y, f, deg):
@@ -44,17 +49,17 @@ def polyfit2d(x, y, f, deg):
     y = np.asarray(y)
     f = np.asarray(f)
     deg = np.asarray(deg)
-    vander = poly.polyvander2d(x, y, deg)
+    vander = poly.polyvander2d(util.ensure_numpy(x), util.ensure_numpy(y), util.ensure_numpy(deg))
     vander = vander.reshape((-1,vander.shape[-1]))
     f = f.reshape((vander.shape[0],))
-    c = np.linalg.lstsq(vander, f,rcond=-1)[0]
-    return c.reshape(deg+1)
+    c = np.linalg.lstsq(np.array(vander), np.array(f),rcond=-1)[0]
+    return c.reshape(util.ensure_numpy(deg+1))
 
 
 def test_psf_analyze_ttwf():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
-    tm = pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))
+    tm = np.array(pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits')))
     wp = np.where(tm != 0)
     sdim = tm.shape[0]
 
@@ -66,7 +71,6 @@ def test_psf_analyze_ttwf():
 
     ps = x/3600.0/180.0*np.pi/1000 # tilted by 1mas
     ps *= 1e6*2*np.pi         # to micron to rad
-
 
     ## independent 2D plane fit
     c = polyfit2d(x,y,ps,[1,1])
@@ -91,7 +95,7 @@ def test_psf_analyze_ttwf():
 def test_psf_analyze_ttpsf():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
-    tm = pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))
+    tm = np.array(pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits')))
     wp = np.where(tm != 0)
     sdim = tm.shape[0]
 
@@ -116,7 +120,7 @@ def test_psf_analyze_ttpsf():
 def test_tvc():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
-    tm = pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))
+    tm = np.array(pyfits.getdata(os.path.join(bdir,'ExampleAnalyze','yao_pupil.fits'))*1.0)
     wp = np.where(tm != 0)
     sdim = tm.shape[0]
 
@@ -145,7 +149,6 @@ def test_tvc():
     psf2 = np.abs(np.fft.fftshift(np.fft.fft2(tm*np.exp(1j*ps2))))**2
     s5   = 5*np.abs(psf-psf2)/2 # 5 sigma distance of 2 values
     s5c  = s5 / np.max((0.5*(psf+psf2))) # contrast to peak
-
     assert np.abs(s5c - an.contrast).sum() < 1e-12
 
 
@@ -162,10 +165,10 @@ def test_frg_worst():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
     tm = pyfits.getdata(os.path.join(bdir,'frag_pupil.fits'))
-    fr = ndimage.label(tm>1e-6)[0]
+    fr = np.array(ndimage.label(tm>1e-6)[0])
 
-    p1 = tm *0.0
-    p2 = tm*0.0
+    p1 = np.array(tm *0.0)
+    p2 = np.array(tm*0.0)
     p2[np.where(fr == 2)]=1.0
 
     ##
@@ -189,13 +192,13 @@ def test_frg_worst():
     ## finalize and check
     ##
     an.finalize()
-    assert np.abs(np.max(an.pistframe) - ev) < 1e-4
+    assert np.abs(np.max(an.pistframe) - ev).item() < 1e-4
 
 def test_frg_tilt():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
     tm = pyfits.getdata(os.path.join(bdir,'frag_pupil.fits'))
-    fr = ndimage.label(tm>1e-6)[0]
+    fr = np.array(ndimage.label(tm>1e-6)[0])
 
 
     ##
@@ -231,8 +234,9 @@ def test_frg_tilt():
     ## tolerance 5 micro arc sec
     ##
     an.finalize()
-    assert np.abs(an.ttx - np.repeat(1.0,6)).sum() < 5e-3
-    assert np.abs(an.tty - np.repeat(0.0,6)).sum() < 5e-3
+    from numpy import repeat,abs
+    assert abs(util.ensure_numpy(an.ttx) - repeat(1.0,6)).sum().item() < 5e-3
+    assert abs(util.ensure_numpy(an.tty) - repeat(0.0,6)).sum().item() < 5e-3
 
 def test_phs():
 
@@ -259,7 +263,7 @@ def test_phs():
     ## finalize and check
     ##
     an.finalize()
-    assert np.abs(an.rms - 0.5/2/np.pi*sd['cfg']['an_lambda']*1e9)<1e-5
+    assert np.abs(an.rms - 0.5/2/np.pi*sd['cfg']['an_lambda']*1e9).item()<5e-5
 
 
 def test_zrn_modevec():
