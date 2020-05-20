@@ -69,7 +69,7 @@ class zrn_analyzer():
         ##
         ## default appearance
         ##
-        ylim = np.max(np.maximum(np.abs(self.modes+self.dmodes),np.abs(self.modes-self.dmodes))[1:])*1.1
+        ylim = util.ensure_numpy(max(np.maximum(np.abs(self.modes+self.dmodes),np.abs(self.modes-self.dmodes))[1:])*1.1)
         if not 'color' in plotkwargs:
             plotkwargs['color'] = 'blue'
         if 'xlim' not in subplotkwargs:
