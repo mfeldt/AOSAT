@@ -52,7 +52,6 @@ class zrn_analyzer():
         if self._ffed == 0:
             self.modest = np.zeros((self.sd['cfg']['zterms'],nframes))
 
-        import pdb; pdb.set_trace()
         self.modest[:,self._ffed] = util.basis_expand(frame/2/np.pi*self.sd['cfg']['an_lambda']*1e9,self.sd['zernike_basis'],self.sd['tel_mirror']) #in nm
 
         self._ffed +=1
