@@ -1,5 +1,10 @@
 import os
-import numpy as np
+
+from pip._internal.utils.misc import get_installed_distributions
+if any(["cupy" in str(f) for f in get_installed_distributions()]):
+    import cupy as np
+else:
+    import numpy as np
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
