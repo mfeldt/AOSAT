@@ -63,13 +63,14 @@ class zrn_analyzer():
 
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
 
+        from numpy import arange
         if fig is None:
             fig = plt.figure()
 
         ##
         ## default appearance
         ##
-        ylim = util.ensure_numpy(max(np.maximum(np.abs(self.modes+self.dmodes),np.abs(self.modes-self.dmodes))[1:])*1.1)
+        ylim = util.ensure_numpy(max(np.maximum(np.abs(self.modes+self.dmodes),np.abs(self.modes-self.dmodes))[1:])*1.1).item()
         if not 'color' in plotkwargs:
             plotkwargs['color'] = 'blue'
         if 'xlim' not in subplotkwargs:
@@ -90,8 +91,8 @@ class zrn_analyzer():
         ##
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
-        ax.fill_between(np.arange(len(self.modes)),self.modes-self.dmodes,self.modes+self.dmodes,alpha=0.5,**plotkwargs)
-        ax.plot(np.arange(len(self.modes)),self.modes,**plotkwargs)
+        ax.fill_between(arange(len(self.modes)),util.ensure_numpy(self.modes-self.dmodes),util.ensure_numpy(self.modes+self.dmodes),alpha=0.5,**plotkwargs)
+        ax.plot(arange(len(self.modes)),util.ensure_numpy(self.modes),**plotkwargs)
         ax.text(0.75,0.95,r'Amplitude',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.75,0.9,r'Std. Dev.',transform=ax.transAxes,size=6,ha='left',alpha=0.5,color=plotkwargs['color'])
 
@@ -99,11 +100,11 @@ class zrn_analyzer():
         return(fig)
 
     def make_report(self):
-
+        from numpy import array2string
         report =  "##\n##\n"
         report += "## reporting analyzer: %s\n##\n##\n" % self.__class__.__name__
         report += "## Basis expansion values (mean) [nm]:\n\n"
-        report += "modes_mean    = %s\n" % (np.array2string(self.modes,separator=',',precision=2))
+        report += "modes_mean    = %s\n" % (array2string(util.ensure_numpy(self.modes),separator=',',precision=2))
         report += "## Basis expansion values (standard deviation) [nm]:\n\n"
-        report += "modes_std     = %s\n" % (np.array2string(self.dmodes,separator=',',precision=2))
+        report += "modes_std     = %s\n" % (array2string(util.ensure_numpy(self.dmodes),separator=',',precision=2))
         return(report)
