@@ -169,7 +169,7 @@ def frameServer():
     tel_mirror_divpm =  np.array(pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask'])))
     tel_mirror_divpm[tel_mirror_divpm == 0.0] = 1.0
     if 'divide_phase_by_mask' in aosat_cfg.CFG_SETTINGS:
-        if aosat_cfg.CFG_SETTINGS == True:
+        if aosat_cfg.CFG_SETTINGS['divide_phase_by_mask'] == True:
             pass
         else:
             tel_mirror_divpm = tel_mirror_divpm *0.+1.0
