@@ -11,7 +11,6 @@ from astropy import units
 from astropy.io import fits as pyfits
 import pandas as pd
 import copy
-import pdb
 
 from aosat import aosat_cfg
 from aosat import fftx
@@ -21,8 +20,8 @@ from scipy import ndimage
 from poppy import zernike
 from importlib import reload
 
-import pdb
 import matplotlib.pyplot as plt
+import matplotlib as mp
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
 from matplotlib.colors import LogNorm
@@ -120,11 +119,17 @@ class tvc_analyzer():
             self.ptrak=np.zeros((nframes,self.ntracks))
         self.ptrak[self._ffed] = frame[self.ppos] # track phase at 6 random locations
         self._ffed +=1
-    def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
+    def make_plot(self,fig=None,index=211,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
 
         if fig is None:
             fig = plt.figure()
 
+        pidx  = index - (index//10)*10
+        nrows = index // 100
+        ncols = (index - nrows*100)//10
+        if pidx > (nrows*ncols)-1 and self.ctype=='icor':
+            logger.error("Not enough free plot positions on page - not adding TVC plots!")
+            return(fig)
         ##
         ## default appearance
         ##
@@ -146,17 +151,16 @@ class tvc_analyzer():
         #    subplotkwargs['aspect'] = 1.0
         #subplotkwargs['adjustable'] = 'box'
         ##
-        ##  create (only) subplot
+        ##  create first subplot
         ##
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
         ax.fill_between(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmin),util.ensure_numpy(self.cvecmax),alpha=0.15,**plotkwargs)
         ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean),**plotkwargs)
-        if self.corrlen > 0:
-            num_frames_per_hour = 3600.0/(self.corrlen/self.sd['loopfreq'])
-            plotkwargsP = copy.copy(plotkwargs)
-            plotkwargsP['linestyle'] = 'dotted'
-            ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
+        #if self.corrlen > 0:
+        #    plotkwargsP = copy.copy(plotkwargs)
+        #    plotkwargsP['linestyle'] = 'dotted'
+        #    ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
 
         ax.text(0.5,0.9,'No photon noise,',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.5,0.85,'due to PSF variation only!',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
@@ -165,14 +169,69 @@ class tvc_analyzer():
         plotkwargs2['color']='black'
         ax.fill_between(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmin),util.ensure_numpy(self.rcvecmax),alpha=0.15,**plotkwargs2)
         ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean),**plotkwargs2)
+
         if self.corrlen > 0:
+            num_frames_per_hour = 3600.0/(self.corrlen/self.sd['loopfreq'])
             plotkwargsP = copy.copy(plotkwargs2)
-            plotkwargsP['linestyle'] = 'dotted'
+            plotkwargsP['color'] = 'green'
             ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
         ax.text(0.5,0.8,'Raw (PSF profile)',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
         if self.corrlen>0:
-            ax.text(0.5,0.75,'Dotted lines: est. best 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
+            ax.text(0.5,0.75,'Estd. best possible 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargsP['color'])
         #ax.set_aspect(subplotkwargs['aspect'],'box')
+
+        if self.ctype=='icor':
+            ##
+            ## add coronagraphic psf
+            ##
+            ##
+            ## default appearance
+            ##
+            if 'xlabel' not in subplotkwargsC:
+                subplotkwargs['xlabel'] = r'$\delta$RA [mas]'
+            if 'ylabel' not in subplotkwargsC:
+                subplotkwargs['ylabel'] = r'$\delta$DEC [mas]'
+            if 'title' not in subplotkwargsC:
+                subplotkwargs['title'] = 'PSF'
+
+            # size of extraction area
+            plts = int(min([np.around(self.sd['crad']/self.sd['aspp']/2.0)*2,self.sdim/2]))
+            sd2 = int(self.sdim/2)
+
+            if 'cmap' not in plotkwargsC:
+                plotkwargs['cmap'] = 'nipy_spectral'
+            if 'norm' not in plotkwargsC:
+                plotkwargs['norm'] = LogNorm(vmin=1e-7,vmax=0.5)
+            if 'extent' not in plotkwargsC:
+                plotkwargs['extent'] = [plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,plts*self.sd['aspp']*1000]
+            if 'origin' not in plotkwargsC:
+                plotkwargs['origin'] = 'lower'
+            ##
+            ##  create (only) subplot
+            ##
+            logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
+            logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargs))
+            ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
+
+            #   pdb.set_trace()
+            im = ax.imshow(util.ensure_numpy(self.psf[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.psf)), **plotkwargs)
+
+            ## useful info
+            ax.text(0.7,0.95,'SR (PSF) = %.3f' % self.strehl,transform=ax.transAxes,size=6,ha='left',color='white')
+            ax.text(0.7,0.9,'SR (WF) = %.3f' % self.sr_wf.mean(),transform=ax.transAxes,size=6,ha='left',color='white')
+            ax.text(0.05,0.1,r'$\sigma_{tt}$(PSF) = %.3f mas' % self.ttjit_psf,transform=ax.transAxes,size=6,ha='left',color='white')
+            ax.text(0.05,0.05,r'$\sigma_{tt}$(WF) = %.3f mas' % self.ttjit,transform=ax.transAxes,size=6,ha='left',color='white')
+            ax.text(0.55,0.1,r'$Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
+            ax.text(0.55,0.05,r'$Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
+
+            ## color bar
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="10%", pad=0.05)
+            cax.tick_params(axis='both', which='major', labelsize=6)
+            cax.tick_params(axis='both', which='minor', labelsize=5)
+            t = [1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]
+            cbar = plt.colorbar(im, cax=cax, ticks=t,label='Intensity')
+
 
         return(fig)
 

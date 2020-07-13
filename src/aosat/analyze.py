@@ -24,6 +24,7 @@ from importlib import reload
 
 import pdb
 import matplotlib.pyplot as plt
+import matplotlib as mp
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.font_manager import FontProperties
 from matplotlib.colors import LogNorm
@@ -156,11 +157,13 @@ def setup():
     return(setup_dict)
 
 def sizeTearsheetLabels(f):
-    ca = f.gca()
-    ca.tick_params(axis='both', which='major', labelsize=6)
-    ca.tick_params(axis='both', which='minor', labelsize=5)
-    ca.yaxis.label.set_size(8)
-    ca.xaxis.label.set_size(8)
+    axes_list=[ff for ff in f.get_children() if isinstance(ff,mp.axes._subplots.SubplotBase)]
+    for ca in axes_list:
+    #ca = f.gca()
+        ca.tick_params(axis='both', which='major', labelsize=6)
+        ca.tick_params(axis='both', which='minor', labelsize=5)
+        ca.yaxis.label.set_size(8)
+        ca.xaxis.label.set_size(8)
 
 def makeTearsheetFigure(analyzers):
     """Helper function generating the tearsheet figure
@@ -181,7 +184,7 @@ def makeTearsheetFigure(analyzers):
     num_pages  = int(num_plots/6)+1
     logger.debug("Preparing %s plots on %s pages!" % (num_plots,num_pages))
     plots_done = 1
-
+    pidx       = 1
     filename = aosat_cfg.CFG_SETTINGS["ts_basefilename"]+".pdf"
     with PdfPages(filename) as pdf:
 
@@ -204,10 +207,11 @@ def makeTearsheetFigure(analyzers):
         ## plot result of all analyzers
         ##
         while plots_done <= num_plots:
-            if plots_done%6 == 0:
+            if pidx%6 == 0:
                 ##
                 ## new page
                 ##
+                #import pdb; pdb.set_trace()
                 f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6))
                 plt.tight_layout()
                 pdf.savefig(f)
@@ -215,15 +219,17 @@ def makeTearsheetFigure(analyzers):
                 plt.clf()
                 f = plt.figure(figsize=(8.27,11.69))
 
-            ppage = plots_done % 6
+            ppage = pidx % 6
             index = int('32'+str(int(ppage)+1))
             logger.debug("Plots on page:     %s"% ppage)
             logger.debug("Plots done so far: %s"% plots_done)
             logger.debug("Current index:     %s" % index)
             skwa={}
             f = analyzers[plots_done-1].make_plot(fig=f,index=index,subplotkwargs=skwa)
-            sizeTearsheetLabels(f)
+
             plots_done +=1
+            pidx = len([ff for ff in f.get_children() if isinstance(ff,mp.axes._subplots.SubplotBase)])
+        sizeTearsheetLabels(f)
         f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6),y=1.0)
         plt.tight_layout()
         pdf.savefig(f)
@@ -356,7 +362,7 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), zrn_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd)]
+    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), tvc_analyzer(sd,ctype='icor'), zrn_analyzer(sd),tvc_analyzer(sd)]
     run(analyzers)
 
     ##
