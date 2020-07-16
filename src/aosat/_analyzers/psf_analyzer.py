@@ -140,7 +140,6 @@ class psf_analyzer():
         # size of extraction area
         plts = int(min([np.around(self.sd['crad']/self.sd['aspp']/2.0)*2,self.sdim/2]))
         sd2 = int(self.sdim/2)
-
         if 'cmap' not in plotkwargs:
             plotkwargs['cmap'] = 'nipy_spectral'
         if 'norm' not in plotkwargs:

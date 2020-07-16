@@ -136,6 +136,7 @@ class frg_analyzer():
             self.ttxt[self.ffed,i]    = C[0]
             self.ttyt[self.ffed,i]    = C[1]
             self.pistont[self.ffed,i] = C[2]
+        self.pistont[self.ffed,:] -= self.pistont[self.ffed,:].mean()
         self.ffed+=1
 
     def finalize(self,tile=0.8):
@@ -163,11 +164,13 @@ class frg_analyzer():
             pistframe[self.wfrag[i]] = tphase[self.wfrag[i]]
         self.pistframe = pistframe
 
-    def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
+    def make_plot(self,fig=None,index=211,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
         if fig is None:
             fig = plt.figure()
 
-
+        pidx  = index - (index//10)*10
+        nrows = index // 100
+        ncols = (index - nrows*100)//10
         ## plot region
         sdim  = self.pistframe.shape[0]
         x, y  = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]
@@ -210,7 +213,7 @@ class frg_analyzer():
 
 
         ##
-        ##  create (only) subplot
+        ##  create first subplot
         ##
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))#
@@ -232,6 +235,32 @@ class frg_analyzer():
         caxpi.tick_params(axis='both', which='minor', labelsize=5)
         t = util.ensure_numpy(pmin+(np.arange(11))/10.0*(pmax-pmin))
         cbarpi = plt.colorbar(im, cax=caxpi, ticks=t,label=r'Phase [nm]')
+
+
+        ##
+        ## create 2nd subplot
+        ##
+
+        if pidx > (nrows*ncols)-1 :
+            logger.error("Not enough free plot positions on page - not adding piston track!")
+            return(fig)
+
+        if 'xlabel' not in subplotkwargsC:
+            subplotkwargsC['xlabel'] = r'time [ms]'
+        if 'ylabel' not in subplotkwargsC:
+            subplotkwargsC['ylabel'] = r'relative fragment piston [nm]'
+        if 'title' not in subplotkwargsC:
+            subplotkwargsC['title'] = 'Relative Fragment Piston'
+
+
+        logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargsC))
+        if len(plotkwargsC)>0:
+            logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargsC))
+        nindex = nrows*100+ncols*10+pidx+1
+        ax2 = fig.add_subplot(nindex,**subplotkwargsC,label=str(index*2))#
+        tvec = util.ensure_numpy(np.arange(len(self.pistont[:,0])))/self.sd['loopfreq']*1000.0
+        for i in range(len(self.pistont[0,:])):
+            ax2.plot(self.pistont[:,i]/2/np.pi*self.sd['cfg']['an_lambda']*1e9)
 
         return(fig)
 

@@ -6,11 +6,14 @@ else:
 #import numpy as np
 
 from poppy import zernike
+from skimage import morphology
+
 import logging
 logger = logging.getLogger(__name__)
 
 from astropy.io import fits as pyfits
 import os
+import copy
 dn = dn = os.path.dirname(os.path.realpath(__file__))
 pupil_file = os.path.join(dn, 'examples/ExampleAnalyze/yao_pupil.fits')
 
@@ -90,6 +93,43 @@ def rad_order(frame,outer_radius=np.inf):
     pixels = np.where(r<outer_radius)
     rord    = np.argsort(r[pixels])
     return((r,pixels,rord))
+
+def downsample1d(nparr,targetsize=1000,method=np.mean):
+    """Downsample a 1d numpy array with a given numpy methods
+
+    parameters
+    ----------
+    nparr : 1D numpy array
+        Input array, usually of very great length to be downsampled
+    targetsize: integer [1000]
+        The target size of the output array
+    method: numpy method to be applied  when downsampling [np.mean]
+        E.g. np.mean
+
+    Returns
+    -------
+        numpy.ndarray
+            1D array, resmpled from original
+
+    Examples
+    --------
+
+    >>> a=np.arange(1000)
+    >>> downsample1d(a,targetsize=10)
+    array([ 49.5, 149.5, 249.5, 349.5, 449.5, 549.5, 649.5, 749.5, ...
+    >>> downsample1d(a,targetsize=10,method=np.min)
+    array([  0, 100, 200, 300, 400, 500, 600, 700, 800, 900])
+    """
+
+    if targetsize > len(nparr):
+        return(nparr)
+
+    sample_step = len(nparr)//targetsize
+    outarr=ensure_numpy(np.array([method(nparr[i*sample_step:(i+1)*sample_step]) for i in range(targetsize)]))
+    return(outarr)
+
+
+
 
 def rolling_variance(old,newValue):
     """Rolling variance computation according to  Welford's algorithm.
@@ -177,7 +217,7 @@ def zernike_basis(nterms,npix,tel_mirror):
 
 
 def basis_expand(wf, basis, tel_mirror):
-    """Axpand a wavefront into a basis set, operating
+    """Expand a wavefront into a basis set, operating
     on an aperture
 
     Parameters
@@ -218,6 +258,57 @@ def basis_expand(wf, basis, tel_mirror):
     ngood    = (wgood[0]).size
     coeffs = [(opd * b)[wgood].sum() / ngood for b in basis]
     return np.array(coeffs)
+
+
+
+def apodize_mask(inmask,steps=3):
+    """
+    Produce an apodized version (i.e. one with less hard edges) of a given mask.
+
+    Parameters
+    ----------
+    inmask : numpy NDarray, 2D
+        The mask to be apodized
+    steps : integer
+        Number of apodization steps.  Genrally, a previously hard edge
+        (step from 0 to 1) will end up having steps grey pixels providing
+        a smooth transition between the values on either side of the edge.
+
+        AOSAT masks are given as transmissivity, i.e. 1 represents a
+        clear part, 0 an opaque part.  Apertures will always be made
+        effectively smaller by this utility!
+        (the default is 3).
+
+    Returns
+    -------
+    numpy ND array
+        Array of same dimensions as input with apodized mask
+
+    Examples
+    -------
+
+    >>> mask = np.zeros((5,5))
+    >>> mask[1:4,1:4] = 1.0
+    >>> ap=apodize_mask(mask,steps=1)
+    >>> ap
+    array([[0.        , 0.        , 0.        , 0.        , 0.        ],
+       [0.        , 0.06250295, 0.06250295, 0.06250295, 0.        ],
+       [0.        , 0.06250295, 1.        , 0.06250295, 0.        ],
+       [0.        , 0.06250295, 0.06250295, 0.06250295, 0.        ],
+       [0.        , 0.        , 0.        , 0.        , 0.        ]])
+
+
+    """
+
+    outmask = copy.deepcopy(inmask)
+    vvec = np.exp(-np.power(np.arange(steps)+0.5 , 2.) / (2 * np.power(steps/2.0/2.3548, 2.))) # Gaussian
+    omask = (inmask > 0.1)*1.0 # threshold mask to not enlarge sub-resolution structures
+    for step in range(steps):
+        tmask = morphology.binary_dilation(1-omask) +omask -1
+
+        outmask[np.where(tmask != 0)] = inmask[np.where(tmask != 0)] * vvec[steps-step-1]
+        omask = omask-tmask
+    return(outmask)
 
 
 

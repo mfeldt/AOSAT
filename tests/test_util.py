@@ -30,3 +30,13 @@ def test_zernike():
     s = np.array([zb[i]*i/1e1 for i in range(10)]).sum(axis=0)
     v=util.basis_expand(s,zb,tm)
     assert not any(np.abs(v-np.arange(10)/1e1)>3e-3)
+
+def test_apodize():
+    mask=np.zeros((5,5))
+    mask[1:4,1:4]=1.0
+    outmask = np.array([[0.        , 0.        , 0.        , 0.        , 0.        ],
+                        [0.        , 0.06250295, 0.06250295, 0.06250295, 0.        ],
+                        [0.        , 0.06250295, 1.        , 0.06250295, 0.        ],
+                        [0.        , 0.06250295, 0.06250295, 0.06250295, 0.        ],
+                        [0.        , 0.        , 0.        , 0.        , 0.        ]])
+    assert(np.abs(util.apodize_mask(mask,steps=1)-outmask).sum()<1e-8)

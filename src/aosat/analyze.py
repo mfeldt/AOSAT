@@ -51,6 +51,7 @@ from aosat._analyzers.dmy_analyzer import dmy_analyzer
 from aosat._analyzers.phs_analyzer import phs_analyzer
 from aosat._analyzers.tvc_analyzer import tvc_analyzer
 from aosat._analyzers.psf_analyzer import psf_analyzer
+from aosat._analyzers.sps_analyzer import sps_analyzer
 
 def getFontProperties():
     """Helper function.
@@ -198,7 +199,7 @@ def makeTearsheetFigure(analyzers):
         ##
         ## fundamental data
         ##
-        c_axarr = f.add_subplot('321')#axarr[0,0]
+        c_axarr = f.add_subplot(321)#axarr[0,0]
         sizeTearsheetLabels(f)
         c_axarr.axis('off')
         c_axarr.text(0,0.7,"CONFIG DATA:\n"+aosat_cfg.CFG_SETTINGS['ts_title']+"\n\n"+aosat_cfg.repString(aosat_cfg.CFG_SETTINGS),fontproperties=font,transform=c_axarr.transAxes,**alignment)
@@ -211,7 +212,6 @@ def makeTearsheetFigure(analyzers):
                 ##
                 ## new page
                 ##
-                #import pdb; pdb.set_trace()
                 f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6))
                 plt.tight_layout()
                 pdf.savefig(f)
@@ -362,7 +362,7 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[psf_analyzer(sd), frg_analyzer(sd), phs_analyzer(sd), tvc_analyzer(sd,ctype='icor'), zrn_analyzer(sd),tvc_analyzer(sd)]
+    analyzers=[psf_analyzer(sd), frg_analyzer(sd), zrn_analyzer(sd), zrn_analyzer(sd),phs_analyzer(sd),sps_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd,ctype='nocor')]
     run(analyzers)
 
     ##
@@ -370,7 +370,6 @@ def tearsheet(config_file):
     ##
     makeTearsheetFigure(analyzers)
     makeTearsheetReport(analyzers)
-
 
 
 if __name__ == "__main__":

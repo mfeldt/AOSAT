@@ -98,15 +98,16 @@ class tvc_analyzer():
 
     def feed_frame(self,frame,nframes):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
-        this_strehl   = np.exp(-1*np.std(frame[self.sd['wnz']])**2) ## remember: Frames are in radians!
-        logger.debug("Found Strehl ratio: %s" % this_strehl)
-        frame_dev = fftx.FFTprepare(in_field- (this_strehl**0.5)*self.sd['tel_mirror']*int(self.ctype=='icor'))
+        #this_strehl   = np.exp(-1*np.std(frame[self.sd['wnz']])**2) ## remember: Frames are in radians!
+        #logger.debug("Found Strehl ratio: %s" % this_strehl)
+        frame_dev = fftx.FFTprepare(in_field- self.sd['tel_mirror']*int(self.ctype=='icor'))
         fftframe  = fftx.FFTshift(fftx.FFTforward(self.sd['fft_plan'],self.sd['fft_out'],frame_dev))
         psf       = np.abs(fftframe)**2
         if self.ctype =='icor':
             frame_dev2 = fftx.FFTprepare(in_field)
             fftframe2  = fftx.FFTshift(fftx.FFTforward(self.sd['fft_plan'],self.sd['fft_out'],frame_dev2))
             psf2       = np.abs(fftframe2)**2
+
         if self.variance == (0,None,None):
             self.variance=(0,psf*0,psf*0)
             self.variance2=(0,psf*0,psf*0)
@@ -119,6 +120,10 @@ class tvc_analyzer():
             self.ptrak=np.zeros((nframes,self.ntracks))
         self.ptrak[self._ffed] = frame[self.ppos] # track phase at 6 random locations
         self._ffed +=1
+
+
+
+
     def make_plot(self,fig=None,index=211,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
 
         if fig is None:
@@ -127,9 +132,7 @@ class tvc_analyzer():
         pidx  = index - (index//10)*10
         nrows = index // 100
         ncols = (index - nrows*100)//10
-        if pidx > (nrows*ncols)-1 and self.ctype=='icor':
-            logger.error("Not enough free plot positions on page - not adding TVC plots!")
-            return(fig)
+        #import pdb; pdb.set_trace()
         ##
         ## default appearance
         ##
@@ -155,29 +158,47 @@ class tvc_analyzer():
         ##
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
-        ax.fill_between(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmin),util.ensure_numpy(self.cvecmax),alpha=0.15,**plotkwargs)
+
+        rep_vec_r     = util.ensure_numpy(np.arange(1000)/1000*max(self.rvec))
+
+        from numpy import interp, array2string
+
+        rep_vec_cmean = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean))
+        rep_vec_cmin  = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmin))
+        rep_vec_cmax  = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmax))
+
+        rep_vec_rcmean = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean))
+        rep_vec_rcmin  = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmin))
+        rep_vec_rcmax  = interp(rep_vec_r,util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmax))
+
+
+
+        ax.fill_between(rep_vec_r,rep_vec_cmin,rep_vec_cmax,alpha=0.15,**plotkwargs)
         ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean),**plotkwargs)
-        #if self.corrlen > 0:
-        #    plotkwargsP = copy.copy(plotkwargs)
-        #    plotkwargsP['linestyle'] = 'dotted'
-        #    ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.cvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
+        ax.plot(rep_vec_r,rep_vec_cmean,**plotkwargs)
+
+        if self.corrlen > 0:
+            num_frames_per_hour = 3600.0/(self.corrlen/self.sd['loopfreq'])
+            plotkwargsP = copy.copy(plotkwargs)
+            plotkwargsP['color'] = 'green'
+            ax.plot(rep_vec_r,rep_vec_cmean/(num_frames_per_hour**0.5),**plotkwargsP)
 
         ax.text(0.5,0.9,'No photon noise,',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.5,0.85,'due to PSF variation only!',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         ax.text(0.5,0.95,r'5 $\sigma$ TVC',transform=ax.transAxes,size=6,ha='left',color=plotkwargs['color'])
         plotkwargs2 = copy.copy(plotkwargs)
         plotkwargs2['color']='black'
-        ax.fill_between(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmin),util.ensure_numpy(self.rcvecmax),alpha=0.15,**plotkwargs2)
-        ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean),**plotkwargs2)
+        ax.fill_between(rep_vec_r,rep_vec_rcmin,rep_vec_rcmax,alpha=0.15,**plotkwargs2)
+        ax.plot(rep_vec_r,rep_vec_rcmean,**plotkwargs2)
 
-        if self.corrlen > 0:
-            num_frames_per_hour = 3600.0/(self.corrlen/self.sd['loopfreq'])
-            plotkwargsP = copy.copy(plotkwargs2)
-            plotkwargsP['color'] = 'green'
-            ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
+        # if self.corrlen > 0:
+        #
+        #     plotkwargsP = copy.copy(plotkwargs2)
+        #     plotkwargsP['color'] = 'green'
+        #     ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
         ax.text(0.5,0.8,'Raw (PSF profile)',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
-        if self.corrlen>0:
-            ax.text(0.5,0.75,'Estd. best possible 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargsP['color'])
+        # if self.corrlen>0:
+        ax.text(0.5,0.75,'Estd. best 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargsP['color'])
         #ax.set_aspect(subplotkwargs['aspect'],'box')
 
         if self.ctype=='icor':
@@ -187,6 +208,11 @@ class tvc_analyzer():
             ##
             ## default appearance
             ##
+
+            if pidx > (nrows*ncols)-1 and self.ctype=='icor':
+                logger.error("Not enough free plot positions on page - not adding TVC PSF plot!")
+                return(fig)
+
             if 'xlabel' not in subplotkwargsC:
                 subplotkwargs['xlabel'] = r'$\delta$RA [mas]'
             if 'ylabel' not in subplotkwargsC:
@@ -195,43 +221,33 @@ class tvc_analyzer():
                 subplotkwargs['title'] = 'PSF'
 
             # size of extraction area
-            plts = int(min([np.around(self.sd['crad']/self.sd['aspp']/2.0)*2,self.sdim/2]))
-            sd2 = int(self.sdim/2)
-
+            sdim = self.mean.shape[0]
+            plts = int(min([np.around(self.sd['crad']/self.sd['aspp']/2.0)*2,sdim/2]))
+            sd2 = int(sdim/2)
             if 'cmap' not in plotkwargsC:
-                plotkwargs['cmap'] = 'nipy_spectral'
+                plotkwargsC['cmap'] = 'nipy_spectral'
             if 'norm' not in plotkwargsC:
-                plotkwargs['norm'] = LogNorm(vmin=1e-7,vmax=0.5)
+                plotkwargsC['norm'] = LogNorm(vmin=1e-7,vmax=0.5)
             if 'extent' not in plotkwargsC:
-                plotkwargs['extent'] = [plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,plts*self.sd['aspp']*1000]
+                plotkwargsC['extent'] = [plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,-plts*self.sd['aspp']*1000,plts*self.sd['aspp']*1000]
             if 'origin' not in plotkwargsC:
-                plotkwargs['origin'] = 'lower'
+                plotkwargsC['origin'] = 'lower'
+            if 'title' not in subplotkwargsC:
+                subplotkwargsC['title'] = 'Coronagraphic PSF'
             ##
             ##  create (only) subplot
             ##
-            logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
-            logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargs))
-            ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
-
-            #   pdb.set_trace()
-            im = ax.imshow(util.ensure_numpy(self.psf[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.psf)), **plotkwargs)
-
-            ## useful info
-            ax.text(0.7,0.95,'SR (PSF) = %.3f' % self.strehl,transform=ax.transAxes,size=6,ha='left',color='white')
-            ax.text(0.7,0.9,'SR (WF) = %.3f' % self.sr_wf.mean(),transform=ax.transAxes,size=6,ha='left',color='white')
-            ax.text(0.05,0.1,r'$\sigma_{tt}$(PSF) = %.3f mas' % self.ttjit_psf,transform=ax.transAxes,size=6,ha='left',color='white')
-            ax.text(0.05,0.05,r'$\sigma_{tt}$(WF) = %.3f mas' % self.ttjit,transform=ax.transAxes,size=6,ha='left',color='white')
-            ax.text(0.55,0.1,r'$Q90_{tt}$(PSF) = %.3f mas' % self.ttq90_psf,transform=ax.transAxes,size=6,ha='left',color='white')
-            ax.text(0.55,0.05,r'$Q90_{tt}$(WF) = %.3f mas' % self.ttq90,transform=ax.transAxes,size=6,ha='left',color='white')
-
-            ## color bar
-            divider = make_axes_locatable(ax)
+            logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargsC))
+            logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargsC))
+            nindex = nrows*100+ncols*10+pidx+1
+            ax2 = fig.add_subplot(nindex,**subplotkwargsC,label=str(index*2))
+            im = ax2.imshow(util.ensure_numpy(self.mean[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.mean)), **plotkwargsC)
+            divider = make_axes_locatable(ax2)
             cax = divider.append_axes("right", size="10%", pad=0.05)
             cax.tick_params(axis='both', which='major', labelsize=6)
             cax.tick_params(axis='both', which='minor', labelsize=5)
             t = [1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]
             cbar = plt.colorbar(im, cax=cax, ticks=t,label='Intensity')
-
 
         return(fig)
 

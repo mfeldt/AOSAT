@@ -160,7 +160,7 @@ def test_analyze_npupils():
     assert np.max(sd['fragmask']) == 6
 
 
-
+#==========================================================#
 def test_frg_worst():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
@@ -187,13 +187,15 @@ def test_frg_worst():
     for i in range(9):
         an.feed_frame(p1,100)
 
-    ev = 2/2/np.pi*1e-6*1e9 # piston of 2 rad at 1mum in nm
+    ev = (2-2/6.0)/2/np.pi*1e-6*1e9 # piston of 2 rad at 1mum in nm
     ##
     ## finalize and check
     ##
     an.finalize()
     assert np.abs(np.max(an.pistframe) - ev).item() < 1e-4
 
+
+#==========================================================#
 def test_frg_tilt():
     bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
 
