@@ -267,7 +267,7 @@ def apodize_mask(inmask,steps=3):
 
     Parameters
     ----------
-    inmask : numpy NDarray, 2D
+    inmask : numpy (or cupy) NDarray, 2D
         The mask to be apodized
     steps : integer
         Number of apodization steps.  Genrally, a previously hard edge
@@ -299,12 +299,11 @@ def apodize_mask(inmask,steps=3):
 
 
     """
-
-    outmask = copy.deepcopy(inmask)
+    outmask = inmask * 1.0
     vvec = np.exp(-np.power(np.arange(steps)+0.5 , 2.) / (2 * np.power(steps/2.0/2.3548, 2.))) # Gaussian
-    omask = (inmask > 0.1)*1.0 # threshold mask to not enlarge sub-resolution structures
+    omask =(inmask > 0.1)*1.0# threshold mask to not enlarge sub-resolution structures
     for step in range(steps):
-        tmask = morphology.binary_dilation(1-omask) +omask -1
+        tmask = np.array(morphology.binary_dilation(1-ensure_numpy(omask))) +omask -1
 
         outmask[np.where(tmask != 0)] = inmask[np.where(tmask != 0)] * vvec[steps-step-1]
         omask = omask-tmask

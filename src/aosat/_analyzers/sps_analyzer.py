@@ -89,10 +89,10 @@ class sps_analyzer(dmy_analyzer):
             vk_psd    = vk_psd /vk_psd[-1]*self.ps_psd[-1] # poor man's fit...
 
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))
-        ax.loglog(self.f_spatial[1:],self.ps_psd[1:],color='k',**plotkwargs)
-        ax.loglog(self.f_spatial[1:],ol_psd[1:],color='r',**plotkwargs)
+        ax.loglog(util.ensure_numpy(self.f_spatial[1:]),util.ensure_numpy(self.ps_psd[1:]),color='k',**plotkwargs)
+        ax.loglog(util.ensure_numpy(self.f_spatial[1:]),util.ensure_numpy(ol_psd[1:]),color='r',**plotkwargs)
         if 'L0'in self.sd:
-            ax.loglog(self.f_spatial[1:],vk_psd[1:],color='b',**plotkwargs)
+            ax.loglog(util.ensure_numpy(self.f_spatial[1:]),util.ensure_numpy(vk_psd[1:]),color='b',**plotkwargs)
 
         ax.text(0.5,0.8,r'Kolmogorov, $k^{-11/3}$',color='r',size=6,transform=ax.transAxes)
         if 'L0' in self.sd:
@@ -109,7 +109,7 @@ class sps_analyzer(dmy_analyzer):
         report =  "##\n##\n"
         report += "## reporting analyzer: %s\n##\n##\n" % self.__class__.__name__
         report += "## Spatial frequencies sampled:\n"
-        report += "f_spatial = %s\n##\n" % array2string(self.f_spatial,separator=',',precision=4)
+        report += "f_spatial = %s\n##\n" % array2string(util.ensure_numpy(self.f_spatial),separator=',',precision=4)
         report += "## PSD in nm^2/m^-1:\n"
-        report += "f_spatial = %s\n##\n" % array2string(self.ps_psd,separator=',',precision=4)
+        report += "f_spatial = %s\n##\n" % array2string(util.ensure_numpy(self.ps_psd),separator=',',precision=4)
         return(report)
