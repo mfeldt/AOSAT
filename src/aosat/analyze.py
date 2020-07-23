@@ -147,6 +147,7 @@ def setup():
     setup_dict['crad']          = aosat_cfg.CFG_SETTINGS['an_lambda']/(5.0/setup_dict['ppm'])/np.pi*180*3600 # estimate of control radius assuming                                                                                                     # a sampling of 5 pixels per actuator, in arc sec
     setup_dict['dl']            = aosat_cfg.CFG_SETTINGS['an_lambda']/(setup_dict['pupildiam']/setup_dict['ppm'])*3600*180/np.pi # diffraction limit
     setup_dict['loopfreq']      = aosat_cfg.CFG_SETTINGS['loopfreq'] # loop frequency
+    setup_dict['L0']            = aosat_cfg.CFG_SETTINGS['L0'] # loop frequency
 
     x, y     = np.mgrid[-setup_dict['sdim']/2:setup_dict['sdim']/2,-setup_dict['sdim']/2:setup_dict['sdim']/2]/setup_dict['ppm']
     setup_dict['wtrk']          = np.where((setup_dict['tel_mirror'] != 0 ) * ((x-x.astype(int)) ==0) * ((y-y.astype(int))==0))
@@ -362,9 +363,8 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[psf_analyzer(sd), frg_analyzer(sd), zrn_analyzer(sd), zrn_analyzer(sd),phs_analyzer(sd),sps_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd,ctype='nocor')]
+    analyzers=[sps_analyzer(sd)]#psf_analyzer(sd), frg_analyzer(sd), zrn_analyzer(sd), zrn_analyzer(sd),phs_analyzer(sd),sps_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd,ctype='nocor')]
     run(analyzers)
-
     ##
     ## plot
     ##

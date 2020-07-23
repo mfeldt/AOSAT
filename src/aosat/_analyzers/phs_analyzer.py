@@ -99,10 +99,11 @@ class phs_analyzer():
         ## what to show
         mphase = np.min(self.lastphase[self.sd['wnz']])
         sphase = copy.copy(self.lastphase)
-        sphase[self.sd['wnz']] -=  mphase
+        #sphase[self.sd['wnz']] -=  mphase
         pp     = sphase[self.sd['wnz']].flatten()
         pmin  = np.percentile(pp,5)
         pmax  = np.percentile(pp,95)
+        sphase[self.sd['tel_mirror']==0] = pmin
         sshow = sphase[sreg,sreg]
 
 
@@ -135,7 +136,7 @@ class phs_analyzer():
         logger.debug("Subplot keyword args:\n"+aosat_cfg.repString(subplotkwargs))
         logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargs))
         ax = fig.add_subplot(index,**subplotkwargs,label=str(index*2))#
-        im=ax.imshow(util.ensure_numpy(sshow*self.sd['tel_mirror'][sreg,sreg]), **plotkwargs)
+        im=ax.imshow(util.ensure_numpy(sphase[sreg,sreg]), **plotkwargs)
         ax.text(0.5,0.5,"Mean RMS WF:\n %.1f nm"%self.rms,color='white',transform=ax.transAxes,size=5,ha='center',va='center')
 
         dividerpi = make_axes_locatable(ax)

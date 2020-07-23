@@ -95,6 +95,7 @@ class tvc_analyzer():
         self.ptrak     = None
         self.ppos      = np.zeros(self.ntracks,dtype=np.int32)
         self.corrlen   = 0.0
+        self.max_no_cor = 0.0
 
     def feed_frame(self,frame,nframes):
         in_field  = self.sd['tel_mirror']*np.exp(1j*frame)
@@ -241,7 +242,7 @@ class tvc_analyzer():
             logger.debug("Plot keyword args:\n"+aosat_cfg.repString(plotkwargsC))
             nindex = nrows*100+ncols*10+pidx+1
             ax2 = fig.add_subplot(nindex,**subplotkwargsC,label=str(index*2))
-            im = ax2.imshow(util.ensure_numpy(self.mean[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.mean)), **plotkwargsC)
+            im = ax2.imshow(util.ensure_numpy(self.mean[sd2-plts:sd2+plts,sd2-plts:sd2+plts]/np.max(self.max_no_cor)), **plotkwargsC)
             divider = make_axes_locatable(ax2)
             cax = divider.append_axes("right", size="10%", pad=0.05)
             cax.tick_params(axis='both', which='major', labelsize=6)
@@ -287,11 +288,11 @@ class tvc_analyzer():
         variance      = self.variance[2]/self.variance[0]
         mean          = self.variance[1]#*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor')
         sigma         = variance**0.5
-        max_no_cor    = np.max(self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor'))
+        self.max_no_cor    = np.max(self.variance[1]*int(self.ctype == 'nocor') + self.variance2[1]*int(self.ctype=='icor'))
         self.mean     = mean
 
-        self.contrast = 5*sigma/max_no_cor
-        self.rcontrast = mean/max_no_cor
+        self.contrast = 5*sigma/self.max_no_cor
+        self.rcontrast = mean/self.max_no_cor
         ra,pixels,rord = util.rad_order(self.contrast)
 
         self.rvec  = ra[pixels][rord]*self.sd['aspp']

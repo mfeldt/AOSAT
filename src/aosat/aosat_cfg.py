@@ -15,6 +15,7 @@ fpars = collections.OrderedDict([('an_lambda',     1e-6),  # analysis wavelength
                                  ('loopfreq',     1000.0),  # AO loop frequency [Hz]
                                  ('zterms',        20),    # number of Zernike terms for decomposition
                                  ('ntracks',        6),    # number of linear tracks through phase or focal plane for things like OSD etc.
+                                 ('rm_glob_pist',True),    # remove global poston
                                  ('aosat_logfile',   'aosat.log'),  # log file
                                  ('aosat_loglevel',  'DEBUG'),      # log level
                                  ('aosat_fft_forcenumpy',  True),   # force usage of numpy FFTs

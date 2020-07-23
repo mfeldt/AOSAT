@@ -13,6 +13,10 @@ else:
     import numpy as np
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def powerSpectrum(ps,mask=None,radialIndex=None):
     nX             = ps.shape[0]
     nWaveNumber    = int(nX / 2)
@@ -42,7 +46,7 @@ class sps_analyzer(dmy_analyzer):
         self.pcf          = 1./frameserver.getUnitCnv(units.Unit('nm'),self.sd['cfg']['an_lambda'])   # phase conversion factor to nm
         xsize=self.sd['tel_mirror'].shape[0]
         self.pix_scale    = self.sd['ppm']                                         # spatial frequency
-        self.f_sampling   = 1./self.pix_scale                                      # frequency sampling
+        self.f_sampling   = self.sd['ppm']#1./self.pix_scale                                      # frequency sampling
         self.delta_f      = self.f_sampling/xsize                                  # e.g. 10/4096 is delta_f
         f_spatial         = np.arange(xsize/2) + 1.
         self.f_spatial    = f_spatial * self.delta_f                               # spatial frequency vector
@@ -52,7 +56,8 @@ class sps_analyzer(dmy_analyzer):
 
 
     def feed_frame(self,frame,nframes):
-        this_psd,ri   = powerSpectrum(frame*self.pcf,mask=self.mask,radialIndex=self.radial_index)
+        this_psd,ri      = powerSpectrum(frame*self.pcf,mask=self.mask,radialIndex=self.radial_index)
+        self.radialIndex = ri
         self.psd += this_psd/nframes
 
 
@@ -79,6 +84,7 @@ class sps_analyzer(dmy_analyzer):
         ol_psd = ol_psd /ol_psd[-1]*self.ps_psd[-1] # poor man's fit...
 
         if 'L0' in self.sd:
+            logger.debug("Plotting Karman spectrum!")
             vk_psd    = (self.f_spatial**2+(1/self.sd['L0'])**2)**(-11.0/6.0)
             vk_psd    = vk_psd /vk_psd[-1]*self.ps_psd[-1] # poor man's fit...
 

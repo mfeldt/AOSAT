@@ -167,6 +167,7 @@ def frameServer():
     ## division mask
     ##
     tel_mirror_divpm =  np.array(pyfits.getdata(os.path.join(aosat_cfg.CFG_SETTINGS['setup_path'],aosat_cfg.CFG_SETTINGS['pupilmask']))*1.0)
+    tel_mirror       = tel_mirror_divpm*1.0 # save copy
     tel_mirror_divpm[tel_mirror_divpm == 0.0] = 1.0
     if 'divide_phase_by_mask' in aosat_cfg.CFG_SETTINGS:
         if aosat_cfg.CFG_SETTINGS['divide_phase_by_mask'] == True:
@@ -175,6 +176,12 @@ def frameServer():
             tel_mirror_divpm = tel_mirror_divpm *0.+1.0
     else:
         tel_mirror_divpm = tel_mirror_divpm *0.+1.0
+
+    ##
+    ## indexes of pupil pixels
+    ##
+    wtm = np.where(tel_mirror != 0)
+
 
     frame_num = 0
     total_num = 0
@@ -242,6 +249,9 @@ def frameServer():
                     frame = data[this_index] * pcf / tel_mirror_divpm
                 else:
                     frame = data*pcf / tel_mirror_divpm
+                if aosat_cfg.CFG_SETTINGS['rm_glob_pist']:
+                    logger.debug("Removing global piston!")
+                    frame -= np.mean(frame[wtm])
                 if embd is not None:
                     logger.debug("Embedding frame in %s,%s array!"%embd)
                     frame = np.pad(frame,embd,'constant')
