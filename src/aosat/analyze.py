@@ -363,7 +363,7 @@ def tearsheet(config_file):
     ##
     ## add all available analyzers, then run
     ##
-    analyzers=[sps_analyzer(sd)]#psf_analyzer(sd), frg_analyzer(sd), zrn_analyzer(sd), zrn_analyzer(sd),phs_analyzer(sd),sps_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd,ctype='nocor')]
+    analyzers=[psf_analyzer(sd), frg_analyzer(sd), zrn_analyzer(sd), zrn_analyzer(sd),phs_analyzer(sd),sps_analyzer(sd),tvc_analyzer(sd,ctype='icor'), tvc_analyzer(sd,ctype='nocor')]
     run(analyzers)
     ##
     ## plot

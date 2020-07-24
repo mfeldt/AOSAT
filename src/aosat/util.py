@@ -30,15 +30,25 @@ def ensure_numpy(a):
 def printProgressBar (logger,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
     """
     Call in a loop to create terminal progress bar
-    @params:
-        logger      - Required  : logger instance to send output to
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
+
+    Parameters
+    ----------
+    logger : Required
+        logger instance to send output to
+    iteration : Required
+        current iteration (Int)
+    total : Required
+        total iterations (Int)
+    prefix : Optional
+        prefix string (Str)
+    suffix : Optional
+        suffix string (Str)
+    decimals : Optional
+        positive number of decimals in percent complete (Int)
+    length : Optional
+        character length of bar (Int)
+    fill : Optional
+        bar fill character (Str)
     """
 
     xxxdot = 3

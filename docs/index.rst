@@ -1,33 +1,42 @@
-=====
-aosat
-=====
-
-This is the documentation of **aosat**.
-
-.. note::
-
-    This is the main page of your project's `Sphinx`_ documentation.
-    It is formatted in `reStructuredText`_. Add additional pages
-    by creating rst-files in ``docs`` and adding them to the `toctree`_ below.
-    Use then `references`_ in order to link them from this page, e.g.
-    :ref:`authors` and :ref:`changes`.
-
-    It is also possible to refer to the documentation of other Python packages
-    with the `Python domain syntax`_. By default you can reference the
-    documentation of `Sphinx`_, `Python`_, `NumPy`_, `SciPy`_, `matplotlib`_,
-    `Pandas`_, `Scikit-Learn`_. You can add more by extending the
-    ``intersphinx_mapping`` in your Sphinx's ``conf.py``.
-
-    The pretty useful extension `autodoc`_ is activated by default and lets
-    you include documentation from docstrings. Docstrings can be written in
-    `Google style`_ (recommended!), `NumPy style`_ and `classical style`_.
 
 
-Contents
-========
+.. image:: aosat_logo.png
+  :width: 50%
+
+|
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Getting Started
+
+  Installation <getting_started/installation>
+  Running the Examples <getting_started/examples>
+  A Minimum Setup <getting_started/minimum>
+
+.. toctree::
+  :maxdepth: 2
+  :caption: General Concept
+
+  Setup Files <general_concept/setup>
+  Serving Frames <general_concept/frameserver>
+  Analyzers <general_concept/analyzers>
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Analyzing Phase screens
+
+  Point Spread Function <analyzers/psf_analyzer>
+  Pupil Fragmentation  <analyzers/frg_analyzer>
+  Zernike Expansion <analyzers/zrn_analyzer>
+  Residual Phase <analyzers/phs_analyzer>
+  Temporal Variance Contrast <analyzers/tvc_analyzer>
+  Spatial Power Spectrum <analyzers/sps_analyzer>
+
+
 
 .. toctree::
    :maxdepth: 2
+   :caption: Reference
 
    License <license>
    Authors <authors>
