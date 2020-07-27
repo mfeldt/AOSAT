@@ -7,3 +7,4 @@ startskip       = 0                      # frames to skip before evaluation star
 totalnumber     = 10                     # number of frames to analyze in total
 an_lambda       = 1.0                    # analysis wavelength in micrometres
 loopfreq        = 1000.0
+rm_glob_pist    = False
