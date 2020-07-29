@@ -20,6 +20,7 @@ from aosat import aosat_cfg
 from aosat import fftx
 from aosat import frameserver
 from aosat import util
+from aosat import analyze
 from scipy import ndimage
 from poppy import zernike
 from importlib import reload
@@ -164,9 +165,14 @@ class frg_analyzer():
             pistframe[self.wfrag[i]] = tphase[self.wfrag[i]]
         self.pistframe = pistframe
 
-    def make_plot(self,fig=None,index=211,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
+    def make_plot(self,fig=None,index=121,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
+
         if fig is None:
-            fig = plt.figure()
+            fig =plt.figure(figsize=(8.27,11.69/3.0))
+            no_fig=True
+        else:
+            no_fig=False
+
 
         pidx  = index - (index//10)*10
         nrows = index // 100
@@ -261,6 +267,10 @@ class frg_analyzer():
         tvec = util.ensure_numpy(np.arange(len(self.pistont[:,0])))/self.sd['loopfreq']*1000.0
         for i in range(len(self.pistont[0,:])):
             ax2.plot(self.pistont[:,i]/2/np.pi*self.sd['cfg']['an_lambda']*1e9)
+
+        if no_fig:
+            analyze.sizeTearsheetLabels(fig)
+            plt.tight_layout()
 
         return(fig)
 

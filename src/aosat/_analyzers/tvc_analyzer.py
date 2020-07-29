@@ -16,6 +16,7 @@ from aosat import aosat_cfg
 from aosat import fftx
 from aosat import frameserver
 from aosat import util
+from aosat import analyze
 from scipy import ndimage
 from poppy import zernike
 from importlib import reload
@@ -125,10 +126,13 @@ class tvc_analyzer():
 
 
 
-    def make_plot(self,fig=None,index=211,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
+    def make_plot(self,fig=None,index=121,plotkwargs={},subplotkwargs={},plotkwargsC={},subplotkwargsC={}):
 
         if fig is None:
-            fig = plt.figure()
+            fig =plt.figure(figsize=(8.27,11.69/3.0))
+            no_fig=True
+        else:
+            no_fig=False
 
         pidx  = index - (index//10)*10
         nrows = index // 100
@@ -218,8 +222,6 @@ class tvc_analyzer():
                 subplotkwargs['xlabel'] = r'$\delta$RA [mas]'
             if 'ylabel' not in subplotkwargsC:
                 subplotkwargs['ylabel'] = r'$\delta$DEC [mas]'
-            if 'title' not in subplotkwargsC:
-                subplotkwargs['title'] = 'PSF'
 
             # size of extraction area
             sdim = self.mean.shape[0]
@@ -250,6 +252,9 @@ class tvc_analyzer():
             t = [1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]
             cbar = plt.colorbar(im, cax=cax, ticks=t,label='Intensity')
 
+        if no_fig:
+            analyze.sizeTearsheetLabels(fig)
+            plt.tight_layout()
         return(fig)
 
     def make_report(self):
