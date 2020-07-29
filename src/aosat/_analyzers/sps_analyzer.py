@@ -12,6 +12,7 @@ if any(["cupy" in str(f) for f in get_installed_distributions()]):
 else:
     import numpy as np
 
+import matplotlib.pyplot as plt
 
 import logging
 logger = logging.getLogger(__name__)
@@ -67,6 +68,10 @@ class sps_analyzer(dmy_analyzer):
 
 
     def make_plot(self,fig=None,index=111,plotkwargs={},subplotkwargs={}):
+
+        if fig is None:
+            fig = plt.figure()
+
         #if 'ylim' not in subplotkwargs:
         #    subplotkwargs['ylim'] = (1e-8,1)
         #if 'xlim' not in subplotkwargs:
@@ -74,7 +79,7 @@ class sps_analyzer(dmy_analyzer):
         if 'xlabel' not in subplotkwargs:
             subplotkwargs['xlabel'] = 'Spatial frequency. [1/m]'
         if 'ylabel' not in subplotkwargs:
-            subplotkwargs['ylabel'] = r'Power Spectral Density [nm$^2$]'
+            subplotkwargs['ylabel'] = r'Power Spectral Density [nm$^2$/m$^{-1}$]'
         if 'title' not in subplotkwargs:
             subplotkwargs['title'] = r'Spatial PSD'
         if 'yscale' not in subplotkwargs:

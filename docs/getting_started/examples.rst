@@ -57,6 +57,7 @@ fragmentation. In this case, for the same example data set, you would do:
 
   >>> import aosat
   >>> from aosat.analyze import frg_analyzer, run, setup
+  >>> import os
   >>> example_path = os.path.join(os.path.split(aosat.__file__)[0],'examples')
   >>> example_file = os.path.join(example_path,'example_analyze_closed_loop.setup')
   >>> aosat_cfg.CFG_SETTINGS = aosat_cfg.configure(example_file)
