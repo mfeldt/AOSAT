@@ -19,7 +19,7 @@ in-depth analysis using specialized analyzers, or extend the package to tie it
 directly into your simulation code and perform exactly the type scrutiny you require.
 
 
-.. image:: _images/banner.png
+.. image:: banner.png
   :width: 100%
 
 |
