@@ -32,11 +32,28 @@ Finding fragments
 
 Analyzing pupil fragments is an integral part of AOSAT,  the fragments are thus identified during the setup of any analysis run, no matter which particular analyzer is used afterwards. Fragments are found by means of the `scipy.ndimage.label <https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.label.html>`_ function, and are contained in the setup dictionary's ``fragmask`` element.
 
+.. figure:: apertures.png
+  :width: 100%
+
+  Labeled apertures of some well-known telescopes / projects.
 
 Analyzing fragments
 -------------------
 
-In each time step, ``frg_analyzer`` determines the piston and tip-tilt terms of each individual fragment.  Piston is determined simply as the mean of the phase across the fragment.  Fragmental (i.e. global across the fragment) tip-tilt is determined by a least squares fit of a tilted but otherwise flat plane to the wavefront inside the fragment.  Piston, tip, and tilt of each fragment are stored for each time step.
+In each time step, ``frg_analyzer`` determines the piston and tip-tilt terms of each individual fragment.  Piston is determined simply as the mean of the phase across the fragment.  Fragmental (i.e. global across the fragment) tip-tilt is determined by a least squares fit of a tilted but otherwise flat plane to the wavefront inside the fragment.
+
+.. code-block:: python
+
+  for i in range(num_fragments):
+    ## tilt from WF
+    ## wfrag contains the valid indeces for each fragment
+    C,_,_,_ = np.linalg.lstsq(self.A[i], frame[self.wfrag[i]])
+    self.ttxt[self.ffed,i]    = C[0]
+    self.ttyt[self.ffed,i]    = C[1]
+    self.pistont[self.ffed,i] = C[2]
+
+
+Piston, tip, and tilt of each fragment are stored for each time step.
 
 Upon completion, i.e. when `finalize()` is called, the analyzer computes the mean, and the standard deviation on each of the stored time series.
 
@@ -73,16 +90,16 @@ Resulting properties
   :header-rows: 1
 
   Property, type, Explanation
-  piston, 1D array of length n_fragments, Average piston value for each fragment (in nm)
-  dpiston, 1D array of length n_fragments, Standard deviation of piston for each fragment
-  pistont, "2D array of dimension (n_frames, n_fragments)", Individual piston values across the Sequence
-  ttx, 1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
-  dttx, 1D array of length n_fragments, Standard deviation of tip for each fragment
-  ttxt, "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
-  tty,     1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
-  dtty,    1D array of length n_fragments, Standard deviation of tip for each fragment
-  ttyt,    "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
-  pistframe, 2D array of same shape as phase frames, frame containing residual phase tt+piston for each fragment
+  **piston** , 1D array of length n_fragments, Average piston value for each fragment (in nm)
+  **dpiston**, 1D array of length n_fragments, Standard deviation of piston for each fragment
+  **pistont**, "2D array of dimension (n_frames, n_fragments)", Individual piston values across the Sequence
+  **ttx**, 1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
+  **dttx**, 1D array of length n_fragments, Standard deviation of tip for each fragment
+  **ttxt**, "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
+  **tty**,     1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
+  **dtty**,    1D array of length n_fragments, Standard deviation of tip for each fragment
+  **ttyt**,    "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
+  **pistframe**, 2D array of same shape as phase frames, frame containing residual phase tt+piston for each fragment
 
 
 
