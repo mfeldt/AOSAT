@@ -155,7 +155,7 @@ Resulting properties
 ====================
 
 
-``tvc_analyzer`` exposes the following properties after ``psf_analyzer.finalize()`` has been called:
+``tvc_analyzer`` exposes the following properties after ``tvc_analyzer.finalize()`` has been called:
 
 .. csv-table:: tvc_analyzer porperties
   :widths: 1, 3, 5
