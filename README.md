@@ -111,29 +111,6 @@ So whenever you change something, make sure you don't break the tests! If you ha
 think thrice and talk to someone about it!
 
 
-For the adventurous:
-====================
-
-You can try to install a working openCL or CUDA environment on your machine, accompanied
-by either pyopencl (with pybin11) or pycuda, plus reikna.
-
-Then you can create a configuration file with the following contents
-```
-aosat_fft_forcenumpy = False
-```
-and read it with 
-```
-aosat.aosat_cfg.configure('/path/to/myfile')
-```
-If you're lucky, you will  then see some interesting log messages about some GPU features
-being selected for doing ffts. Try
-```
-aosat.fftx.fftSpeedTest()
-```
-to see if you actually gain.
-If yes, maybe enjoy another tearsheet?
-
-
 Note
 ====
 
