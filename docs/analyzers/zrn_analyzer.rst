@@ -66,7 +66,7 @@ Resulting Properties
   :header-rows: 1
   :delim: ;
 
-  Property, type, Explanation
+  Property; type; Explanation
   :attr:`~aosat.analyzers_.zrn_analyzer.zrn_analyzer.modes`; 1D float NDarray of length zterms; Time averaged mean amplitude of each mode
   :attr:`~aosat.analyzers_.zrn_analyzer.zrn_analyzer.dmodes`; 1D float NDarray of length zterms; Standard deviation of each mode amplitude
   :attr:`~aosat.analyzers_.zrn_analyzer.zrn_analyzer.modest`; 2D float NDarray of shape (zterms, nframes);         Individual modal expansion for each frame

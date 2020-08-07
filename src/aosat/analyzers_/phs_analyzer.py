@@ -56,6 +56,8 @@ class phs_analyzer():
     Available after calling finalize()!
     rms : float
         mean RMS of all wavefronts in nm.
+    rmst : 1D NDarray of length n_frames
+        individual rms af all residual phase frames in nm
     lastphase : 2D array
         Last residual phasescreen (in nm)
 
