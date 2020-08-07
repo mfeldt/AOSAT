@@ -45,13 +45,13 @@ logger = logging.getLogger(__name__)
 ##
 ##
 
-from aosat._analyzers.frg_analyzer import frg_analyzer
-from aosat._analyzers.zrn_analyzer import zrn_analyzer
-from aosat._analyzers.dmy_analyzer import dmy_analyzer
-from aosat._analyzers.phs_analyzer import phs_analyzer
-from aosat._analyzers.tvc_analyzer import tvc_analyzer
-from aosat._analyzers.psf_analyzer import psf_analyzer
-from aosat._analyzers.sps_analyzer import sps_analyzer
+from aosat.analyzers_.frg_analyzer import frg_analyzer
+from aosat.analyzers_.zrn_analyzer import zrn_analyzer
+from aosat.analyzers_.dmy_analyzer import dmy_analyzer
+from aosat.analyzers_.phs_analyzer import phs_analyzer
+from aosat.analyzers_.tvc_analyzer import tvc_analyzer
+from aosat.analyzers_.psf_analyzer import psf_analyzer
+from aosat.analyzers_.sps_analyzer import sps_analyzer
 
 def getFontProperties():
     """Helper function.

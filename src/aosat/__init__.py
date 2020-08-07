@@ -10,7 +10,7 @@ except DistributionNotFound:
 finally:
     del get_distribution, DistributionNotFound
 
-__all__ = ["aosat_cfg","fftx","frameserver","analyze","_analyzers"]
+__all__ = ["aosat_cfg","fftx","frameserver","analyze","analyzers_"]
 
 #import aosat_cfg
 

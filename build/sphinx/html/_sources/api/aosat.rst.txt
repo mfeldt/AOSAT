@@ -1,6 +1,14 @@
 aosat package
 =============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   aosat.analyzers_
+
 Submodules
 ----------
 

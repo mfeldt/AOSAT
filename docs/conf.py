@@ -21,6 +21,7 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, '../src'))
+#sys.path.insert(0, os.path.join(__location__, '../src/aosat/_analyzers'))
 
 # -- Run sphinx-apidoc ------------------------------------------------------
 # This hack is necessary since RTD does not issue `sphinx-apidoc` before running
@@ -37,6 +38,8 @@ except ImportError:
 
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/aosat")
+exclude_pattern = os.path.join(__location__, "../src/aosat/examples")
+
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -46,8 +49,8 @@ try:
     import sphinx
     from pkg_resources import parse_version
 
-    cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
-    cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
+    cmd_line_template = "sphinx-apidoc -f --implicit-namespaces -o {outputdir} {moduledir} {exclude_pattern}"
+    cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir, exclude_pattern=exclude_pattern)
 
     args = cmd_line.split(" ")
     if parse_version(sphinx.__version__) >= parse_version('1.7'):
