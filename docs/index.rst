@@ -1,5 +1,10 @@
 
 
+.. image:: https://readthedocs.org/projects/aosat/badge/?version=latest
+  :target: https://aosat.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+  :align: right
+
 .. image:: aosat_logo.png
   :width: 50%
 
