@@ -5,6 +5,11 @@
   :alt: Documentation Status
   :align: right
 
+.. image:: https://travis-ci.org/mfeldt/AOSAT.svg?branch=master
+  :target: https://travis-ci.org/mfeldt/AOSAT
+  :alt: Test Status
+  :align: right
+
 .. image:: aosat_logo.png
   :width: 50%
 
