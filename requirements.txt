@@ -15,5 +15,10 @@
 numpy>=1.16.1
 scipy>=1.2.1
 astropy>=3.1.2
-pyfft
 poppy
+matplotlib
+pandas
+packaging
+statsmodels
+scikit-image
+statsmodels
