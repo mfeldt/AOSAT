@@ -63,25 +63,31 @@ class frg_analyzer():
 
     ffed : int
         Number of frames fed into analyzer.
-    piston : numpy array (float)
+    piston : 1D ndarray (float) of length n_fragments
         Array holding the mean piston value for each pupil
         fragment (in nm).
-    dpiston : numpy array (float)
+    dpiston : 1D ndarray (float) of length n_fragments
         Array holding the standard deviation of the piston
         value for each pupil fragment (in nm).
-    ttx : numpy array (float)
+    pistont : 2D ndarray (float) of shape (n_frames, n_fragments).
+        Array holding individual piston values for each frame in the sequence.
+    ttx : 1D ndarray (float) of length n_fragments
         Array holding mean tip deviation for each fragment
         (in mas)
-    dttx : numpy array (float)
+    dttx : 1D ndarray (float) of length n_fragments
         Array holding the standard deviation of tip
         deviation for each pupil fragment (in mas)
-    tty : numpy array (float)
+    tty : 1D ndarray (float) of length n_fragments
         Array holding mean tilt deviation for each fragment
         (in mas)
-    dtty : numpy array (float)
+    dtty : 1D ndarray (float) of length n_fragments
         Array holding the standard deviation of tilt
         deviation for each pupil fragment (in mas)
-    pistframe : numpy array
+    ttxt : 2D ndarray (float) of shape (n_frames, n_fragments)
+        Array holding individual tip values for each frame in the sequence.
+    ttyt : 2D ndarray (float) of shape (n_frames, n_fragments)
+        Array holding individual tilt values for each frame in the sequence.    
+    pistframe : 2D ndarray (float)
         Frame holding the worst piston pattern across the
         top (1-tile) (see below) part of the simulated
         sequence
@@ -100,9 +106,9 @@ class frg_analyzer():
         self.pistont = None
         self.ttx     = np.zeros(num_fragments)
         self.dttx    = np.zeros(num_fragments)
-        self.ttxt    = None
         self.tty     = np.zeros(num_fragments)
         self.dtty    = np.zeros(num_fragments)
+        self.ttxt    = None
         self.ttyt    = None
         self.wfrag   = []
         self.x       = None

@@ -44,14 +44,6 @@ aosat.frameserver module
    :undoc-members:
    :show-inheritance:
 
-aosat.skeleton module
----------------------
-
-.. automodule:: aosat.skeleton
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 aosat.util module
 -----------------
 

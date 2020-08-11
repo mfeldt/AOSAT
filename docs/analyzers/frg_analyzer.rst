@@ -83,24 +83,25 @@ It is planned to provide the temporal power spectrum of piston terms as an inset
 Resulting properties
 ====================
 
-``frg_analyzer`` exposes the following properties after ``frg_analyzer.finalize()`` has been called:
+`frg_analyzer` exposes the following properties after :meth:`frg_analyzer.finalize()` has been called:
 
 .. csv-table:: frg_analyzer porperties
   :widths: 1, 3, 5
   :header-rows: 1
+  :delim: ;
 
-  Property, type, Explanation
-  **piston** , 1D array of length n_fragments, Average piston value for each fragment (in nm)
-  **dpiston**, 1D array of length n_fragments, Standard deviation of piston for each fragment
-  **pistont**, "2D array of dimension (n_frames, n_fragments)", Individual piston values across the Sequence
-  **ttx**, 1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
-  **dttx**, 1D array of length n_fragments, Standard deviation of tip for each fragment
-  **ttxt**, "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
-  **tty**,     1D array of length n_fragments, Average tip value for each fragment (in milli arcsec)
-  **dtty**,    1D array of length n_fragments, Standard deviation of tip for each fragment
-  **ttyt**,    "2D array of dimension (n_frames, n_fragments)", Individual tip values across the sequence
-  **pistframe**, 2D array of same shape as phase frames, frame containing residual phase tt+piston for each fragment
-
+  Property; type; Explanation
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.piston`; 1D ndarray (float) of length n_fragments ; Array holding the mean piston value for each pupil fragment (in nm).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.dpiston`; 1D ndarray (float) of length n_fragments ; Array holding the standard deviation of the piston value for each pupil fragment (in nm).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.pistont`; 2D ndarray (float) of shape (n_frames, n_fragments).;   Array holding individual piston values for each frame in the sequence.
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.ttx`; 1D ndarray (float) of length n_fragments ; Array holding mean tip deviation for each fragment (in mas).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.dttx`; 1D ndarray (float) of length n_fragments ; Array holding the standard deviation of tip deviation for each pupil fragment (in mas).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.ttxt`; 2D ndarray (float) of shape (n_frames, n_fragments); Array holding individual tip values for each frame in the sequence.
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.tty`; 1D ndarray (float) of length n_fragments ; Array holding mean tilt deviation for each fragment (in mas).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.dtty`; 1D ndarray (float) of length n_fragments ; Array holding the standard deviation of tilt deviation for each pupil fragment (in mas).
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.ttyt`; 2D ndarray (float) of shape (n_frames, n_fragments); Array holding individual tilt values for each frame in the sequence.
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.pistframe`; 2D ndarray (float);  Frame holding the worst piston pattern across the top (1-attr:`tile`) (see below) part of the simulated sequence.
+  :attr:`~aosat.analyzers_.frg_analyzer.frg_analyzer.tile`; float; Fractional tile above which the analyzer looks for the worst piston frame in the sequence.
 
 
 Note that currently 2D array can be either numpy or a cupy NDarray, depending on whether CUDA support is used or not. When feeding those to other libraries, such as matplotlib, you are advised to use `aosat.util.ensure_numpy(array)`.
