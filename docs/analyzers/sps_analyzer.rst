@@ -46,7 +46,7 @@ Plot captions
 
 
 
-When called on its own mode, or on a figure with sufficient available subplot space, ``sps_anaylzer.makeplot()`` will produce a figure like so:
+When called on its own mode, or on a figure with sufficient available subplot space, :meth:`~aosat.analyzers_.sps_analyzer.sps_analyzer.make_plot()` will produce a figure like so:
 
 .. image:: sps.png
   :width: 66%
@@ -62,17 +62,17 @@ Resulting properties
 ====================
 
 
-``sps_analyzer`` exposes the following properties after ``sps_analyzer.finalize()`` has been called:
+`sps_analyzer` exposes the following properties after :meth:`~aosat.analyzers_.sps_analyzer.sps_analyzer.finalize()` has been called:
 
-.. csv-table:: sps_analyzer porperties
+.. csv-table:: sps_analyzer properties
   :widths: 1, 3, 5
   :header-rows: 1
+  :delim: ;
 
-  Property, type, Explanation
-  **mask**, 2D float NDarray, apodized pupil mask
-  **f_spatial** 1D float NDarray, spatial frequency vector [1/m]
-  **ps_psd**, 1D float NDarray, Power spectral density at **f_spatial** [nm^2/m^-1]
-
+  Property; type; Explanation
+  :attr:`~aosat.analyzers_.sps_analyzer.sps_analyzer.mask`;2D ndarray (float);Apodization mask generated from puppil
+  :attr:`~aosat.analyzers_.sps_analyzer.sps_analyzer.f_spatial`;1D ndarray (float);Spatial frequency vector [1/m]
+  :attr:`~aosat.analyzers_.sps_analyzer.sps_analyzer.ps_psd`;1D ndarray (float);Power spectral density at f_spatial [nm^2/m^-1]
 
 
 Note that currently 2D array can be either numpy or a cupy NDarray, depending on whether CUDA support is used or not. When feeding those to other libraries, such as matplotlib, you are advised to use `aosat.util.ensure_numpy(array)`.
