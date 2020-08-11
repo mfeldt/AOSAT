@@ -36,20 +36,21 @@ The caption for the figure could be:
 Resulting properties
 ====================
 
-``psf_analyzer`` exposes the following properties after ``psf_analyzer.finalize()`` has been called:
+`psf_analyzer` exposes the following properties after :meth:`psf_analyzer.finalize()` has been called:
 
-.. csv-table:: psf_analyzer porperties
+.. csv-table:: psf_analyzer properties
   :widths: 1, 3, 5
   :header-rows: 1
+  :delim: ;
 
-  Property, type, Explanation
-  **psf**, 2D float array, image of the last psf analyzed
-  **psf_mean**, 2D float array, image of time-averaged PSF
-  **sr_wf**, float, Strehl ratio determined from individual wavefronts
-  **ttx**, 1D float array of length n_frames, vector of individual tip excursions from PSF (in milli arcsec)
-  **tty**, 1D float array of length n_frames, vector of individual tilt excursions from PSF (in milli arcsec)
-  **ttilt**, 1D float array of length n_frames, vector of individual total excursions from WF (in milli arcsec)
-  **ttjit**, float, standard deviation of **ttilt**
-  **ttq90**, float, 90% quantile of **ttilt**
-  **ttjit_psf**, float, standard deviation of sqrt(**ttx**\*\*2 + **tty**\*\*2)
-  **ttq90_psf**, float, 90% quantile of sqrt(**ttx**\*\*2 + **tty**\*\*2)
+  Property; type; Explanation
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.psf` ;2D ndarray (float);Time-averaged PSF.
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.strehl`;float;Strehl ratio of PSF derived from peak intensity.
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.sr_wf`;float;Strehl ratio of PSF derived from residual wave fronts.
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttx`;1D ndarray (float) of length n_frames;Global tip for each frame from Gauss-fitted PSF location (mas).
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.tty`;1D ndarray (float) of length n_frames;Global tilt for each frame from Gauss-fitted PSF location (mas).
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttilt`;1D ndarray (float) of length n_frames;Global excursion from centre, determined from wavefront (mas)
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttjit`;float;rms of `ttilt`
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttq90`;float;90% quantile of `ttilt`
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttjit_psf`;float;rms of sqrt(`ttx`**2+`tty`**2)
+  :attr:`~aosat.analyzers_.psf_analyzer.psf_analyzer.ttq90_psf`;float;90% quantile of sqrt(`ttx`**2+`tty`**2)
