@@ -36,7 +36,7 @@ The caption for the figure could be:
 Resulting properties
 ====================
 
-`psf_analyzer` exposes the following properties after :meth:`psf_analyzer.finalize()` has been called:
+`psf_analyzer` exposes the following properties after :meth:`psf_analyzer.finalize` has been called:
 
 .. csv-table:: psf_analyzer properties
   :widths: 1, 3, 5

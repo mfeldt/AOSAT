@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; aosat 0.0.post0.dev92+gdb12dd9.dirty documentation</title>
+  <title>Index &mdash; aosat 0.0.post0.dev93+gab5f6a6.dirty documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.post0.dev92+gdb12dd9.dirty
+                0.0.post0.dev93+gab5f6a6.dirty
               </div>
             
           
@@ -339,6 +339,8 @@
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.contrast">contrast (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
 </li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.corrlen">corrlen (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.ctype">ctype (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
@@ -507,8 +509,12 @@
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.sps_analyzer.sps_analyzer.mask">mask (aosat.analyzers_.sps_analyzer.sps_analyzer attribute)</a>
 </li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.max_no_cor">max_no_cor (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.mean">mean (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.zrn_analyzer.zrn_analyzer.modes">modes (aosat.analyzers_.zrn_analyzer.zrn_analyzer attribute)</a>
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.zrn_analyzer.zrn_analyzer.modest">modest (aosat.analyzers_.zrn_analyzer.zrn_analyzer attribute)</a>
@@ -582,19 +588,27 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.html#aosat.util.rad_order">rad_order() (in module aosat.util)</a>
 </li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.rcontrast">rcontrast (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
       <li><a href="api/aosat.html#aosat.aosat_cfg.repString">repString() (in module aosat.aosat_cfg)</a>
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.phs_analyzer.phs_analyzer.rms">rms (aosat.analyzers_.phs_analyzer.phs_analyzer attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.phs_analyzer.phs_analyzer.rmst">rmst (aosat.analyzers_.phs_analyzer.phs_analyzer attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.html#aosat.util.rolling_variance">rolling_variance() (in module aosat.util)</a>
 </li>
       <li><a href="api/aosat.html#aosat.analyze.run">run() (in module aosat.analyze)</a>
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvec">rvec (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmax">rvecmax (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmean">rvecmean (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+</li>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmin">rvecmin (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -605,17 +619,15 @@
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.dmy_analyzer.dmy_analyzer.sd">sd (aosat.analyzers_.dmy_analyzer.dmy_analyzer attribute)</a>
 
       <ul>
-        <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.sd">(aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
-</li>
         <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.zrn_analyzer.zrn_analyzer.sd">(aosat.analyzers_.zrn_analyzer.zrn_analyzer attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/aosat.html#aosat.analyze.setup">setup() (in module aosat.analyze)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.html#aosat.analyze.sizeTearsheetLabels">sizeTearsheetLabels() (in module aosat.analyze)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/aosat.html#aosat.frameserver.sortFiles">sortFiles() (in module aosat.frameserver)</a>
 </li>
       <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.sps_analyzer.sps_analyzer">sps_analyzer (class in aosat.analyzers_.sps_analyzer)</a>
@@ -670,7 +682,7 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.variance">variance (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
+      <li><a href="api/aosat.analyzers_.html#aosat.analyzers_.tvc_analyzer.tvc_analyzer.variance2">variance2 (aosat.analyzers_.tvc_analyzer.tvc_analyzer attribute)</a>
 </li>
   </ul></td>
 </tr></table>

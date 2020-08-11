@@ -135,7 +135,7 @@ In addition, ``tvc_analyzer`` produces an additional plot by default when instan
 Plot captions
 =============
 
-When called on its own in coronagraphic mode, or on a figure with sufficient available subplot space, ``frg_anaylzer.makeplot()`` will produce two figures like so:
+When called on its own in coronagraphic mode, or on a figure with sufficient available subplot space, :meth:`tvc_anaylzer.makeplot` will produce two figures like so:
 
 .. image:: tvc.png
   :width: 100%
@@ -155,27 +155,28 @@ Resulting properties
 ====================
 
 
-``tvc_analyzer`` exposes the following properties after ``tvc_analyzer.finalize()`` has been called:
+`tvc_analyzer` exposes the following properties after :meth:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.finalize` has been called:
 
-.. csv-table:: tvc_analyzer porperties
+.. csv-table:: tvc_analyzer properties
   :widths: 1, 3, 5
   :header-rows: 1
+  :delim: ;
 
-  Property, type, Explanation
-  **ctype**, string, type of coronagraph ("icor" or "nocor")
-  **variance2[1]** , 2D float NDarray, time-averaged non-coronagraphic PSF (icor only)
-  **contrast**, 1D NDarray, TVC contrast values
-  **rcontrast**, 1D NDarray, Raw contrast values (i.e. PSF intensity)
-  **mean**  , 2D float NDarray, time-averaged PSF
-  **rvec**, 1D float NDarray, radial distances from center for **contrast** and **rcontrast**
-  **cvecmean**, 1D float NDarray, Mean TVC contrast averaged over 50 points in **contrast**
-  **cvecmin**, 1D float NDarray, Minimum TVC contrast measured over 50 points in **contrast**
-  **cvecmax**, 1D float NDarray, Maximum TVC contrast measured over 50 points in **contrast**
-  **rvecmean**, 1D float NDarray, Mean raw contrast averaged over 50 points in **rcontrast**
-  **rvecmin**, 1D float NDarray, Minimum raw contrast measured over 50 points in **rcontrast**
-  **rvecmax**, 1D float NDarray, Maximum raw contrast measured over 50 points in **rcontrast**
-  **corrlen**, float, measured correlation length [#frames]
-  **max_no_cor**, float, peak intensity of non-coronagraphic PSF
+  Property; type; Explanation
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.ctype`;str;type of coronagraph ("icor" or "nocor")
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.mean`;2D ndarray;time-averaged PSF.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.variance2: 2D ndarray`;;variance2[1] contains the non-coronagraphic time-averaged PSF (`icor` only)
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.contrast`;2D ndarray;5 sigma contrast of the PSF
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.rcontrast`;2D ndarray;raw contrast, i.e. the normalized PSF.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvec`;2D ndarray (float);Image where each pixel contains distance to centre (mas)
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.cvecmean`;2D ndarray (float);Mean TVC contrast at locatstepoions in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.cvecmin`;2D ndarray (float);Minimum TVC contrast at locations in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.cvecmax`;2D ndarray (float);Maximum TVC contrast at locations in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmean`;2D ndarray (float);Mean raw contrast at locatstepoions in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmin`;2D ndarray (float);Minimum raw contrast at locations in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.rvecmax`;2D ndarray (float);Maximum raw contrast at locations in rvec.
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.corrlen`;float;Measured correlation length [#frames]
+  :attr:`~aosat.analyzers_.tvc_analyzer.tvc_analyzer.max_no_cor`;float;Peak intensity of non-coronagraphic PSF
 
 
 
