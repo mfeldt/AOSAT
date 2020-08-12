@@ -74,7 +74,7 @@ configuration decisions on the final performance of down-stream instrumentation.
 
 `AOSAT` has been conceived in the course of the development of the SCAO system of *METIS* [@metis]
 where it is now the standard tool to evaluate SCAO simulations.  Originally a simple script,
-it was decided to switch to a modular design and become independent of the *METIS* and *ELT* [@elt]
+it was decided to switch to a modular design and become independent of the *METIS* and *ELT*
 environments.  `AOSAT` accepts the required inputs of residual wavefront frames and
 optical aperture masks in a variety of forms (though all must be stored in FITS files [@fits]) and units,
 the actual setup described in a dedicated input file.
