@@ -31,7 +31,7 @@ atmosphere in real time is becoming ever more common in astronomy.  Increasingly
 standard facility that supports any type of standard instrumentation, so-called single-conjugate
 AO (SCAO) is part of a large number of projects currently in one of their pre-commissioning phases
 (@metis; @micado; @harmoni; @nfiraos; @gmt; for an overview see @hippler:2019).  In these phases, the
-design of SCAO systems relies heavily on simulations, the typical (SC)AO simulation package [@fidgit; @compass; @oomao; @caos]
+design of SCAO systems relies heavily on simulations, the typical (SC)AO simulation package [@yao; @compass; @oomao; @caos]
 provides a few numbers that characterize the system's performance during the simulation,
 plus the residual wavefronts at each time step.  The numbers provided are typically the "Strehl
 ratio", a single measure for the quality of an optical image, plus it's variation across wavelengths,
