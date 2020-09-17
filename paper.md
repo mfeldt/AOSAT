@@ -50,8 +50,8 @@ that it can easily be extended with additional "analyzers" focusing on new aspec
 in the astronomical community these days, and `AOSAT` may be used stand-alone, integrated into
 a simulation environment, or can easily be extended according to a user's needs.  Standalone
 operation requires the user to provide the residual wavefront frames provided by the SCAO
-simulation package, the aperture mask (pupil) used for the simulation, and a custom setup file
-describing the simulation/analysis configuration.  In it's standard form, `AOSAT`'s "tearsheet"
+simulation package used, the aperture mask (pupil) used for the simulation, and a custom setup file
+describing the simulation/analysis configuration.  In its standard form, `AOSAT`'s "tearsheet"
 functionality will then run all standard analyzers, providing an informative plot collection on
 properties such as the point-spread function (PSF) and its quality, residual tip-tilt, the impact
 of pupil fragmentation, residual optical aberration modes both static and dynamic, the expected
@@ -59,7 +59,7 @@ high-contrast performance of suitable instrumentation with and without coronagra
 spectral density of residual wavefront errors. An example output is given in \autoref{fig:tearsheet}.
  To perform such analyses often requires a higher amount of FFT executions than the actual simulation
  package is performing.  To enhance execution speed, `AOSAT`'s analyzers can make use of the `cupy`
- library. If installed, `AOSAT` will perform most array operations on the GPU, which generally leads
+ library [@cupy]. If installed, `AOSAT` will perform most array operations on the GPU, which generally leads
  to a speed increase by a factor of 3 to 5.
 
  ![Page 1 of an example tearsheet made from one of the provided examples.\label{fig:tearsheet}](tearsheet.png)
@@ -72,7 +72,7 @@ configuration decisions on the final performance of down-stream instrumentation.
 
 # History and Evolution
 
-`AOSAT` has been conceived in the course of the development of the SCAO system of *METIS* [@metis]
+`AOSAT` has been conceived in the course of the development of the SCAO system of *METIS* [@metis; @hippler:2019b]
 where it is now the standard tool to evaluate SCAO simulations.  Originally a simple script,
 it was decided to switch to a modular design and become independent of the *METIS* and *ELT*
 environments.  `AOSAT` accepts the required inputs of residual wavefront frames and
