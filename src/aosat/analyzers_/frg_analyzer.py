@@ -86,7 +86,7 @@ class frg_analyzer():
     ttxt : 2D ndarray (float) of shape (n_frames, n_fragments)
         Array holding individual tip values for each frame in the sequence.
     ttyt : 2D ndarray (float) of shape (n_frames, n_fragments)
-        Array holding individual tilt values for each frame in the sequence.    
+        Array holding individual tilt values for each frame in the sequence.
     pistframe : 2D ndarray (float)
         Frame holding the worst piston pattern across the
         top (1-tile) (see below) part of the simulated
@@ -272,7 +272,7 @@ class frg_analyzer():
         ax2 = fig.add_subplot(nindex,**subplotkwargsC,label=str(index*2))#
         tvec = util.ensure_numpy(np.arange(len(self.pistont[:,0])))/self.sd['loopfreq']*1000.0
         for i in range(len(self.pistont[0,:])):
-            ax2.plot(self.pistont[:,i]/2/np.pi*self.sd['cfg']['an_lambda']*1e9)
+            ax2.plot(util.ensure_numpy(self.pistont[:,i])/2/np.pi*self.sd['cfg']['an_lambda']*1e9)
 
         if no_fig:
             analyze.sizeTearsheetLabels(fig)
