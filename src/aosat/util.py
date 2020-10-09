@@ -9,7 +9,7 @@ from poppy import zernike
 from skimage import morphology
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aosat_logger')
 
 from astropy.io import fits as pyfits
 import os

@@ -24,39 +24,77 @@ fpars = collections.OrderedDict([('an_lambda',     1e-6),  # analysis wavelength
         ])
 
 
+# LOG_SETTINGS = {
+#     'version': 1,
+#     'root': {
+#         'level': 'NOTSET',
+#         'handlers': ['console', 'file'],
+#     },
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'detailed',
+#             'stream': 'ext://sys.stderr',
+#         },
+#         'file': {
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'formatter': 'detailed',
+#             'filename': 'logs/MyProject.log',
+#             'mode': 'a',
+#             'maxBytes': 10485760,
+#             'backupCount': 5,
+#         },
+#     },
+#     'formatters': {
+#         'detailed': {
+#             'format': '%(asctime)s %(name)s %(module)-17s %(funcName)s line:%(lineno)-4d ' \
+#             '%(levelname)-8s %(message)s',
+#         },
+#         'normal': {
+#             'format': '%(asctime)s %(name)s ' \
+#             '%(levelname)-8s %(message)s',
+#         },
+#     },
+#     'disable_existing_loggers':False,
+#     'propagate':False
+# }
+
+
 LOG_SETTINGS = {
-    'version': 1,
-    'root': {
-        'level': 'NOTSET',
-        'handlers': ['console', 'file'],
-    },
+    'version':1,
+    'disable_existing_loggers':False,
+    'propagate':False,
     'handlers': {
-        'console': {
+        'aosat_console': {
             'class': 'logging.StreamHandler',
             'formatter': 'detailed',
             'stream': 'ext://sys.stderr',
-        },
-        'file': {
+            },
+        'aosat_file': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'detailed',
             'filename': 'logs/MyProject.log',
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,
+            },
         },
-    },
     'formatters': {
         'detailed': {
             'format': '%(asctime)s %(name)s %(module)-17s %(funcName)s line:%(lineno)-4d ' \
             '%(levelname)-8s %(message)s',
-        },
+            },
         'normal': {
             'format': '%(asctime)s %(name)s ' \
             '%(levelname)-8s %(message)s',
+            },
         },
-    },
-    'disable_existing_loggers':False,
-    'propagate':False
+    'loggers':{
+        'aosat_logger':{
+            'level':'NOTSET',
+            'handlers':['aosat_console','aosat_file'],
+        }
+    }
 }
 
 
@@ -205,24 +243,24 @@ def configureLogging(repdict):
 
     """
 
-    if 'file' in LOG_SETTINGS['handlers']:
-        LOG_SETTINGS['handlers'].pop('file',None)
-    if 'file' in LOG_SETTINGS['root']['handlers']:
-        LOG_SETTINGS['root']['handlers'].remove('file')
+    if 'aosat_file' in LOG_SETTINGS['handlers']:
+        LOG_SETTINGS['handlers'].pop('aosat_file',None)
+    if 'aosat_file' in LOG_SETTINGS['loggers']['aosat_logger']['handlers']:
+        LOG_SETTINGS['loggers']['aosat_logger']['handlers'].remove('aosat_file')
     if repdict['aosat_logfile'] is not None:
-        LOG_SETTINGS['handlers']['file'] = {
+        LOG_SETTINGS['handlers']['aosat_file'] = {
             'class': 'logging.handlers.RotatingFileHandler',
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,
         }
-        LOG_SETTINGS['handlers']['file']['filename'] = repdict['aosat_logfile']
-        LOG_SETTINGS['root']['handlers'].append('file')
+        LOG_SETTINGS['handlers']['aosat_file']['filename'] = repdict['aosat_logfile']
+        LOG_SETTINGS['loggers']['aosat_logger']['handlers'].append('aosat_file')
         if repdict['aosat_loglevel'] == 'DEBUG':
-            LOG_SETTINGS['handlers']['file']['formatter']='detailed'
+            LOG_SETTINGS['handlers']['aosat_file']['formatter']='detailed'
         else:
-            LOG_SETTINGS['handlers']['file']['formatter']='normal'
-    LOG_SETTINGS['root']['level']=repdict['aosat_loglevel']
+            LOG_SETTINGS['handlers']['aosat_file']['formatter']='normal'
+    LOG_SETTINGS['loggers']['aosat_logger']['level']=repdict['aosat_loglevel']
     logging.config.dictConfig(LOG_SETTINGS)
 
 

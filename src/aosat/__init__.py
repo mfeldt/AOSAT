@@ -23,7 +23,7 @@ from . import aosat_cfg
 
 repdict = aosat_cfg.configure(None)
 aosat_cfg.configureLogging(repdict)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aosat_logger')
 logger.debug('Completed configuring logger()!')
 
 from . import fftx

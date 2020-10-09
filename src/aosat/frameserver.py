@@ -15,7 +15,7 @@ from astropy.io import fits as pyfits
 from aosat import aosat_cfg
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aosat_logger')
 
 
 def argsort(seq):

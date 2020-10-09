@@ -8,7 +8,7 @@ to numpy FFTs if neither is available.
 
 import logging
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('aosat_logger')
 log.addHandler(logging.NullHandler())
 
 ##

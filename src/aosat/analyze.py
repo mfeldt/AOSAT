@@ -36,7 +36,7 @@ import matplotlib.image as mpimg
 from astropy.modeling import models, fitting
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aosat_logger')
 
 
 ##
