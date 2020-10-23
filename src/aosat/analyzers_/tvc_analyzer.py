@@ -214,8 +214,8 @@ class tvc_analyzer():
         #     plotkwargsP['color'] = 'green'
         #     ax.plot(util.ensure_numpy(self.rvec),util.ensure_numpy(self.rcvecmean)/(num_frames_per_hour**0.5),**plotkwargsP)
         ax.text(0.5,0.8,'Raw (PSF profile)',transform=ax.transAxes,size=6,ha='left',color=plotkwargs2['color'])
-        # if self.corrlen>0:
-        ax.text(0.5,0.75,'Estd. best 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargsP['color'])
+        if self.corrlen>0:
+            ax.text(0.5,0.75,'Estd. best 1hr ADI contrast',transform=ax.transAxes,size=6,ha='left',color=plotkwargsP['color'])
         #ax.set_aspect(subplotkwargs['aspect'],'box')
 
         if self.ctype=='icor':
@@ -323,7 +323,7 @@ class tvc_analyzer():
         self.rcvecmin  = r.rolling(window=50).min()
         self.rcvecmax  = r.rolling(window=50).max()
 
-        max_corr_len=0.0
+        max_corr_len=np.float64(0.0)
         for i in range(self.ntracks):
             acff,conf    = acf(util.ensure_numpy(self.ptrak[:,i]),fft=True,alpha=0.05,nlags=min([500,len(self.ptrak[:,i])-1]))
             where_uncorr = np.where(np.array(acff) < (np.array(conf[:,1]) - np.array(acff)))[0]
