@@ -5,7 +5,7 @@ Community Guidelines
 Getting Help
 ============
 
-If you do not understand how something is supposed to work, how to set up a particular analysis, or how a particular result comes about, please try to find guidance first in the relevant sections of this documentation. If all else fails, contact the authors by email. (see https://github.com/mfeldt/AOSAT/authors.rst)
+If you do not understand how something is supposed to work, how to set up a particular analysis, or how a particular result comes about, please try to find guidance first in the relevant sections of this documentation. If all else fails, contact the authors by email. (see https://github.com/mfeldt/AOSAT/blob/master/AUTHORS.rst)
 
 
 Issues
