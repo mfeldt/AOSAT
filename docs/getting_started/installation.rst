@@ -8,7 +8,7 @@ Installing while still in development
 
 1. Make a new empty directory, e.g. like this:
 
-.. code-block::
+.. code::
 
   $ mkdir AOSAT
   $ cd AOSAT
@@ -16,7 +16,7 @@ Installing while still in development
 
 2. Clone the repository
 
-.. code-block::
+.. code::
 
   $ git clone https://github.com/mfeldt/AOSAT.git
 
@@ -25,7 +25,7 @@ Installing while still in development
 
 3. Create and activate a virtual environment (if you don't know/have virtualenv, use pip to install it)
 
-.. code-block::
+.. code::
 
   $ virtualenv -p python3.6 venv
   $ source venv/bin/activate
