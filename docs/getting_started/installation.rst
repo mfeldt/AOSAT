@@ -2,6 +2,11 @@
 Installation
 ============
 
+Installing via PyPI
+===================
+
+This in preparation. For now, you have to:
+
 
 Installing while still in development
 =====================================
