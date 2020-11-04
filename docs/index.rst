@@ -49,7 +49,7 @@ directly into your simulation code and perform exactly the type scrutiny you req
   Setup Files <general_concept/setup>
   Serving Frames <general_concept/frameserver>
   Analyzers <general_concept/analyzers>
-
+  Help, Issues, and Contributing <general_concept/community_guide>
 .. toctree::
   :maxdepth: 2
   :caption: Analyzing Phase screens
