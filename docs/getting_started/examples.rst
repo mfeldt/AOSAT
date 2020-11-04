@@ -14,7 +14,7 @@ destination directory.
 To find the examples, you can do the following in python (running of course, in
 your activated AOSAT environment):
 
-.. code-block::
+.. code::
 
   >>> import os
   >>> os.path.join(os.path.split(aosat.__file__)[0],'examples')
@@ -28,7 +28,7 @@ summarizing the most interesting properties of a given AO simulation.
 
 This can be achieved easily for the provided close-loop example like so:
 
-.. code-block::
+.. code::
 
   >>> import aosat
   >>> example_path = os.path.join(os.path.split(aosat.__file__)[0],'examples')
@@ -37,7 +37,7 @@ This can be achieved easily for the provided close-loop example like so:
 
 This will produce two files in the current working directory:
 
-.. code-block::
+.. code::
 
   ts_test.txt
   ts_test.pdf
