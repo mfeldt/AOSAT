@@ -43,7 +43,7 @@ used to derive the ``loopfreq`` key.
 
 The internal frameserver is directed essentially by two keys in the setup file
 
-.. code-block::
+.. code::
 
   screen_dir
   screen_fpattern
@@ -65,7 +65,7 @@ Matching files should contain one or more frames
 
 In summary, the following sequence would be a good match for ``screen_fpattern = '*rwf*.fits'``:
 
-.. code-block::
+.. code::
 
   mytool_rwf_1.fits
   mytool_rwf_2.fits
@@ -148,7 +148,7 @@ Then, in your simulation main loop could look something like:
 
 
     ##
-    ## after the loop finsihed, evaluate the analyzers
+    ## after the loop finished, evaluate the analyzers
     ##
     figurelist = []
     reportlist = []

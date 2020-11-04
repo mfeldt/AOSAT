@@ -19,7 +19,7 @@ Let's assume this is named :command:`telescope_pupil.fits` and resides in your c
 
 Then, the first lines of your setup files are already defined:
 
-.. code-block::
+.. code::
 
   pupilmask     = 'telescope_pupil.fits'
   screen_dir    = 'residual_phasescreens'
@@ -29,7 +29,7 @@ The setup file is read line by line and turned into a dictionary, it's not execu
 In order to read the phase screens, AOSAT needs to know the filename pattern to
 look for:
 
-.. code-block::
+.. code::
 
   screen_fpattern  = '*residual_phase*.fits'
 

@@ -5,14 +5,14 @@ Setup Files
 Setup files are the key element to steer AOSAT analyses.  The setup file
 contains key value pairs of the format
 
-.. code-block::
+.. code::
 
   key = value
 
 One per line.  The content of th efile is turned into an actual configuration plus
 an analysis setup like so:
 
-.. code-block::
+.. code::
 
   >>> aosat.aosat_cfg.CFG_SETTINGS = aosat_cfg.configure('my_file.setup')
   >>> sd = aosat.analyze.setup()

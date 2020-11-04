@@ -44,7 +44,7 @@ directly into your simulation code and perform exactly the type scrutiny you req
 
 .. toctree::
   :maxdepth: 2
-  :caption: General Concept
+  :caption: General Concept and Extending
 
   Setup Files <general_concept/setup>
   Serving Frames <general_concept/frameserver>
