@@ -34,7 +34,7 @@ Installing while still in development
 
 4. Change to the repository and install:
 
-.. code-block::
+.. code::
 
  $ cd AOSAT
  $ python setup.py install
@@ -49,14 +49,14 @@ While still verifying that the installation is fine, you can do the following:
 
 1. run the test suite
 
-.. code-block::
+.. code::
 
   $ python setup.py test
 
 
 2. Try the individual files
 
-.. code-block::
+.. code::
 
   $ cd src/aosat
   $ python fftx.py
@@ -93,7 +93,7 @@ With the first three, you're on your own, the last one should be done by
 entering a command prompt in the active :ref:`virtualenv created in step 3<virtualenv>` of the
 original installation and issue
 
-.. code-block::
+.. code::
 
   $ pip install cupy-cuda92
 

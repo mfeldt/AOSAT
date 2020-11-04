@@ -53,7 +53,7 @@ thingy, and may just want to perform a particular analysis.  Let's say you only
 want to know about how your simulation behaved with respect to pupil
 fragmentation. In this case, for the same example data set, you would do:
 
-.. code-block::
+.. code-block:: python
 
   >>> import aosat
   >>> from aosat.analyze import frg_analyzer, run, setup
@@ -68,14 +68,14 @@ fragmentation. In this case, for the same example data set, you would do:
 This will run only the fragmentation analyzer on th example set.
 To plot the result, you could do
 
-.. code-block::
+.. code-block:: python
 
   >>> fig = analyzers[0].make_plot()
   >>> fig.savefig('fragmentation.pdf')
 
 Or, you could look at individual results by e.g doing
 
-.. code-block::
+.. code-block:: python
 
   >>> import matplotlib.pyplot as plt
   >>> plt.plot(analyzers[0].pistont[:,0])

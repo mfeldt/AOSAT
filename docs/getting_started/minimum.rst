@@ -45,7 +45,7 @@ and can also be intermixed with flat files.
 In addition, AOSAT needs to know about key properties, such as the pixel scale, and the
 simulation frequency:
 
-.. code-block::
+.. code::
 
   ppm      = 10.0 # pixels pr metre
   loopfreq = 1000.0 # Hz - actually it's the frequency of phase screens on disk
@@ -54,14 +54,14 @@ The last two mandatory parameters are the wavelength at which the analysis is de
 and the unit the residual phases are given in. these can be any unit understood by
 astropy.units.
 
-.. code-block::
+.. code::
 
   phaseunit       = "micron"               # unit of phase screens
   an_lambda       = 3.0e-6                 # analysis wavelength in metres
 
 The full minimum setup file looks like this then:
 
-.. code-block::
+.. code::
 
   pupilmask        = 'telescope_pupil.fits'
   screen_dir       = 'residual_phasescreens'
@@ -75,7 +75,7 @@ create this file in your favourite editor, save it in the appropriate location
 (remember, :command:`screen_dir` and :command:`pupilmask` are defined relative to the file's location!),
 and use it to do the setup for your simulation:
 
-.. code-block::
+.. code::
 
   >>> import aosat
   >>> aosat.aosat_cfg.CFG_SETTINGS = aosat_cfg.configure('my_file.setup')
