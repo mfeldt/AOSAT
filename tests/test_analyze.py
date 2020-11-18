@@ -187,7 +187,7 @@ def test_frg_worst():
     for i in range(9):
         an.feed_frame(p1,100)
 
-    ev = (2-2/6.0)/2/np.pi*1e-6*1e9 # piston of 2 rad at 1mum in nm
+    ev = 2.0/2/np.pi*1e-6*1e9 # piston of 2 rad at 1mum in nm
     ##
     ## finalize and check
     ##
@@ -212,7 +212,7 @@ def test_frg_tilt():
     an = analyze.frg_analyzer(sd)
 
 
-    ##
+    ##cd test_psf_analyze_strehl
     ## make frames
     ##
     sdim=tm.shape[0]
@@ -239,6 +239,53 @@ def test_frg_tilt():
     from numpy import repeat,abs
     assert abs(util.ensure_numpy(an.ttx) - repeat(1.0,6)).sum().item() < 5e-3
     assert abs(util.ensure_numpy(an.tty) - repeat(0.0,6)).sum().item() < 5e-3
+
+
+def test_frg_all():
+    bdir = os.path.join(os.path.dirname(os.path.abspath(aosat.__file__)),'examples')
+
+    tm = pyfits.getdata(os.path.join(bdir,'frag_pupil.fits'))
+    fr = np.array(ndimage.label(tm>1e-6)[0])
+
+
+    ##
+    ## make analyzer
+    ##
+    aosat.aosat_cfg.CFG_SETTINGS['setup_path'] = bdir
+    aosat.aosat_cfg.CFG_SETTINGS['pupilmask'] = 'frag_pupil.fits'
+    sd = analyze.setup()
+    an = analyze.frg_analyzer(sd)
+
+
+    ##cd test_psf_analyze_strehl
+    ## make frames
+    ##
+    sdim=tm.shape[0]
+    x,y = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]/sd['ppm']
+
+    p1 = x/3600.0/180.0*np.pi/1000.0 # tilted by 1mas in x
+    p1 *= 1e6*2*np.pi         # to micron to rad
+
+
+    p2=x*0.0
+    p2[np.where(sd['fragmask'] == 1)] = 1.0
+    p2[np.where(sd['fragmask'] == 2)] = 2.0
+    p2[np.where(sd['fragmask'] == 3)] = 3.0
+    p2[np.where(sd['fragmask'] == 4)] = 1.0 + p1[np.where(sd['fragmask'] == 4)]
+    p2[np.where(sd['fragmask'] == 5)] = 2.0 +2*p1[np.where(sd['fragmask'] == 5)]
+
+    for i in range(10):
+        an.feed_frame(p2,10)
+    an.finalize()
+
+    mean_pist = np.zeros(6)
+    for i in range(1,7,1):
+        mean_pist[i-1] = p2[np.where(sd['fragmask']==i)].mean()
+        assert np.abs(an.pistont[0,i-1]-mean_pist[i-1])<1e-5
+
+    assert np.all(an.pistframe-p2/2/np.pi*an.sd['cfg']['an_lambda']*1e9) < 1e-3
+
+
 
 def test_phs():
 

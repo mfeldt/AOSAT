@@ -126,16 +126,17 @@ class frg_analyzer():
         num_fragments = np.max(self.sd['fragmask']).item()
 
         if self.ffed == 0:
-            logger.debug("Initializing variables...")
             sdim = frame.shape[0]
             self.pistont = np.zeros((nframes,num_fragments))
             self.ttxt = np.zeros((nframes,num_fragments))
             self.ttyt = np.zeros((nframes,num_fragments))
             self.x, self.y = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]/self.sd['ppm']
             for i in range(num_fragments):
-                self.A.append(np.c_[self.x[self.wfrag[i]], self.y[self.wfrag[i]], self.x[self.wfrag[i]]*0.0+1.0])
+                xc = np.mean(self.x[self.wfrag[i]])
+                yc = np.mean(self.y[self.wfrag[i]])
+                self.A.append(np.c_[self.x[self.wfrag[i]]-xc, self.y[self.wfrag[i]]-yc, self.x[self.wfrag[i]]*0.0+1.0])
 
-            logger.debug("Done!")
+
 
         for i in range(num_fragments):
             ## tilt from WF
@@ -143,7 +144,7 @@ class frg_analyzer():
             self.ttxt[self.ffed,i]    = C[0]
             self.ttyt[self.ffed,i]    = C[1]
             self.pistont[self.ffed,i] = C[2]
-        self.pistont[self.ffed,:] -= self.pistont[self.ffed,:].mean()
+        #self.pistont[self.ffed,:] -= self.pistont[self.ffed,:].mean()
         self.ffed+=1
 
     def finalize(self,tile=0.8):
@@ -165,9 +166,9 @@ class frg_analyzer():
 
         pistframe=self.sd['tel_mirror']*0
         for i in range(np.max(self.sd['fragmask']).item()):
-            xc = np.mean(self.x[np.where(self.sd['fragmask']==i)])
-            yc = np.mean(self.y[np.where(self.sd['fragmask']==i)])
-            tphase = (self.ttxt[-lpa:,i][wmaxpist]*(self.x-xc) + self.ttyt[-lpa:,i][wmaxpist]*(self.y-yc) + self.pistont[-lpa:,i][wmaxpist])/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # frame in nm
+            xc = np.mean(self.x[self.wfrag[i]])
+            yc = np.mean(self.y[self.wfrag[i]])
+            tphase = (self.ttxt[-lpa:,i][wmaxpist]*(self.x-xc) + self.ttyt[-lpa:,i][wmaxpist]*(self.y-yc)+ self.pistont[-lpa:,i][wmaxpist])/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # frame in nm
             pistframe[self.wfrag[i]] = tphase[self.wfrag[i]]
         self.pistframe = pistframe
 
