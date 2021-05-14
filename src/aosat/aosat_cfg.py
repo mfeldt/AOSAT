@@ -6,6 +6,7 @@ These are a number of default parameters to be used of nothing can be found else
 import collections
 import os
 import logging
+import configparser
 
 fpars = collections.OrderedDict([('an_lambda',     1e-6),  # analysis wavelength in metres
                                  ('ppm',           10.0),  # pixel per metre in pupil plane
@@ -175,13 +176,15 @@ def configure(setupfile):
     if setupfile is not None:
         path_to_setup = os.path.dirname(os.path.abspath(setupfile))
         repdict['setup_path'] = path_to_setup
-        lines = open(setupfile,'r').readlines()
-        for line in lines:
-            newline=line.split('#')[0]
-            if len(newline)>0:
-                if (not 'zeros' in newline) and ('=' in newline):
-                    newline = "repdict['"+newline.split('=')[0].replace(" ","")+"']="+"=".join(newline.split('=')[1:])#
-                    exec(newline)
+        config = configparser.ConfigParser(inline_comment_prefixes="#")
+        config.optionxform = str
+        with open(setupfile,'r') as file:
+            for line in file:
+                newline=line.split('#')[0]
+                if len(newline)>0:
+                    if (not 'zeros' in newline) and ('=' in newline):
+                        newline = "repdict['"+newline.split('=')[0].strip()+"']="+"=".join(newline.split('=')[1:])#
+                        exec(newline)
     return(repdict)
 
 
