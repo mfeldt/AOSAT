@@ -99,21 +99,27 @@ class frg_analyzer():
     """
     def __init__(self,sd):
         num_fragments = np.max(sd['fragmask']).item()
-        self.sd      = sd
-        self.ffed    = 0
-        self.piston  = np.zeros(num_fragments)
-        self.dpiston = np.zeros(num_fragments)
-        self.pistont = None
-        self.ttx     = np.zeros(num_fragments)
-        self.dttx    = np.zeros(num_fragments)
-        self.tty     = np.zeros(num_fragments)
-        self.dtty    = np.zeros(num_fragments)
-        self.ttxt    = None
-        self.ttyt    = None
-        self.wfrag   = []
-        self.x       = None
-        self.y       = None
-        self.A       = []
+        self.sd       = sd
+        self.ffed     = 0
+        self.piston   = np.zeros(num_fragments)
+        self.dpiston  = np.zeros(num_fragments)
+        self.pistonR  = np.zeros(num_fragments)
+        self.dpistonR = np.zeros(num_fragments)
+        self.pistont  = None
+        self.pistontR = None
+        self.ttx      = np.zeros(num_fragments)
+        self.dttx     = np.zeros(num_fragments)
+        self.tty      = np.zeros(num_fragments)
+        self.dtty     = np.zeros(num_fragments)
+        self.ttxt     = None
+        self.ttyt     = None
+        self.ttxtR    = None
+        self.ttytR    = None
+        self.wfrag    = []
+        self.x        = None
+        self.y        = None
+        self.A        = []
+        self.BigA     = None
         self.pistframe = None
         self.tile      = 0.8
         self.worstid   = 0
@@ -121,40 +127,60 @@ class frg_analyzer():
         for i in range(num_fragments):
             self.wfrag.append(np.where(sd['fragmask'] == (i+1)))
 
+    def remove_tt(self,frame,wtm):
+        C,_,_,_ = np.linalg.lstsq(self.BigA, frame[wtm])
+        d_frame = (C[2]+C[0]*self.x+C[1]*self.y)*self.sd['tel_mirror']
+        #import pdb; pdb.set_trace()
+        return((frame-d_frame))
 
     def feed_frame(self,frame,nframes):
         num_fragments = np.max(self.sd['fragmask']).item()
+        wtm = np.where(self.sd['tel_mirror'] != 0)
 
         if self.ffed == 0:
             sdim = frame.shape[0]
             self.pistont = np.zeros((nframes,num_fragments))
             self.ttxt = np.zeros((nframes,num_fragments))
             self.ttyt = np.zeros((nframes,num_fragments))
+            self.pistontR = np.zeros((nframes,num_fragments))
+            self.ttxtR = np.zeros((nframes,num_fragments))
+            self.ttytR = np.zeros((nframes,num_fragments))
             self.x, self.y = np.mgrid[-sdim/2:sdim/2,-sdim/2:sdim/2]/self.sd['ppm']
             for i in range(num_fragments):
                 xc = np.mean(self.x[self.wfrag[i]])
                 yc = np.mean(self.y[self.wfrag[i]])
                 self.A.append(np.c_[self.x[self.wfrag[i]]-xc, self.y[self.wfrag[i]]-yc, self.x[self.wfrag[i]]*0.0+1.0])
+            xc = np.mean(self.x[wtm])
+            yc = np.mean(self.y[wtm])
+            self.BigA = np.c_[self.x[wtm]-xc, self.y[wtm]-yc, self.x[wtm]*0.0+1.0]
 
 
-
+        frameR = self.remove_tt(frame,wtm)
         for i in range(num_fragments):
             ## tilt from WF
             C,_,_,_ = np.linalg.lstsq(self.A[i], frame[self.wfrag[i]])
             self.ttxt[self.ffed,i]    = C[0]
             self.ttyt[self.ffed,i]    = C[1]
             self.pistont[self.ffed,i] = C[2]
-        #self.pistont[self.ffed,:] -= self.pistont[self.ffed,:].mean()
+
+            ## same for tilt-removed frame
+            C,_,_,_ = np.linalg.lstsq(self.A[i], frameR[self.wfrag[i]])
+            self.ttxtR[self.ffed,i]    = C[0]
+            self.ttytR[self.ffed,i]    = C[1]
+            self.pistontR[self.ffed,i] = C[2]
+            #self.pistont[self.ffed,:] -= self.pistont[self.ffed,:].mean()
         self.ffed+=1
 
     def finalize(self,tile=0.8):
         for i in range(np.max(self.sd['fragmask']).item()):
             self.piston[i]  = self.pistont[:,i].mean()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
             self.dpiston[i] = self.pistont[:,i].std()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
-            self.ttx[i]     = self.ttxt[i].mean()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
-            self.dttx[i]    = self.ttxt[i].std()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
-            self.tty[i]     = self.ttyt[i].mean()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
-            self.dtty[i]    = self.ttyt[i].std()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
+            self.pistonR[i] = self.pistontR[:,i].mean()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
+            self.dpistonR[i] = self.pistontR[:,i].std()/2/np.pi*self.sd['cfg']['an_lambda']*1e9 # nano metres
+            self.ttx[i]      = self.ttxt[i].mean()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
+            self.dttx[i]     = self.ttxt[i].std()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
+            self.tty[i]      = self.ttyt[i].mean()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
+            self.dtty[i]     = self.ttyt[i].std()/2/np.pi*self.sd['cfg']['an_lambda']/np.pi*180*3600*1000 # milli arc sec
 
         self.tile = tile
         npist = len(self.pistont[:,0])
@@ -238,6 +264,7 @@ class frg_analyzer():
             xc = np.mean(x[self.wfrag[i]])
             yc = np.mean(y[self.wfrag[i]])
             ax.text(yc,xc,'%.2f' % self.dpiston[i],color='white',transform=ax.transAxes,size=5,ha='center')
+            ax.text(yc,xc-0.02,'(%.2f)' % self.dpistonR[i],color='white',transform=ax.transAxes,size=5,ha='center')
 
         ax.text(0.5,0.5,r'$\sigma_{segpist}$[nm]' '\n' '(full seq.)',color='white',transform=ax.transAxes,size=5,ha='center',va='center')
         ax.text(0.5,1.05,r'(in last %d percent of sequence)' % int((1-self.tile)*100),color='black',transform=ax.transAxes,size=9,ha='center',va='center')
