@@ -1,11 +1,21 @@
 
 
 import os
-from pip._internal.utils.misc import get_installed_distributions
-if any(["cupy" in str(f) for f in get_installed_distributions()]):
+
+import sys
+
+if sys.version_info >= (3, 8):
+    from importlib.metadata import distributions as get_installed_distributions
+else:
+    import importlib_metadata.distributions as get_installed_distributions
+
+if any(["cupy" in f.metadata["Name"] for f in get_installed_distributions()]):
     import cupy as np
 else:
     import numpy as np
+
+
+
 import scipy
 from astropy import units
 from astropy.io import fits as pyfits
