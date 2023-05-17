@@ -16,7 +16,7 @@ log.addHandler(logging.NullHandler())
 ## Check for GPU support and select FFT function
 ##
 ##
-
+import sys
 if sys.version_info >= (3, 8):
     from importlib.metadata import distributions as get_installed_distributions
 else:
