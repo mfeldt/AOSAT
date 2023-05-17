@@ -19,8 +19,10 @@ log.addHandler(logging.NullHandler())
 import sys
 if sys.version_info >= (3, 8):
     from importlib.metadata import distributions as get_installed_distributions
+    avl_pkgs = [f.metadata['name'] for f in get_installed_distributions()]
 else:
     import importlib_metadata.distributions as get_installed_distributions
+    avl_pkgs = [f.project_name for f in get_installed_distributions()]
 
 if any(["cupy" in f.metadata["Name"] for f in get_installed_distributions()]):
     import cupy as np
@@ -32,7 +34,6 @@ from packaging import version
 
 from aosat import aosat_cfg
 
-avl_pkgs = [f.project_name for f  in get_installed_distributions()]
 avl_vrss = [f.version for f  in get_installed_distributions()]
 
 cuda_vrs = avl_vrss[avl_pkgs.index('pycuda')] if 'pycuda' in avl_pkgs else "0.0"
