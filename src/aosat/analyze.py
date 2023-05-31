@@ -163,7 +163,8 @@ def setup():
     return(setup_dict)
 
 def sizeTearsheetLabels(f):
-    axes_list=[ff for ff in f.get_children() if isinstance(ff,mp.axes._subplots.SubplotBase)]
+    #axes_list=[ff for ff in f.get_children() if isinstance(ff,mp.axes._subplots.SubplotBase)]
+    axes_list=[ff for ff in f.get_children() if isinstance(ff,mp.axes._axes.Axes)]
     for ca in axes_list:
     #ca = f.gca()
         ca.tick_params(axis='both', which='major', labelsize=6)
@@ -233,7 +234,7 @@ def makeTearsheetFigure(analyzers):
             f = analyzers[plots_done-1].make_plot(fig=f,index=index,subplotkwargs=skwa)
 
             plots_done +=1
-            pidx = len([ff for ff in f.get_children() if isinstance(ff,mp.axes._subplots.SubplotBase)])
+            pidx = len([ff for ff in f.get_children() if isinstance(ff,mp.axes._axes.Axes)])
         sizeTearsheetLabels(f)
         f.suptitle(r'AOSAT Simulation Tear Sheet - %s @ %s$\mu$m' % (aosat_cfg.CFG_SETTINGS['ts_title'],aosat_cfg.CFG_SETTINGS['an_lambda']*1e6),y=1.0)
         plt.tight_layout()
