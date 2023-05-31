@@ -3,7 +3,7 @@ import aosat
 from aosat import util
 from aosat import analyze
 from aosat import aosat_cfg
-import os
+import os, sys
 
 
 if sys.version_info >= (3, 8):
